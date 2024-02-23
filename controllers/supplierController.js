@@ -202,12 +202,12 @@ export const updateProductSupplier = async (req, res) => {
 
   try {
     const supplierProductId = await SupplierProduct.findOne({productId: productId, supplierId: supplierId});
-    const updatedSupplierProduct = await SupplierProduct.findByIdAndUpdate(
-        supplierProductId._id,
-        productData,
-        { new: true }
-    );
-    if (updatedSupplierProduct) {
+    if (supplierProductId) {
+      const updatedSupplierProduct = await SupplierProduct.findByIdAndUpdate(
+          supplierProductId._id,
+          productData,
+          { new: true }
+      );
       res.status(200).json({
         status: "success",
         data: await transformationSupplierProduct(updatedSupplierProduct),
