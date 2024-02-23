@@ -1,6 +1,9 @@
 import mongoose from "mongoose";
 import Supplier from "./../models/supplierSchema.js";
 import Order from "./../models/orderSchema.js";
+import Product from "../models/productSchema.js";
+import SupplierProduct from "../models/supplierProductSchema.js";
+import {transformationProduct, transformationSupplierProduct} from "../format/transformationObject.js";
 
 export const getAllSupplier = async (req, res) => {
   try {
@@ -144,25 +147,45 @@ export const updateSupplier = async (req, res) => {
 };
 export const addProductToSupplierList = async (req, res) => {
   const supplierId = req.params.id;
-  const productId = req.body.products;
+  const productId = req.body.productId;
+  const productData = req.body;
   try {
-    if (!productId) {
-      throw new Error("Product not found");
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(207).json({
+        status: "fail",
+        message: "Product not found",
+      });
     }
     const supplier = await Supplier.findById(supplierId);
     if (!supplier) {
-      throw new Error("Supplier not found");
+      return res.status(207).json({
+        status: "fail",
+        message: "Supplier not found",
+      });
     }
-    for (const product of productId) {
-      if (supplier.products.includes(product)) {
-        throw new Error("Product already exists in supplier list");
-      }
+
+    const oldSupplierProduct= await SupplierProduct.findOne({productId: productId, supplierId: supplierId});
+    if (oldSupplierProduct) {
+      return res.status(207).json({
+        status: "fail",
+        message: "Product already exists in supplier list",
+      });
     }
-    supplier.products.push(...productId);
-    await supplier.save();
+    const newSupplierProduct = await SupplierProduct.create({
+      supplierId: supplierId,
+      productId: productId,
+      price: productData.price,
+      stock: productData.stock,
+      afterSale: productData.afterSale ?? null,
+      maxLimit: productData.maxLimit,
+      unit: productData.unit ?? null,
+      numberOfSubUnit: productData.numberOfSubUnit ?? null
+    })
+    await newSupplierProduct.save();
     res.status(200).json({
       status: "success",
-      data: supplier,
+      data: await transformationSupplierProduct(newSupplierProduct),
     });
   } catch (error) {
     res.status(500).json({

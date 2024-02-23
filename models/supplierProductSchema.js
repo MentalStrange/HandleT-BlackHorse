@@ -20,6 +20,21 @@ const supplierProductSchema = mongoose.Schema({
         required:[true, 'Product should have a stock'],
         default:1
     },
+    afterSale:{
+      type:Number,
+      // required:[true, 'Product should have a afterSale'],
+    },
+    maxLimit:{
+      type:Number,
+      required:[true, 'Product should have a maxLimit'],
+    },
+    unit:{
+      type:mongoose.Schema.Types.ObjectId,
+      ref:"Unit",
+    },
+    numberOfSubUnit:{
+      type:Number,
+    },
 })
 
 const SupplierProduct = mongoose.model('SupplierProduct', supplierProductSchema);

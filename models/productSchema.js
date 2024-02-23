@@ -21,7 +21,7 @@ const productSchema = mongoose.Schema({
   },
   images:[{
     type:String,
-    required:[true, 'Product should have images']
+    // required:[true, 'Product should have images']
   }],
   category:{
     type:mongoose.Schema.Types.ObjectId,

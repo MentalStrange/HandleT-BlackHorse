@@ -1,4 +1,7 @@
 import product from "../routes/product.js";
+import Product from "../models/productSchema.js";
+import SupplierProduct from "../models/supplierProductSchema.js";
+import Supplier from "../models/supplierSchema.js";
 
 export const transformationCustomer = (customer) => {
     return {
@@ -21,7 +24,32 @@ export const transformationProduct = (product) => {
         _id: product._id,
         title: product.title,
         desc: product.desc,
+        weight: product.weight,
+        subUnit: product.subUnit,
+        category: product.category,
+        images: product.images ?? []
+    }
+}
 
+export const transformationSupplierProduct = async (supplierProduct) => {
+    const product = await Product.findById(supplierProduct.productId);
+    const supplier = await Supplier.findById(supplierProduct.supplierId);
+    return {
+        _id: product._id,
+        title: product.title,
+        price: supplierProduct.price,
+        afterSale: supplierProduct.afterSale ?? null,
+        weight: product.weight,
+        images: product.images ?? [],
+        maxLimit: supplierProduct.maxLimit,
+        supplierId: supplier._id,
+        desc: product.desc,
+        unit: supplierProduct.unit ?? null,
+        subUnit: product.subUnit,
+        numberOfSubUnit: supplierProduct.numberOfSubUnit ?? null,
+        category: product.category,
+        supplierType: supplier.type,
+        stock: supplierProduct.stock
     }
 }
 export const transformationRating = (rating) => {

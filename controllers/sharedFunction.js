@@ -3,7 +3,7 @@ import mongoose, {connect} from "mongoose";
 import Customer from "../models/customerSchema.js";
 import Rating from "../models/ratingSchema.js";
 import Supplier from "../models/supplierSchema.js";
-import {transformationCustomer} from "../format/transformationObject.js";
+import {transformationCustomer, transformationProduct} from "../format/transformationObject.js";
 import jwt from "jsonwebtoken";
 
 export const createProduct = async (req, res) => {
