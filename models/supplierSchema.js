@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import Product from "./productSchema.js";
+import SupplierProduct from "./supplierProductSchema.js";
 
 const supplierSchema = mongoose.Schema({
   name: {
@@ -108,7 +109,7 @@ const supplierSchema = mongoose.Schema({
 });
 supplierSchema.pre("remove", async function (next) {
   try {
-    await Product.deleteMany({ supplierId: this._id });
+    await SupplierProduct.deleteMany({ supplierId: this._id });
     next();
   } catch (error) {
     next(error);

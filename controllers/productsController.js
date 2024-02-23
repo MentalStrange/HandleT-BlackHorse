@@ -103,10 +103,6 @@ export const getAllProductAssignedToSupplier = async (req, res) => {
 
   try {
     let baseQuery = SupplierProduct.find()
-      // .populate({
-      //   path: 'productId',
-      //   populate: { path: 'category' } // Populate product's category
-      // })
       .skip((page - 1) * pageSize)
       .limit(pageSize);
     if (search) {
@@ -194,33 +190,27 @@ export const getAllProduct = async (req, res) => {
 export const getProductsByOfferId = async (req, res) => {
   const offerId = req.params.id;
   try {
-    const offers = await Offer.findById(offerId);
-    if (!offers) {
-      throw new Error("Offer not found");
+    const offer = await Offer.findById(offerId);
+    if (!offer) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Offer not found",
+      })
     }
     const products = await Promise.all(
-      offers.productId.map(async (product) => {
-        const productData = await Product.findById(product);
-        if (!productData) {
-          return null; // If product not found, return null
+      offer.productId.map(async (productId) => {
+        const supplierProduct = await SupplierProduct.findById(productId);
+        if (!supplierProduct) {
+          return null; // If supplierProduct not found, return null
         }
-        // Fetch supplier for the product
-        const supplier = await Supplier.findOne(
-          { products: product._id },
-          "_id"
-        );
-        const category = await Category.findById(productData.category);
-        return {
-          ...productData.toObject(),
-          supplier: supplier ? supplier._id : null,
-          category: category.name,
-        };
+        const transformedProduct = await transformationSupplierProduct(supplierProduct);
+        return transformedProduct;
       })
     );
-
+    const validProducts = products.filter((product) => product !== null);
     res.status(200).json({
       status: "success",
-      data: products.filter((product) => product !== null), // Remove null entries
+      data: validProducts,
     });
   } catch (error) {
     res.status(500).json({
@@ -229,6 +219,7 @@ export const getProductsByOfferId = async (req, res) => {
     });
   }
 };
+
 export const getProductByOrderId = async (req, res) => {
   const orderId = req.params.id;
   const page = parseInt(req.query.page) || 1; // Get the page number from the query parameters

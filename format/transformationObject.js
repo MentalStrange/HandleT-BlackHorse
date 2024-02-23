@@ -1,4 +1,5 @@
 import Product from "../models/productSchema.js";
+import SupplierProduct from "../models/supplierProductSchema.js";
 import Supplier from "../models/supplierSchema.js";
 
 export const transformationCustomer = (customer) => {
@@ -57,4 +58,26 @@ export const transformationRating = (rating) => {
         supplierId: rating.supplierId,
         rate: rating.rate
     }
+}
+
+export const transformationOffer = async (offer) => {
+    const transformedProducts = await Promise.all(offer.productId.map(async (productId) => {
+        const supplierProduct = await SupplierProduct.findOne({productId});
+        if (!supplierProduct) return null;
+        return transformationSupplierProduct(supplierProduct);
+    }));
+    return {
+        _id: offer._id,
+        supplierId: offer.supplierId,
+        title: offer.title,
+        image: offer.image,
+        price: offer.price,
+        quantity: offer.quantity,
+        afterSale: offer.afterSale,
+        maxLimit: offer.maxLimit,
+        weight: offer.weight,
+        unit: offer.unit,
+        stock: offer.stock,
+        products: transformedProducts.filter(product => product !== null)
+    };
 }

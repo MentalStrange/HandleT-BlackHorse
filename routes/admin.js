@@ -17,6 +17,7 @@ import { getAllOrder, mostFrequentDistricts, updateOrder } from '../controllers/
 import { createHomeSlideShow, deleteHomeSlideShow, getAllHomeSlideShow } from '../controllers/homeSlideShowController.js';
 import { authenticate } from '../middlewares/authorizationMiddleware.js';
 import { getAllProduct } from '../controllers/productsController.js';
+import { restrict } from '../middlewares/restrictionMiddleware.js';
 // import { authenticate } from '../middlewares/authorizationMiddleware.js';
 
 const Router = express.Router();
@@ -30,7 +31,7 @@ Router.patch('/supplier/:id',  updateSupplier)
 
 Router.get('/customer',createCustomer);
 // Router.delete('/customer/:id',deleteCustomer);
-Router.get('/product',getAllProduct)
+Router.get('/product',authenticate,restrict(["blackHorse","company"]),getAllProduct)
 Router.post('/product',  createProduct);
 Router.patch('/product/:id',  updateProduct);
 Router.delete('/product/:id',  deleteProduct);

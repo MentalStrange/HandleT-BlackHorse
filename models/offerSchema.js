@@ -1,4 +1,3 @@
-// models/offerSchema.js
 import mongoose from 'mongoose';
 
 
@@ -10,7 +9,7 @@ const offerSchema = new mongoose.Schema({
   productId: [
     {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Product',
+      ref: 'SupplierProduct',
     },
   ],
   title: {

@@ -158,6 +158,12 @@ export const addProductToSupplierList = async (req, res) => {
       });
     }
     const supplier = await Supplier.findById(supplierId);
+    if(supplier.status === "inactive"){
+      return res.status(401).json({
+        status: "fail",
+        message: "Supplier is inactive",
+      });
+    }
     if (!supplier) {
       return res.status(207).json({
         status: "fail",
