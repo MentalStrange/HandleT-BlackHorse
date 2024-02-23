@@ -1,6 +1,4 @@
-import product from "../routes/product.js";
 import Product from "../models/productSchema.js";
-import SupplierProduct from "../models/supplierProductSchema.js";
 import Supplier from "../models/supplierSchema.js";
 
 export const transformationCustomer = (customer) => {

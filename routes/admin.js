@@ -1,6 +1,6 @@
 import express from 'express';
 import  { createDeliveryBoy, createUnit, deleteSupplier, deleteUnit, getAllUnits, updateUnit}  from '../controllers/adminController.js';
-import { createProduct, deleteProduct } from '../controllers/sharedFunction.js';
+import {createProduct, deleteProduct, updateProduct} from '../controllers/sharedFunction.js';
 import { createCategory } from '../controllers/categoryController.js';
 import { createCustomer, createSupplier } from '../auth/signup.js';
 import { getAllSupplier, getSupplier, getTotalSales, totalSalesBySupplierId, updateSupplier } from '../controllers/supplierController.js';
@@ -24,6 +24,7 @@ Router.get('/customer',createCustomer);
 // Router.delete('/customer/:id',deleteCustomer);
 Router.get('/product',getAllProduct)
 Router.post('/product',  createProduct);
+Router.patch('/product/:id',  updateProduct);
 Router.delete('/product/:id',  deleteProduct);
 
 Router.post('/category',  createCategory);

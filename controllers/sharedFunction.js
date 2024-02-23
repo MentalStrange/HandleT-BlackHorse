@@ -51,14 +51,10 @@ export const createProduct = async (req, res) => {
   }
 };
 export const updateProduct = async (req, res) => {
+  const productId = req.params.id;
+  const productData = req.body;
+
   try {
-    const productId = req.params.id;
-    const productData = req.body;
-    const unit = productData.unit;
-    const existingProduct = await Product.findOne({ unit: unit });
-    if (existingProduct && existingProduct._id != productId) {
-      throw new Error(`Unit or subunit '${unit}' already exists`);
-    }
     const updatedProduct = await Product.findByIdAndUpdate(
       productId,
       productData,
@@ -67,7 +63,7 @@ export const updateProduct = async (req, res) => {
     if (updatedProduct) {
       res.status(200).json({
         status: "success",
-        data: updatedProduct,
+        data: transformationProduct(updatedProduct),
       });
     } else {
       throw new Error(`Product not found`);
@@ -79,6 +75,7 @@ export const updateProduct = async (req, res) => {
     });
   }
 };
+
 export const deleteProduct = async (req, res) => {
   const productId = req.params.id;
   try {
@@ -102,7 +99,6 @@ export const deleteProduct = async (req, res) => {
   }
 };
 export const calcAvgRating = async (userId, isCustomer) => {
-  // try {
     if (isCustomer) { // If the user is a customer
       const supplier = await Supplier.findById(userId);
       if (!supplier) {
@@ -128,11 +124,5 @@ export const calcAvgRating = async (userId, isCustomer) => {
       customer.averageRating = ratings.length > 0 ? totalRating / ratings.length : 0;
       await customer.save();
     }
-  // } catch (error) {
-  //   res.status(500).json({
-  //     status:"fail",
-  //     message:error.message
-  //   })
-  // }
 };
 
