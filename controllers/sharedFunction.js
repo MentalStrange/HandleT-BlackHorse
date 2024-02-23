@@ -1,9 +1,10 @@
+import { v2 as cloudinary } from 'cloudinary';
 import Product from "../models/productSchema.js";
 import mongoose, {connect} from "mongoose";
 import Customer from "../models/customerSchema.js";
 import Rating from "../models/ratingSchema.js";
 import Supplier from "../models/supplierSchema.js";
-import {transformationCustomer, transformationProduct} from "../format/transformationObject.js";
+import { transformationProduct } from "../format/transformationObject.js";
 import jwt from "jsonwebtoken";
 import SupplierProduct from "../models/supplierProductSchema.js";
 
@@ -113,3 +114,12 @@ export const calcAvgRating = async (userId, isCustomer) => {
     }
 };
 
+export const uploadImageToCloudinary = async (imagePath) => {
+  try {
+    const result = await cloudinary.uploader.upload(imagePath);
+    return result.secure_url;
+  } catch (error) {
+    console.error('Error uploading image to Cloudinary:', error);
+    throw error;
+  }
+}

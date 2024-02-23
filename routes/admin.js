@@ -1,4 +1,5 @@
 import express from 'express';
+import multer from "multer";
 import {
     createDeliveryBoy, createFee,
     createUnit,
@@ -9,7 +10,7 @@ import {
     updateUnit
 } from '../controllers/adminController.js';
 import {createProduct, deleteProduct, updateProduct} from '../controllers/sharedFunction.js';
-import { createCategory } from '../controllers/categoryController.js';
+import {createCategory, getAllCategory} from '../controllers/categoryController.js';
 import { createCustomer, createSupplier } from '../auth/signup.js';
 import { getAllSupplier, getSupplier, getTotalSales, totalSalesBySupplierId, updateSupplier } from '../controllers/supplierController.js';
 import { createOffer, deleteOffer, getAllOffer, getOffer } from '../controllers/offerController.js';
@@ -17,7 +18,18 @@ import { getAllOrder, mostFrequentDistricts, updateOrder } from '../controllers/
 import { createHomeSlideShow, deleteHomeSlideShow, getAllHomeSlideShow } from '../controllers/homeSlideShowController.js';
 import { authenticate } from '../middlewares/authorizationMiddleware.js';
 import { getAllProduct } from '../controllers/productsController.js';
+import path from "path";
+import fs from "fs";
 // import { authenticate } from '../middlewares/authorizationMiddleware.js';
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        fs.mkdirSync('upload/category', { recursive: true });
+        cb(null, 'upload/category');
+    },
+    filename: (req, file, cb) => { cb(null, `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`) }
+});
+const upload = multer({ storage: storage });
 
 const Router = express.Router();
 
@@ -35,7 +47,8 @@ Router.post('/product',  createProduct);
 Router.patch('/product/:id',  updateProduct);
 Router.delete('/product/:id',  deleteProduct);
 
-Router.post('/category',  createCategory);
+// Router.get('/getAllCategory', multer.any(), getAllCategory);
+Router.post('/category', upload.single('image'), createCategory);
 
 Router.post('/deliveryBoy',  createDeliveryBoy);
 

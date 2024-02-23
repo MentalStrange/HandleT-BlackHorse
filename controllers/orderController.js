@@ -4,6 +4,8 @@ import Order from "../models/orderSchema.js";
 import PromoCode from "../models/promocodeSchema.js";
 import SupplierProduct from "../models/supplierProductSchema.js";
 import Supplier from "../models/supplierSchema.js";
+import Offer from "../models/offerSchema.js";
+import Product from "../models/productSchema.js";
 
 export const getAllOrder = async (req, res) => {
   let page = parseInt(req.query.page) || 1; // Current page, default to 1
@@ -100,49 +102,62 @@ export const createOrder = async (req, res) => {
     for (const product of products) {
       const supplierProduct = await SupplierProduct.findOne({ supplierId, productId: product.product });
       if (!supplierProduct || supplierProduct.stock < product.quantity) {
-        const product = await Product.findById(product.product)
-        const productTitle = product.title
+        const prod = await Product.findById(product.product)
         return res.status(400).json({
           status: "fail",
-          message: `Product with ID ${productTitle} is not available or out of stock`
+          message: `Product with title ${prod.title} is not available or out of stock`
         });
       }
     }
-    for(const product of products){
-      const supplierProduct = await SupplierProduct.findOne({ supplierId, productId: product.product });
-      // totalPrice += supplierProduct.price * product.quantity;
-      supplierProduct.stock -= product.quantity;
-      await supplierProduct.save();
-    }
+
     for (const offer of offers) {
-      const offerData = await Offer.findById(offer.offerId);
-      for(const product of offerDate.products)
-      if (!offerData || offerData.stock < offer.quantity) {
-        return res.status(400).json({
-          status: "fail",
-          message: `Offer with ID ${offer.offerId} is not available or out of stock`
-        }); 
-      }
-      // totalPrice += offerData.price * offer.quantity;
-      offerData.stock -= offer.quantity;
-      await offerData.save();
+      const offerData = await Offer.findById(offer.offer);
+      console.log(offerData)
+      // if (!offerData || offerData.quantity < offer.stock) {
+      //   return res.status(400).json({
+      //     status: "fail",
+      //     message: `Offer with title ${offerData.title} is not available or out of stock`
+      //   });
+      // }
     }
+    return res.json({});
 
-    // Update the supplier's wallet with the total price of the order
-    const fee = await Fee.findOne(); // Assuming there is only one fee entry
-    const blackHorseCommotion = totalPrice * (fee.amount/100);
-    const supplier = await Supplier.findById(supplierId);
-    supplier.wallet += blackHorseCommotion;
-    await supplier.save();
 
-    // Create the order
-    const newOrder = await Order.create(orderData);
-
-    // Return the newly created order
-    res.status(201).json({
-      status: "success",
-      data: newOrder,
-    });
+    // for(const product of products){
+    //   const supplierProduct = await SupplierProduct.findOne({ supplierId, productId: product.product });
+    //   // totalPrice += supplierProduct.price * product.quantity;
+    //   supplierProduct.stock -= product.quantity;
+    //   await supplierProduct.save();
+    // }
+    // for (const offer of offers) {
+    //   const offerData = await Offer.findById(offer.offerId);
+    //   for(const product of offerDate.products)
+    //   if (!offerData || offerData.stock < offer.quantity) {
+    //     return res.status(400).json({
+    //       status: "fail",
+    //       message: `Offer with ID ${offer.offerId} is not available or out of stock`
+    //     });
+    //   }
+    //   // totalPrice += offerData.price * offer.quantity;
+    //   offerData.stock -= offer.quantity;
+    //   await offerData.save();
+    // }
+    //
+    // // Update the supplier's wallet with the total price of the order
+    // const fee = await Fee.findOne(); // Assuming there is only one fee entry
+    // const blackHorseCommotion = totalPrice * (fee.amount/100);
+    // const supplier = await Supplier.findById(supplierId);
+    // supplier.wallet += blackHorseCommotion;
+    // await supplier.save();
+    //
+    // // Create the order
+    // const newOrder = await Order.create(orderData);
+    //
+    // // Return the newly created order
+    // res.status(201).json({
+    //   status: "success",
+    //   data: newOrder,
+    // });
   } catch (error) {
     res.status(500).json({
       status: "fail",

@@ -12,7 +12,11 @@ export const createCategory = async (req, res) => {
         message: 'Category already exists',
       });
     }
-    const category = new Category(categoryData);
+
+    const category = new Category({
+      name: categoryData.name,
+      image:`${process.env.SERVER_URL}${req.file.path.replace(/\\/g, '/')}`
+    });
     await category.save();
     res.status(201).json({
       status: 'success',
