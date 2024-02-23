@@ -223,6 +223,28 @@ export const updateProductSupplier = async (req, res) => {
   }
 };
 
+export const deleteProductSupplier = async (req, res) => {
+  const supplierId = req.params.id;
+  const productId = req.body.productId;
+  try {
+    const supplierProductId = await SupplierProduct.findOne({productId: productId, supplierId: supplierId});
+    if (supplierProductId) {
+      await SupplierProduct.deleteOne({ _id: supplierProductId._id });
+      res.status(200).json({
+        status: 'success',
+        message: 'Product deleted successfully.',
+      });
+    } else {
+      throw new Error('Product or Supplier not found.');
+    }
+  } catch (error) {
+    res.status(error.statusCode || 404).json({
+      status: "fail",
+      message: error.message,
+    });
+  }
+}
+
 export const totalSalesBySupplierId = async (req, res) => {
   try {
     const supplierId = req.params.id;

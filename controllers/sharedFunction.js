@@ -5,6 +5,7 @@ import Rating from "../models/ratingSchema.js";
 import Supplier from "../models/supplierSchema.js";
 import {transformationCustomer, transformationProduct} from "../format/transformationObject.js";
 import jwt from "jsonwebtoken";
+import SupplierProduct from "../models/supplierProductSchema.js";
 
 export const createProduct = async (req, res) => {
   const productData = req.body;
@@ -79,11 +80,9 @@ export const updateProduct = async (req, res) => {
 export const deleteProduct = async (req, res) => {
   const productId = req.params.id;
   try {
-    if (!mongoose.Types.ObjectId.isValid(productId)) {
-      throw new Error('Invalid product ID.');
-    }
     const deletionResult = await Product.deleteOne({ _id: productId });
     if (deletionResult.deletedCount > 0) {
+      await SupplierProduct.deleteMany({ productId: productId});
       res.status(200).json({
         status: 'success',
         message: 'Product deleted successfully.',
@@ -98,6 +97,7 @@ export const deleteProduct = async (req, res) => {
     });
   }
 };
+
 export const calcAvgRating = async (userId, isCustomer) => {
     if (isCustomer) { // If the user is a customer
       const supplier = await Supplier.findById(userId);
