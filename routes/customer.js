@@ -18,7 +18,7 @@ const Router = express.Router();
 
 Router.get('/category',getAllCategory);
 Router.get('/product',getAllProductAssignedToSupplier);
-Router.get('/product/:categoryId',getProductByCategory);
+Router.get('/product/:id',getProductByCategory);
 
 Router.get('/homeSlideShow',getAllHomeSlideShow);
 
