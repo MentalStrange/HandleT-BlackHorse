@@ -4,6 +4,7 @@ import HomeSlideShow from "../models/homeSlideShowSchema.js";
 import Supplier from "../models/supplierSchema.js";
 import bcrypt from "bcrypt";
 import Unit from "../models/unitSchema.js";
+import Fee from "../models/feesSchema.js";
 const salt = 10;
 
 export const deleteSupplier = async (req, res) => {
@@ -206,6 +207,39 @@ export const getAllUnits = async (req, res) => {
     } else {
       throw new Error("Could not find units");
     }
+  } catch (error) {
+    res.status(500).json({
+      status: "fail",
+      message: error.message,
+    });
+  }
+}
+
+export const getFee = async (req, res) => {
+  try {
+    const fee = await Fee.find();
+    res.status(200).json({
+      status: "success",
+      data:  { amount: fee[0].amount }
+    })
+  } catch (error) {
+    res.status(500).json({
+      status: "fail",
+      message: error.message,
+    });
+  }
+}
+export const createFee = async (req, res) => {
+  try {
+    await Fee.deleteMany();
+    const newFee = new Fee({
+      amount: req.body.amount
+    });
+    await newFee.save();
+    res.status(201).json({
+      status: "success",
+      data: { amount: newFee.amount }
+    })
   } catch (error) {
     res.status(500).json({
       status: "fail",

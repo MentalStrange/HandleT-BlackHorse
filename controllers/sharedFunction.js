@@ -31,19 +31,6 @@ export const createProduct = async (req, res) => {
       status: 'success',
       data: transformationProduct(newProduct),
     });
-
-    // const newProduct = new Product(productData);
-    // await newProduct.save();
-    // const populatedProduct = await Product.findById(newProduct._id).populate('category');
-    // const categoryName = populatedProduct.category.name;
-    // const response = {
-    //   status: "success",
-    //   data: {
-    //     ...populatedProduct.toObject(),
-    //     category: categoryName,
-    //   },
-    // };
-    // res.status(201).json(response);
   } catch (error) {
     res.status(error.statusCode || 404).json({
       status: "fail",

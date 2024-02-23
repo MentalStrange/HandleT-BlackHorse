@@ -1,5 +1,13 @@
 import express from 'express';
-import  { createDeliveryBoy, createUnit, deleteSupplier, deleteUnit, getAllUnits, updateUnit}  from '../controllers/adminController.js';
+import {
+    createDeliveryBoy, createFee,
+    createUnit,
+    deleteSupplier,
+    deleteUnit,
+    getAllUnits,
+    getFee,
+    updateUnit
+} from '../controllers/adminController.js';
 import {createProduct, deleteProduct, updateProduct} from '../controllers/sharedFunction.js';
 import { createCategory } from '../controllers/categoryController.js';
 import { createCustomer, createSupplier } from '../auth/signup.js';
@@ -50,6 +58,10 @@ Router.post("/unit",  createUnit);
 Router.get("/unit",getAllUnits);
 Router.patch("/unit/:id",updateUnit);
 Router.delete('/unit/:id',deleteUnit);
+
+Router.get('/fee', getFee);
+Router.post('/fee', createFee);
+
 
 
 
