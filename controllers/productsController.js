@@ -59,7 +59,7 @@ export const getProductByCategory = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const pageSize = parseInt(req.query.pageSize) || 10;
   try {
-    const category = await Category.findById(categoryId);
+    const category = await Category.findOne({_id:categoryId});
     if (!category) {
       return res.status(404).json({
         status: "fail",
@@ -67,21 +67,23 @@ export const getProductByCategory = async (req, res) => {
       });
     }
     const supplierProducts = await SupplierProduct.find()
-      .populate({
-        path: "productId",
-        match: { category: categoryId }, // Match products by category
-      })
-      .populate("supplierId")
-      .skip((page - 1) * pageSize)
-      .limit(pageSize);
+    // .populate({
+    //   path: "productId",
+    //   match: { category: categoryId }, // Match products by category
+    // })
+    .skip((page - 1) * pageSize)
+    .limit(pageSize);
     const productsWithSupplier = supplierProducts.filter(
       (supplierProduct) => supplierProduct.supplierId
     );
+    console.log('productsWithSupplier', productsWithSupplier);
     const transformedProducts = await Promise.all(
       productsWithSupplier.map(async (supplierProduct) => {
         return await transformationSupplierProduct(supplierProduct);
       })
     );
+    console.log('transformedProducts', transformedProducts);
+    
     res.status(200).json({
       status: "success",
       data: transformedProducts,
@@ -189,6 +191,7 @@ export const getAllProduct = async (req, res) => {
 };
 export const getProductsByOfferId = async (req, res) => {
   const offerId = req.params.id;
+  
   try {
     const offer = await Offer.findById(offerId);
     if (!offer) {
@@ -199,7 +202,7 @@ export const getProductsByOfferId = async (req, res) => {
     }
     const products = await Promise.all(
       offer.productId.map(async (productId) => {
-        const supplierProduct = await SupplierProduct.findById(productId);
+        const supplierProduct = await SupplierProduct.findOne({productId});
         if (!supplierProduct) {
           return null; // If supplierProduct not found, return null
         }
@@ -219,7 +222,6 @@ export const getProductsByOfferId = async (req, res) => {
     });
   }
 };
-
 export const getProductByOrderId = async (req, res) => {
   const orderId = req.params.id;
   const page = parseInt(req.query.page) || 1; // Get the page number from the query parameters

@@ -17,13 +17,14 @@ import { getAllSupplier } from '../controllers/supplierController.js';
 const Router = express.Router();
 
 Router.get('/category',getAllCategory);
+Router.get('/product/category/:id',getProductByCategory);
 Router.get('/product',getAllProductAssignedToSupplier);
-Router.get('/product/:id',getProductByCategory);
 
 Router.get('/homeSlideShow',getAllHomeSlideShow);
 
 Router.get('/getCustomerById/:id', authenticate, getCustomerById);
 Router.patch("/:id", updateCustomer);
+
 Router.post("/createRating", createRating);  // used by customer&supplier
 
 Router.post("/order", createOrder);
