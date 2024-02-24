@@ -48,7 +48,7 @@ Router.post('/product',  createProduct);
 Router.patch('/product/:id',  updateProduct);
 Router.delete('/product/:id',  deleteProduct);
 
-// Router.get('/getAllCategory', multer.any(), getAllCategory);
+Router.get('/getAllCategory', getAllCategory);
 Router.post('/category', upload.single('image'), createCategory);
 
 Router.post('/deliveryBoy',  createDeliveryBoy);
