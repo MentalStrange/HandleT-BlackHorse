@@ -7,6 +7,8 @@ import validateEmail from '../middlewares/emailMiddleware.js';
 import { authenticate } from '../middlewares/authorizationMiddleware.js';
 
 const Router = express.Router();
+
+
 Router.post('/supplier', validateEmail, supplierLogin);
 Router.post('/customer', validateEmail, customerLogin);
 Router.post('/deliveryBoy', validateEmail, deliveryBoyLogin);

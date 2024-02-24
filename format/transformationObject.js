@@ -86,7 +86,7 @@ export const transformationOffer = async (offer) => {
   };
 };
 
-export const transformOrder= async (order) => {
+export const transformationOrder= async (order) => {
   const supplier = await Supplier.findById(order.supplierId);
   console.log('products',order.products);
   

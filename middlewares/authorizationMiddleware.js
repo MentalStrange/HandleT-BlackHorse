@@ -8,7 +8,6 @@ export const authenticate = async (req, res, next) => {
         return res.status(401).json({ success: false, message: "Token is not valid" });
     }
     
-
     try {
         const token = authToken.split(" ")[1];
         const decoded = await jwt.verify(token, process.env.JWT_SECRET);

@@ -6,7 +6,7 @@ import SupplierProduct from "../models/supplierProductSchema.js";
 import Supplier from "../models/supplierSchema.js";
 import Offer from "../models/offerSchema.js";
 import Product from "../models/productSchema.js";
-import { transformOrder, transformationSupplierProduct } from "../format/transformationObject.js";
+import { transformationOrder, transformationSupplierProduct } from "../format/transformationObject.js";
 import paginateResponse from "./utils/paginationResponse.js";
 
 export const getAllOrder = async (req, res) => {
@@ -99,8 +99,6 @@ export const createOrder = async (req, res) => {
       await existingPromoCode.save();
     }
 
-    // Calculate the total price of the order including products and offers
-    // let totalPrice = 0;
     for (const product of products) {
       const supplierProduct = await SupplierProduct.findOne({ supplierId, productId: product.product });
       if (!supplierProduct || supplierProduct.stock < product.quantity) {
@@ -111,55 +109,49 @@ export const createOrder = async (req, res) => {
         });
       }
     }
-
     for (const offer of offers) {
       const offerData = await Offer.findById(offer.offer);
-      console.log(offerData)
-      // if (!offerData || offerData.quantity < offer.stock) {
-      //   return res.status(400).json({
-      //     status: "fail",
-      //     message: `Offer with title ${offerData.title} is not available or out of stock`
-      //   });
-      // }
+      if (!offerData || offerData.stock < offer.quantity) {
+        return res.status(400).json({
+          status: "fail",
+          message: `Offer with title ${offerData.title} is not available or out of stock`
+        });
+      }
+      if(!offerData || offerData.quantity < offer.quantity) {
+        return res.status(400).json({
+          status: "fail",
+          message: `The maximum quantity allowed for purchasing ${offerData.title} is ${offerData.quantity}`
+        })
+      }
     }
-    return res.json({});
+    // Calculate the total price of the order including products and offers
+    // let totalPrice = 0;
+    for(const product of products){
+      const supplierProduct = await SupplierProduct.findOne({ supplierId, productId: product.product });
+      // totalPrice += supplierProduct.price * product.quantity;
+      supplierProduct.stock -= product.quantity;
+      await supplierProduct.save();
+    }
+    for (const offer of offers) {
+      const offerData = await Offer.findById(offer.offer);
+      // totalPrice += offerData.price * offer.quantity;
+      offerData.stock -= offer.quantity;
+      await offerData.save();
+    }
 
+    // Update the supplier's wallet with the total price of the order
+    const fee = await Fee.findOne(); // Assuming there is only one fee entry
+    const blackHorseCommotion = totalPrice * (fee.amount/100);
+    const supplier = await Supplier.findById(supplierId);
+    supplier.wallet += blackHorseCommotion;
+    await supplier.save();
 
-    // for(const product of products){
-    //   const supplierProduct = await SupplierProduct.findOne({ supplierId, productId: product.product });
-    //   // totalPrice += supplierProduct.price * product.quantity;
-    //   supplierProduct.stock -= product.quantity;
-    //   await supplierProduct.save();
-    // }
-    // for (const offer of offers) {
-    //   const offerData = await Offer.findById(offer.offerId);
-    //   for(const product of offerDate.products)
-    //   if (!offerData || offerData.stock < offer.quantity) {
-    //     return res.status(400).json({
-    //       status: "fail",
-    //       message: `Offer with ID ${offer.offerId} is not available or out of stock`
-    //     });
-    //   }
-    //   // totalPrice += offerData.price * offer.quantity;
-    //   offerData.stock -= offer.quantity;
-    //   await offerData.save();
-    // }
-    //
-    // // Update the supplier's wallet with the total price of the order
-    // const fee = await Fee.findOne(); // Assuming there is only one fee entry
-    // const blackHorseCommotion = totalPrice * (fee.amount/100);
-    // const supplier = await Supplier.findById(supplierId);
-    // supplier.wallet += blackHorseCommotion;
-    // await supplier.save();
-    //
-    // // Create the order
-    // const newOrder = await Order.create(orderData);
-    //
-    // // Return the newly created order
-    // res.status(201).json({
-    //   status: "success",
-    //   data: newOrder,
-    // });
+    // Create the order
+    const newOrder = await Order.create(orderData);
+    res.status(201).json({
+      status: "success",
+      data: await transformationOrder(newOrder),
+    });
   } catch (error) {
     res.status(500).json({
       status: "fail",
@@ -175,17 +167,13 @@ export const getAllOrderByCustomerId = async (req, res) => {
 
   try {
     const ordersCount = await Order.countDocuments({ customerId });
-    const totalPages = Math.ceil(ordersCount / limit);
-
     const orders = await Order.find({ customerId })
       .skip(skip)
       .limit(limit);
-
     if (orders) {
       const formattedOrders = await Promise.all(orders.map(async (order) => {        
-        return await transformOrder(order); // Transform each order
+        return await transformationOrder(order); // Transform each order
       }));
-
       formattedOrders.reverse();
       const completeNotRatingOrder = formattedOrders.find(order => order.status === 'complete' && order.supplierRating === 'notRating');
       if (completeNotRatingOrder) {
@@ -202,8 +190,6 @@ export const getAllOrderByCustomerId = async (req, res) => {
     });
   }
 }
-
-
 export const getAllOrderBySupplierId = async (req, res) => {
   const { id } = req.params; // Supplier ID from route parameters
   const orderMonth = req.query.month;
@@ -236,8 +222,6 @@ export const getAllOrderBySupplierId = async (req, res) => {
     });
   }
 };
-
-
 export const totalOrderBySupplierId = async (req, res) => {
   const supplierId = req.params.id;
   const month = req.query.month;
@@ -325,7 +309,6 @@ export const getBestSeller = async (req, res) => {
     });
   }
 }
-
 export const mostFrequentDistricts = async (req, res) => {
   try {
     const mostFrequentDistricts = await Order.aggregate([
