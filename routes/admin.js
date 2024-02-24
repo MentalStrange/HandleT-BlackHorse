@@ -20,6 +20,7 @@ import { authenticate } from '../middlewares/authorizationMiddleware.js';
 import { getAllProduct } from '../controllers/productsController.js';
 import path from "path";
 import fs from "fs";
+import { restrict } from '../middlewares/restrictionMiddleware.js';
 // import { authenticate } from '../middlewares/authorizationMiddleware.js';
 
 const storage = multer.diskStorage({
@@ -42,7 +43,7 @@ Router.patch('/supplier/:id',  updateSupplier)
 
 Router.get('/customer',createCustomer);
 // Router.delete('/customer/:id',deleteCustomer);
-Router.get('/product',getAllProduct)
+Router.get('/product',authenticate,restrict(["blackHorse","company"]),getAllProduct)
 Router.post('/product',  createProduct);
 Router.patch('/product/:id',  updateProduct);
 Router.delete('/product/:id',  deleteProduct);

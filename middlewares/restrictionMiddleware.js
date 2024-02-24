@@ -1,19 +1,13 @@
-import Supplier from "../models/supplierSchema";
+import Supplier from "../models/supplierSchema.js";
 
 export const restrict = (roles) => async (req, res, next) => {
-  const userId = req._id;
+  const userId = req.userId;
   try {
     let user;
     // Find user based on role
-    if (req.role === "gomla") {
-      user = await Supplier.findById(userId);
-    } else if (req.role === "nosGomla") {
-      user = await Supplier.findById(userId);
-    } else if (req.role === "gomlaGomla") {
+    if (req.role === "gomla" || req.role === "nosGomla" || req.role === "gomlaGomla" || req.role === "company") {
       user = await Supplier.findById(userId);
     } else if (req.role === "blackHorse") {
-      user = await Customer.findById(userId);
-    } else if (req.role === "company") {
       user = await Supplier.findById(userId);
     } else if (req.role === "customer") {
       user = await Customer.findById(userId);
@@ -24,7 +18,7 @@ export const restrict = (roles) => async (req, res, next) => {
         .json({ success: false, message: "User not found" });
     }
     // Check if the user has the required role
-    if (!roles.includes(user.role)) {
+    if (!roles.includes(user.type)) {
       return res
         .status(401)
         .json({ success: false, message: "You are not authorized" });

@@ -7,6 +7,7 @@ export const authenticate = async (req, res, next) => {
     if (!authToken || !authToken.startsWith("Bearer")) {
         return res.status(401).json({ success: false, message: "Token is not valid" });
     }
+    
 
     try {
         const token = authToken.split(" ")[1];
