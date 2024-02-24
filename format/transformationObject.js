@@ -69,7 +69,6 @@ export const transformationOffer = async (offer) => {
       return transformationSupplierProduct(supplierProduct);
     })
   );
-  console.log('offer',offer);
   return {
     _id: offer._id,
     supplierId: offer.supplierId,
@@ -88,23 +87,20 @@ export const transformationOffer = async (offer) => {
 
 export const transformationOrder= async (order) => {
   const supplier = await Supplier.findById(order.supplierId);
-  console.log('products',order.products);
-  
   const products = await Promise.all(
     order.products.map(async (product) => {
       const supplierProduct = await SupplierProduct.findOne({ productId:product.product });
       if (!supplierProduct) return null;
       return transformationSupplierProduct(supplierProduct);
     })
-    );
-    const offers = await Promise.all(
-      order.offers.map(async (offerId)=>{
-        const offer = await Offer.findById(offerId.offer);
-        console.log('offerId',offerId);
-        if (!offer) return null;
-        return transformationOffer(offer);
-      })
-    )
+  );
+  const offers = await Promise.all(
+    order.offers.map(async (offerId)=>{
+      const offer = await Offer.findById(offerId.offer);
+      if (!offer) return null;
+      return transformationOffer(offer);
+    })
+  );
   return {
     _id: order._id,
     orderNumber: order.orderNumber,
