@@ -6,6 +6,8 @@ import SupplierProduct from "../models/supplierProductSchema.js";
 import Supplier from "../models/supplierSchema.js";
 import Offer from "../models/offerSchema.js";
 import Product from "../models/productSchema.js";
+import { transformOrder, transformationSupplierProduct } from "../format/transformationObject.js";
+import paginateResponse from "./utils/paginationResponse.js";
 
 export const getAllOrder = async (req, res) => {
   let page = parseInt(req.query.page) || 1; // Current page, default to 1
@@ -165,15 +167,23 @@ export const createOrder = async (req, res) => {
     });
   }
 }
-
 export const getAllOrderByCustomerId = async (req, res) => {
   const customerId = req.params.id;
+  const page = parseInt(req.query.page) || 1; // Default to page 1 if not provided
+  const limit = parseInt(req.query.limit) || 10; // Default to 10 items per page if not provided
+  const skip = (page - 1) * limit;
+
   try {
-    const orders = await Order.find({ customerId }).populate('supplierId', 'type');
+    const ordersCount = await Order.countDocuments({ customerId });
+    const totalPages = Math.ceil(ordersCount / limit);
+
+    const orders = await Order.find({ customerId })
+      .skip(skip)
+      .limit(limit);
+
     if (orders) {
-      const formattedOrders = orders.map(order => ({
-        ...order.toObject(),
-        supplier: order.supplierId.type // Extracting the supplier type
+      const formattedOrders = await Promise.all(orders.map(async (order) => {        
+        return await transformOrder(order); // Transform each order
       }));
 
       formattedOrders.reverse();
@@ -181,11 +191,7 @@ export const getAllOrderByCustomerId = async (req, res) => {
       if (completeNotRatingOrder) {
         await Order.findOneAndUpdate({ _id: completeNotRatingOrder._id }, { supplierRating: 'ignore' }, { new: true });
       }
-
-      res.status(200).json({
-        status: "success",
-        data: formattedOrders
-      });
+        paginateResponse(res,req.query,formattedOrders,ordersCount)
     } else {
       throw new Error('Could not find orders');
     }
@@ -196,32 +202,33 @@ export const getAllOrderByCustomerId = async (req, res) => {
     });
   }
 }
+
+
 export const getAllOrderBySupplierId = async (req, res) => {
   const { id } = req.params; // Supplier ID from route parameters
   const orderMonth = req.query.month;
 
   try {
     let orders;
+    let totalOrders;
     if (orderMonth) {
-      // If orderMonth is provided, filter orders by the specified month
       const startDate = new Date(new Date().getFullYear(), orderMonth - 1, 1); // First day of the month
       const endDate = new Date(new Date().getFullYear(), orderMonth, 0); // Last day of the month
       orders = await Order.find({ supplierId: id, orderDate: { $gte: startDate, $lte: endDate } });
+      totalOrders = await Order.countDocuments({ supplierId: id, orderDate: { $gte: startDate, $lte: endDate } });
       if (orders.length === 0) {
         return res.status(200).json({
           status: "success",
           message: "No orders found for the specified month",
           data: [],
+          totalOrders: totalOrders
         });
       }
     } else {
-      // If orderMonth is not provided, get all orders for the supplier
       orders = await Order.find({ supplierId: id });
+      totalOrders = await Order.countDocuments({ supplierId: id });
     }
-    res.status(200).json({
-      status: "success",
-      data: orders,
-    });
+    paginateResponse(res, req.query, orders, totalOrders);
   } catch (error) {
     res.status(500).json({
       status: "fail",
@@ -229,6 +236,8 @@ export const getAllOrderBySupplierId = async (req, res) => {
     });
   }
 };
+
+
 export const totalOrderBySupplierId = async (req, res) => {
   const supplierId = req.params.id;
   const month = req.query.month;
@@ -292,20 +301,14 @@ export const getBestSeller = async (req, res) => {
     ]);
 
     if (bestSellers && bestSellers.length > 0) {
-      const products = await Promise.all(bestSellers.map(async (seller) => {
-        const product = seller.product[0];
-        const supplier = await Supplier.findOne({ products: product._id });
-        const category = await Category.findById(product.category, 'name -_id'); // Retrieve category name
-        return {
-          ...product,
-          category: category ? category.name : null, // Extract category name
-          supplier: supplier ? supplier._id : null
-        };
-      }));
-
+      const productIds = bestSellers.map(seller => seller._id);
+      const products = await SupplierProduct.find({ productId: { $in: productIds } });
+      const formattedProducts = await Promise.all(products.map(async (product) => {
+        return await transformationSupplierProduct(product)
+      }))
       res.status(200).json({
         status: "success",
-        data: products.map(product => ({ ...product, category: product.category })),
+        data: formattedProducts,
       });
     } else {
       // If no best sellers are found, respond with a message
@@ -322,6 +325,7 @@ export const getBestSeller = async (req, res) => {
     });
   }
 }
+
 export const mostFrequentDistricts = async (req, res) => {
   try {
     const mostFrequentDistricts = await Order.aggregate([
