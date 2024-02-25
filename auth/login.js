@@ -88,6 +88,8 @@ export const supplierLogin = async (req, res) => {
 export const deliveryBoyLogin = async (req, res) => {
   const deliveryBoyEmail = req.body.email;
   const deliveryBoyPassword = req.body.password;
+  console.log('req.body',req.body);
+  
   try {
     console.log('deliveryBoyEmail',deliveryBoyEmail);
     
