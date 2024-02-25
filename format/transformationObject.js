@@ -137,4 +137,17 @@ export const transformationOrder= async (order) => {
     supplierRating: order.supplierRating,
   };
 };
-
+export const transformationDeliveryBoy = (deliverBoy) => {
+  return{
+    _id: deliverBoy._id,
+    name: deliverBoy.name,
+    email: deliverBoy.email,
+    image: deliverBoy.image,
+    phone: deliverBoy.phone,
+    region: deliverBoy.region,
+    address: deliverBoy.address,
+    password: deliverBoy.password,
+    car:deliverBoy.car ?? null
+  }
+  
+}

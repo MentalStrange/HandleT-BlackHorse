@@ -111,6 +111,10 @@ const orderSchema = mongoose.Schema({
     type: String,
     enum: ['notRating', 'rating', 'ignore'],
     default: 'notRating'
+  },
+  deliveryBoy:{
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"DeliveryBoy",
   }
 }, {
   timestamps: true,

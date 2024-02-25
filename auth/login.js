@@ -30,8 +30,7 @@ export const customerLogin = async (req, res) => {
     const cust = customer[0]._doc;
     res.status(200).json({
       status: "success",
-      data: transformationCustomer(cust),
-      access_token: jwt.sign({_id: cust._id, role:"customer"}, process.env.JWT_SECRET, {})
+      data: {...transformationCustomer(cust), access_token: jwt.sign({_id: cust._id, role: "customer"}, process.env.JWT_SECRET, {})},
     });
   } catch (error) {
     res.status(500).json({
@@ -66,8 +65,7 @@ export const supplierLogin = async (req, res) => {
     if(rest.type === "blackHorse"){
       res.status(200).json({
         status: "success",
-        data:  rest,
-        access_token: jwt.sign({_id: rest._id, role: "blackHorse"}, process.env.JWT_SECRET, {})
+        data:  {...rest, access_token: jwt.sign({_id: rest._id, role: "blackHorse"}, process.env.JWT_SECRET, {})},
       });
     }
     else{
@@ -88,20 +86,16 @@ export const supplierLogin = async (req, res) => {
 export const deliveryBoyLogin = async (req, res) => {
   const deliveryBoyEmail = req.body.email;
   const deliveryBoyPassword = req.body.password;
-  console.log('req.body',req.body);
-  
   try {
-    console.log('deliveryBoyEmail',deliveryBoyEmail);
-    
     const deliveryBoy = await DeliveryBoy.findOne({ email: deliveryBoyEmail });
-    console.log('deliveryBoy',deliveryBoy);
-    
     if (!deliveryBoy) {
       return res.status(404).json({
         status: "fail",
         message: "Delivery Boy Not Found",
       });
     }
+    console.log('deliveryBoy', deliveryBoy);
+    
     // Compare passwords using bcrypt.compare
     const isPasswordMatch = await bcrypt.compare(
       deliveryBoyPassword,
@@ -117,8 +111,8 @@ export const deliveryBoyLogin = async (req, res) => {
     const { password, ...rest } = deliveryBoy._doc;
     res.status(200).json({
       status: "success",
-      data: { ...rest },
-      access_token: jwt.sign({_id: rest._id, role: "deliveryBoy"}, process.env.JWT_SECRET, {})
+      data: {...rest ,access_token: jwt.sign({_id: rest._id, role: "deliveryBoy"}, process.env.JWT_SECRET, {})},
+      
     });
   } catch (error) {
     res.status(500).json({
