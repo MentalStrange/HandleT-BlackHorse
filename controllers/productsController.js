@@ -8,6 +8,7 @@ import {
   transformationProduct,
   transformationSupplierProduct,
 } from "../format/transformationObject.js";
+import paginateResponse from "./utils/paginationResponse.js";
 
 export const getProductBySupplier = async (req, res) => {
   const supplierId = req.params.id;
@@ -24,7 +25,6 @@ export const getProductBySupplier = async (req, res) => {
     const supplierProductsCount = await SupplierProduct.countDocuments({
       supplierId,
     });
-    const totalPages = Math.ceil(supplierProductsCount / pageSize);
     const supplierProducts = await SupplierProduct.find({ supplierId })
       .populate("productId")
       .skip((page - 1) * pageSize)
@@ -41,12 +41,10 @@ export const getProductBySupplier = async (req, res) => {
         return transformedProduct;
       })
     );
-    res.status(200).json({
-      status: "success",
-      data: products,
-      currentPage: page,
-      totalPages: totalPages,
-    });
+    
+    // Call the pagination utility function to send paginated response
+    await paginateResponse(res, req.query, products, supplierProductsCount);
+    
   } catch (error) {
     res.status(500).json({
       status: "fail",
@@ -211,10 +209,7 @@ export const getProductsByOfferId = async (req, res) => {
       })
     );
     const validProducts = products.filter((product) => product !== null);
-    res.status(200).json({
-      status: "success",
-      data: validProducts,
-    });
+    paginateResponse(res,req.query,products,products.length)
   } catch (error) {
     res.status(500).json({
       status: "fail",

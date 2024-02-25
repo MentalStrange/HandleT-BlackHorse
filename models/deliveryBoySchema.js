@@ -17,7 +17,7 @@ const deliveryBoySchema = mongoose.Schema({
   },
   image:{
     type:String,
-    required:[true,'Delivery Boy Should have an image'],
+    // required:[true,'Delivery Boy Should have an image'],
   },
   phone:{
     type:String,
@@ -31,6 +31,10 @@ const deliveryBoySchema = mongoose.Schema({
     state: String,
     streetNumber: String,
     country: String,
+  }],
+  orders:[{
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"Order",
   }]
 })
 

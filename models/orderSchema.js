@@ -89,7 +89,7 @@ const orderSchema = mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'complete', 'delivery', 'waiting'],
+    enum: ['pending', 'complete', 'delivery', 'accepted', 'canceled'],
     default: 'pending'
   },
   orderWeight: {
