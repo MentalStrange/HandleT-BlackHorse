@@ -13,7 +13,7 @@ const carSchema = mongoose.Schema({
     required:[true, "Car should have an image"],
   },
   number:{
-    type:Number,
+    type:String,
     required:[true, "Car should have a number"],
   },
 

@@ -145,7 +145,7 @@ export const transformationDeliveryBoy = async (deliverBoy) => {
     phone: deliverBoy.phone,
     deliveryDistrict: deliverBoy.region ?? "",
     access_token: deliverBoy.access_token,
-    // address: deliverBoy.address,
+    address: deliverBoy.address ?? '',
     car:transformationCar(car) ?? ""
   }
   
@@ -172,7 +172,7 @@ export const transformationCar = (car)=>{
     _id: car._id,
     image: car.image,
     type: car.type,
-    number: car.number,
+    number: car.number ?? '',
     maxWeight: car.maxWeight
   }
 }
