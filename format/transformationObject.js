@@ -104,6 +104,7 @@ export const transformationOrder= async (order) => {
       if (!offer) return null;
       return transformationOffer(offer, offer.quantity);
     })
+    
   );
   return {
     _id: order._id,
@@ -125,7 +126,7 @@ export const transformationOrder= async (order) => {
     orderDate: order.orderDate,
     deliveryDaysNumber: order.deliveryDaysNumber,
     status: order.status,
-    supplierType: order.supplierType,
+    supplierType: supplier.type,
     orderWeight: order.orderWeight,
     maxOrderWeight: order.maxOrderWeight,
     minOrderPrice: order.minOrderPrice,

@@ -234,30 +234,45 @@ export const getAllOrderByCustomerId = async (req, res) => {
   }
 }
 export const getAllOrderBySupplierId = async (req, res) => {
-  const { id } = req.params; // Supplier ID from route parameters
+  const supplierId = req.params.id;
   const orderMonth = req.query.month;
-
+  const startDate = new Date(new Date().getFullYear(), orderMonth - 1, 1); // First day of the month
+  const endDate = new Date(new Date().getFullYear(), orderMonth, 0); // Last day of the month
   try {
     let orders;
     let totalOrders;
+    const supplier = await Supplier.findById(supplierId); 
+    if(!supplier) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Supplier not found"
+      });
+    }
+    const query = orderMonth
+      ? { supplierId: supplierId, orderDate: { $gte: startDate, $lte: endDate } }
+      : { supplierId: supplierId };
     if (orderMonth) {
-      const startDate = new Date(new Date().getFullYear(), orderMonth - 1, 1); // First day of the month
-      const endDate = new Date(new Date().getFullYear(), orderMonth, 0); // Last day of the month
-      orders = await Order.find({ supplierId: id, orderDate: { $gte: startDate, $lte: endDate } });
-      totalOrders = await Order.countDocuments({ supplierId: id, orderDate: { $gte: startDate, $lte: endDate } });
+      orders = await Order.find(query)
+      totalOrders = await Order.countDocuments(query);
       if (orders.length === 0) {
         return res.status(200).json({
           status: "success",
           message: "No orders found for the specified month",
-          data: [],
+          data: 0,
           totalOrders: totalOrders
         });
       }
     } else {
-      orders = await Order.find({ supplierId: id });
-      totalOrders = await Order.countDocuments({ supplierId: id });
+      orders = await Order.find(query)
+      totalOrders = await Order.countDocuments(query);
     }
-    paginateResponse(res, req.query, orders, totalOrders);
+
+    // Transform orders
+    const formattedOrders = await Promise.all(orders.map(async (order) => {
+      return await transformationOrder(order); // Transform each order
+    }));
+
+    paginateResponse(res, req.query, formattedOrders, totalOrders);
   } catch (error) {
     res.status(500).json({
       status: "fail",
@@ -265,6 +280,7 @@ export const getAllOrderBySupplierId = async (req, res) => {
     });
   }
 };
+
 export const totalOrderBySupplierId = async (req, res) => {
   const supplierId = req.params.id;
   const month = req.query.month;
