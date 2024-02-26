@@ -32,6 +32,10 @@ const deliveryBoySchema = mongoose.Schema({
     streetNumber: String,
     country: String,
   }],
+  car:{
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"Car",
+  },
 })
 
 const DeliveryBoy = mongoose.model('Delivery Boy',deliveryBoySchema);

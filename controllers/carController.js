@@ -1,16 +1,20 @@
-import Car from './carSchema.js'; // Import the Car model
+ // Import the Car model
+
+import { transformationCar } from "../format/transformationObject.js";
+import Car from "../models/carSchema.js";
 
 // Create a new car
-const createCar = async (carData) => {
+const createCar = async (req,res) => {
+  const carData = req.body;
+  console.log('carData', carData);
   try {
     const newCar = new Car(carData);
     const savedCar = await newCar.save();
-    return { status: 'success', data: savedCar };
+    res.status(201).json({ status: 'success', data: transformationCar(savedCar)});
   } catch (error) {
     return { status: 'fail', message: error.message };
   }
 };
-
 // Read cars
 const getCars = async () => {
   try {
@@ -20,7 +24,6 @@ const getCars = async () => {
     return { status: 'fail', message: error.message };
   }
 };
-
 // Update a car
 const updateCar = async (carId, updateData) => {
   try {

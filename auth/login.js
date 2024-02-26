@@ -82,7 +82,6 @@ export const supplierLogin = async (req, res) => {
     });
   }
 };
-
 export const deliveryBoyLogin = async (req, res) => {
   const deliveryBoyEmail = req.body.email;
   const deliveryBoyPassword = req.body.password;
@@ -109,8 +108,7 @@ export const deliveryBoyLogin = async (req, res) => {
     const deliveryBoyData = { ...rest, access_token: jwt.sign({_id: rest._id, role: "deliveryBoy"}, process.env.JWT_SECRET, {})};
     res.status(200).json({
       status: "success",
-      data: transformationDeliveryBoy(deliveryBoyData),
-      
+      data: await transformationDeliveryBoy({...deliveryBoyData,password}),
     });
   } catch (error) {
     res.status(500).json({

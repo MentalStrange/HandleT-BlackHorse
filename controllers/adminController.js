@@ -26,35 +26,7 @@ export const deleteSupplier = async (req, res) => {
     });
   }
 };
-export const createDeliveryBoy = async (req, res) => {
-  const deliverBoyData = req.body;
-  const deliveryBoyEmail = req.body.email;
-  try {
-    const oldDeliveryBoy = await DeliveryBoy.find({ email: deliveryBoyEmail });
-    if (oldDeliveryBoy.length > 0) {
-      return res.status(400).json({
-        status: "fail",
-        message: "Delivery Boy already exists",
-      });
-    }
-    const password = req.body.password;
-    const hashedPassword = await bcrypt.hash(password, salt);
-    const deliveryBoy = new DeliveryBoy({
-      ...deliverBoyData,
-      password: hashedPassword,
-    });
-    await deliveryBoy.save();
-    res.status(201).json({
-      status: "success",
-      data: deliveryBoy,
-    });
-  } catch (error) {
-    res.status(error.statusCode || 500).json({
-      status: "fail",
-      message: error.message || "Internal Server Error",
-    });
-  }
-};
+
 export const deleteHomeSlideShow = async (req, res) => {
   const homeSlideShowId = req.params.id;
   try {

@@ -146,7 +146,7 @@ export const transformationDeliveryBoy = async (deliverBoy) => {
     deliveryDistrict: deliverBoy.region ?? "",
     token: deliverBoy.access_token,
     // address: deliverBoy.address,
-    car:car ?? ""
+    car:transformationCar(car) ?? ""
   }
   
 }
