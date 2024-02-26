@@ -5,6 +5,8 @@ import Supplier from "../models/supplierSchema.js";
 import bcrypt from "bcrypt";
 import Unit from "../models/unitSchema.js";
 import Fee from "../models/feesSchema.js";
+import Region from "../models/regionSchema.js";
+import GroupExpireDate from "../models/groupExpireDate.js";
 const salt = 10;
 
 export const deleteSupplier = async (req, res) => {
@@ -186,7 +188,6 @@ export const getAllUnits = async (req, res) => {
     });
   }
 }
-
 export const getFee = async (req, res) => {
   try {
     const fee = await Fee.find();
@@ -212,6 +213,44 @@ export const createFee = async (req, res) => {
       status: "success",
       data: { amount: newFee.amount }
     })
+  } catch (error) {
+    res.status(500).json({
+      status: "fail",
+      message: error.message,
+    });
+  }
+}
+export const createRegion = async (req, res) => {
+  const region = req.body;
+  const existingRegion = await Region.findOne({ name: region.name });
+  try{if (existingRegion) {
+    throw new Error(`Region or subregion '${region.name}' already exists`);
+  }
+  const newRegion = new Region(region);
+  await newRegion.save();
+  res.status(201).json({
+    status: "success",
+    data: newRegion,
+  });}
+  catch(error){
+    res.status(500).json({
+      status: "fail",
+      message: error.message,
+    });
+  }
+}
+export const createExpireDateGroup = async (req, res) => {
+  const expireDateGroup = req.body;
+  try {
+    await GroupExpireDate.deleteMany();
+    const newExpireDateGroup = new GroupExpireDate({
+      date: expireDateGroup.date
+    });
+    await newExpireDateGroup.save();
+    res.status(201).json({
+      status: "success",
+      data: newExpireDateGroup,
+    });
   } catch (error) {
     res.status(500).json({
       status: "fail",

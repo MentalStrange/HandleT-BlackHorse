@@ -23,7 +23,8 @@ const deliveryBoySchema = mongoose.Schema({
     type:String,
   },
   region:{
-    type:String,
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"Region",
     required:[true,'Delivery Boy Should have a region']
   },
   address: [{

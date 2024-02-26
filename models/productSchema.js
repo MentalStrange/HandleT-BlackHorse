@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import SupplierProduct from './supplierProductSchema.js';
 
 const productSchema = mongoose.Schema({
   title:{
@@ -60,5 +61,13 @@ const productSchema = mongoose.Schema({
   // },
 })
 
+productSchema.pre('remove', async function(next){
+  try {
+    await SupplierProduct.deleteMany({ productId: this._id });
+    next();
+  } catch (error) {
+    next(error)
+  }
+})
 const Product = mongoose.model("Product",productSchema);
 export default Product;

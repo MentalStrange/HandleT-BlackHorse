@@ -1,7 +1,9 @@
 import express from "express";
 import multer from "multer";
 import {
+  createExpireDateGroup,
   createFee,
+  createRegion,
   createUnit,
   deleteSupplier,
   deleteUnit,
@@ -126,5 +128,9 @@ Router.post("/car", createCar);
 Router.get("/car", getCars);
 Router.patch("/car/:id", updateCar);
 Router.delete("/car/:id", deleteCar);
+
+Router.post('/region',createRegion)
+
+Router.post('/group/expireDate',createExpireDateGroup)
 
 export default Router;

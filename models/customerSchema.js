@@ -22,7 +22,9 @@ const customerSchema =  mongoose.Schema({
     type:String,
   },
   region:{
-    type:String,
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"Region",
+    required:[true,'Customer Should have a region']
   },
   address:{
     type:String,
@@ -33,12 +35,6 @@ const customerSchema =  mongoose.Schema({
   governorate:{
     type:String,
   },
-  groups:[
-    {
-      type:mongoose.Schema.Types.ObjectId,
-      ref:"RegionGroup"
-    }
-  ],
   resetCode: {
     type: Number
   },

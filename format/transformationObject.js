@@ -105,10 +105,17 @@ export const transformationOrder= async (order) => {
     })
   );
   const orderWeight = order.orderWeight;
-  const car = await Car.findOne()
-  .sort({ $abs: { $subtract: ['$maxWeight', orderWeight] } }) // Sort by absolute difference
-  .exec();
-  console.log('car', car);
+  const car = await Car.aggregate([
+    {
+      $addFields: {
+        absoluteDifference: { $abs: { $subtract: ['$maxWeight', orderWeight] } }
+      }
+    },
+    {
+      $sort: { absoluteDifference: 1 } // Sort by absolute difference
+    },
+    { $limit: 1 } // Limit to the closest car
+  ]);
   return {
     _id: order._id,
     orderNumber: order.orderNumber,
@@ -138,7 +145,8 @@ export const transformationOrder= async (order) => {
     longitude: order.longitude,
     promoCode: order.promoCode,
     supplierRating: order.supplierRating,
-    deliveryBoy: order.deliveryBoy ?? ""
+    deliveryBoy: order.deliveryBoy ?? "",
+    car:car[0].type ?? "No Car Can Be Found",
   };
 };
 export const transformationDeliveryBoy = async (deliverBoy) => {

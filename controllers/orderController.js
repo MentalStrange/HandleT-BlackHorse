@@ -1,4 +1,3 @@
-import Category from "../models/categorySchema.js";
 import Fee from "../models/feesSchema.js";
 import Order from "../models/orderSchema.js";
 import PromoCode from "../models/promocodeSchema.js";
@@ -8,12 +7,8 @@ import Offer from "../models/offerSchema.js";
 import Product from "../models/productSchema.js";
 import { transformationOrder, transformationSupplierProduct } from "../format/transformationObject.js";
 import paginateResponse from "./../utils/paginationResponse.js";
-import { check } from "express-validator";
 
 export const getAllOrder = async (req, res) => {
-  let page = parseInt(req.query.page) || 1; // Current page, default to 1
-  let limit = parseInt(req.query.limit) || 20; // Number of orders per page, default to 20
-
   try {
     let orders;
     let query = {};
@@ -24,28 +19,30 @@ export const getAllOrder = async (req, res) => {
       query.orderDate = { $gte: orderDate, $lt: nextDay };
     } else if (req.query.month) {
       const year = new Date().getFullYear();
-      const month = parseInt(req.query.month)
+      const month = parseInt(req.query.month);
       const startDate = new Date(year, month - 1, 1);
       const endDate = new Date(year, month, 0);
       query.orderDate = { $gte: startDate, $lte: endDate };
     }
     const totalOrders = await Order.countDocuments(query);
-    page = Math.max(1, page);
-    limit = Math.max(1, limit);
-    orders = await Order.find(query)
-      .sort({ orderDate: 'desc' })
-      .skip((page - 1) * limit)
-      .limit(limit);
-    res.status(200).json({
-      status: "success",
-      data: orders,
-      pagination: {
-        totalOrders,
-        totalPages: Math.ceil(totalOrders / limit),
-        currentPage: page,
-        ordersPerPage: limit,
-      },
-    });
+    orders = await Order.find(query);
+    
+    // Transformation
+    const formattedOrders = await Promise.all(orders.map(async (order) => {
+      return await transformationOrder(order); // Transform each order
+    }));
+    
+    // Pagination
+    if (totalOrders === 0) {
+      res.status(200).json({
+        status: "success",
+        message: "No orders found for the specified period",
+        data: 0,
+        totalOrders: totalOrders
+      });
+    } else {
+      paginateResponse(res, req.query, formattedOrders, totalOrders);
+    }
   } catch (error) {
     res.status(500).json({
       status: "fail",
@@ -53,7 +50,6 @@ export const getAllOrder = async (req, res) => {
     });
   }
 };
-
 export const updateOrder = async (req, res, next) => {
   const order = await Order.findById(req.params.id);
   const supplier = await Supplier.findById(order.supplierId);

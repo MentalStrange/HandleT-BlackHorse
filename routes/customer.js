@@ -6,13 +6,14 @@ import {
     uploadPhoto,
     getCustomerById
 } from '../controllers/customerController.js';
-import { getAllProduct, getAllProductAssignedToSupplier, getProductByCategory } from '../controllers/productsController.js';
+import {  getAllProductAssignedToSupplier, getProductByCategory } from '../controllers/productsController.js';
 import {  getAllHomeSlideShow } from '../controllers/adminController.js';
 import {createOrder, getAllOrderByCustomerId, getBestSeller, updateOrder} from '../controllers/orderController.js';
 import { applyPromoCode } from '../controllers/promoCodeController.js';
 import { createRating } from '../controllers/ratingController.js';
 import { authenticate } from "../middlewares/authorizationMiddleware.js";
 import { getAllSupplier } from '../controllers/supplierController.js';
+import { createGroup, getAllGroupForCustomer } from '../controllers/groupController.js';
 
 const Router = express.Router();
 
@@ -38,4 +39,7 @@ Router.delete("/deletePhoto/:id", deletePhoto);
 Router.post("/promoCode",applyPromoCode)
 
 Router.get('/supplier',authenticate, getAllSupplier)
+
+Router.get('/group',getAllGroupForCustomer);
+Router.post('/group',createGroup);
 export default Router;

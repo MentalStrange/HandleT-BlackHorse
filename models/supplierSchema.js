@@ -35,7 +35,8 @@ const supplierSchema = mongoose.Schema({
   },
   deliveryRegion: [
     {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Region",
       required: [
         true,
         "Supplier Should have a Delivery Region for every receipt",
