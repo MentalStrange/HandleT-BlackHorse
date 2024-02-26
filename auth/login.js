@@ -2,7 +2,7 @@ import Customer from "../models/customerSchema.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import Supplier from "../models/supplierSchema.js";
-import {transformationCustomer} from "../format/transformationObject.js";
+import {transformationCustomer, transformationDeliveryBoy} from "../format/transformationObject.js";
 import DeliveryBoy from "../models/deliveryBoySchema.js";
 const salt = 10 ;
 
@@ -94,8 +94,6 @@ export const deliveryBoyLogin = async (req, res) => {
         message: "Delivery Boy Not Found",
       });
     }
-    console.log('deliveryBoy', deliveryBoy);
-    
     // Compare passwords using bcrypt.compare
     const isPasswordMatch = await bcrypt.compare(
       deliveryBoyPassword,
@@ -107,11 +105,11 @@ export const deliveryBoyLogin = async (req, res) => {
         message: "Incorrect Password",
       });
     }
-    // If password is correct, generate JWT token
     const { password, ...rest } = deliveryBoy._doc;
+    const deliveryBoyData = { ...rest, access_token: jwt.sign({_id: rest._id, role: "deliveryBoy"}, process.env.JWT_SECRET, {})};
     res.status(200).json({
       status: "success",
-      data: {...rest ,access_token: jwt.sign({_id: rest._id, role: "deliveryBoy"}, process.env.JWT_SECRET, {})},
+      data: transformationDeliveryBoy(deliveryBoyData),
       
     });
   } catch (error) {
@@ -121,3 +119,4 @@ export const deliveryBoyLogin = async (req, res) => {
     });
   }
 };
+

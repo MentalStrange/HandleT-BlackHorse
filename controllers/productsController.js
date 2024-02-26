@@ -8,7 +8,7 @@ import {
   transformationProduct,
   transformationSupplierProduct,
 } from "../format/transformationObject.js";
-import paginateResponse from "./utils/paginationResponse.js";
+import paginateResponse from "./../utils/paginationResponse.js";
 
 export const getProductBySupplier = async (req, res) => {
   const supplierId = req.params.id;
@@ -80,8 +80,6 @@ export const getProductByCategory = async (req, res) => {
         return await transformationSupplierProduct(supplierProduct);
       })
     );
-    console.log('transformedProducts', transformedProducts);
-    
     res.status(200).json({
       status: "success",
       data: transformedProducts,

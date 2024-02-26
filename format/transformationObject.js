@@ -4,6 +4,7 @@ import Product from "../models/productSchema.js";
 import SupplierProduct from "../models/supplierProductSchema.js";
 import Supplier from "../models/supplierSchema.js";
 import SubUnit from "../models/subUnitSchema.js";
+import Car from "../models/carSchema.js";
 
 export const transformationCustomer = (customer) => {
   return {
@@ -137,17 +138,45 @@ export const transformationOrder= async (order) => {
     supplierRating: order.supplierRating,
   };
 };
-export const transformationDeliveryBoy = (deliverBoy) => {
+export const transformationDeliveryBoy = async (deliverBoy) => {
+  const car = await Car.findById(deliverBoy.car);
   return{
     _id: deliverBoy._id,
     name: deliverBoy.name,
     email: deliverBoy.email,
+    password: deliverBoy.password ?? "",
     image: deliverBoy.image,
     phone: deliverBoy.phone,
-    region: deliverBoy.region,
-    address: deliverBoy.address,
-    password: deliverBoy.password,
-    car:deliverBoy.car ?? null
+    deliveryDistrict: deliverBoy.region ?? "",
+    token: deliverBoy.access_token,
+    // address: deliverBoy.address,
+    car:car ?? ""
   }
   
+}
+export const transformationSupplier = (supplier) => {
+  return{
+    name: supplier.name,
+    email: supplier.email,
+    password: supplier.password,
+    nationalId: supplier.nationalId,
+    phoneNumber: supplier.phoneNumber,
+    deliveryRegion: supplier.deliveryRegion ?? "",
+    workingDays: supplier.workingDays ?? "",
+    workingHours: supplier.workingHours ?? "",
+    deliveryDaysNumber: supplier.deliveryDaysNumber ?? "",
+    type: supplier.type,
+    image: supplier.image,
+    shopImages: supplier.shopImages,
+    _id: supplier._id
+  }
+}
+export const transformationCar = (car)=>{
+  return {
+    _id: car._id,
+    image: car.image,
+    type: car.type,
+    number: car.number,
+    maxWeight: car.maxWeight
+  }
 }

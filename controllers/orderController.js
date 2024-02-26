@@ -7,7 +7,7 @@ import Supplier from "../models/supplierSchema.js";
 import Offer from "../models/offerSchema.js";
 import Product from "../models/productSchema.js";
 import { transformationOrder, transformationSupplierProduct } from "../format/transformationObject.js";
-import paginateResponse from "./utils/paginationResponse.js";
+import paginateResponse from "./../utils/paginationResponse.js";
 
 export const getAllOrder = async (req, res) => {
   let page = parseInt(req.query.page) || 1; // Current page, default to 1
