@@ -16,38 +16,44 @@ const createCar = async (req,res) => {
   }
 };
 // Read cars
-const getCars = async () => {
+const getCars = async (req,res) => {
   try {
     const cars = await Car.find();
-    return { status: 'success', data: cars };
+    const allCars = cars.map((car) => transformationCar(car));
+    res.status(200).json({ status: 'success', data: allCars });
   } catch (error) {
-    return { status: 'fail', message: error.message };
+    res.status(500).json({ status: 'fail', message: error.message }) 
   }
 };
 // Update a car
-const updateCar = async (carId, updateData) => {
+const updateCar = async (req,res) => {
+  const carId = req.params.id;
+  const carData = req.body;
   try {
-    const updatedCar = await Car.findByIdAndUpdate(carId, updateData, { new: true });
-    if (!updatedCar) {
-      return { status: 'fail', message: 'Car not found' };
+    const updatedCar = await Car.findByIdAndUpdate(carId, carData, { new: true });
+    if (updatedCar) {
+      res.status(200).json({ status: 'success', data: transformationCar(updatedCar) });
+    } else {
+      res.status(404).json({ status: 'fail', message: 'Car not found' });
     }
-    return { status: 'success', data: updatedCar };
   } catch (error) {
-    return { status: 'fail', message: error.message };
+    res.status(500).json({ status: 'fail', message: error.message });
+  }
+};
+// Delete a car
+const deleteCar = async (req,res) => {
+  const carId = req.params.id;
+  try {
+    const deletedCar = await Car.findByIdAndDelete(carId);
+    if (deletedCar) {
+      res.status(200).json({ status: 'success', data: null });
+    } else {
+      res.status(404).json({ status: 'fail', message: 'Car not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ status: 'fail', message: error.message });
   }
 };
 
-// Delete a car
-const deleteCar = async (carId) => {
-  try {
-    const deletedCar = await Car.findByIdAndDelete(carId);
-    if (!deletedCar) {
-      return { status: 'fail', message: 'Car not found' };
-    }
-    return { status: 'success', message: 'Car deleted successfully' };
-  } catch (error) {
-    return { status: 'fail', message: error.message };
-  }
-};
 
 export { createCar, getCars, updateCar, deleteCar };
