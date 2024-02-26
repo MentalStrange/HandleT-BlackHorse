@@ -37,7 +37,6 @@ export const transformationSupplierProduct = async (supplierProduct) => {
   const supplier = await Supplier.findById(supplierProduct.supplierId);
   const category = await Category.findOne({ _id: product.category });
   const subUnit = await SubUnit.findById(product.subUnit);
-  console.log(subUnit);
   return {
     _id: product._id,
     title: product.title,
@@ -93,7 +92,7 @@ export const transformationOrder= async (order) => {
     order.products.map(async (product) => {
       const supplierProduct = await SupplierProduct.findOne({ productId:product.product });
       if (!supplierProduct) return null;
-      return transformationSupplierProduct(supplierProduct);
+      return transformationSupplierProduct(supplierProduct,);
     })
   );
   const offers = await Promise.all(
@@ -102,8 +101,12 @@ export const transformationOrder= async (order) => {
       if (!offer) return null;
       return transformationOffer(offer);
     })
-    
   );
+  const orderWeight = order.orderWeight;
+  const car = await Car.findOne()
+  .sort({ $abs: { $subtract: ['$maxWeight', orderWeight] } }) // Sort by absolute difference
+  .exec();
+  console.log('car', car);
   return {
     _id: order._id,
     orderNumber: order.orderNumber,
