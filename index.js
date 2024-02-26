@@ -2,16 +2,22 @@ import express from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from 'cors';
+import { Server } from "socket.io";
+import http from 'http';
 import { v2 as cloudinary } from 'cloudinary';
 import authRoute from './routes/auth.js';
 import supplierRoute from './routes/supplier.js';
 import customerRoute from './routes/customer.js';
 import productRoute from './routes/product.js';
 import adminRoute from './routes/admin.js';
+import { getOrderByDelivery } from './controllers/orderController.js';
 
 dotenv.config();
 const port = process.env.PORT || 3000;
 const app = express();
+const server = http.createServer(app);
+const IO = new Server(server, { cors: { origin: "*" } });
+
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_NAME,
   api_key: process.env.CLOUDINARY_KEY,
@@ -44,7 +50,35 @@ app.get('/', async (req, res) => {
   res.send("<center><h1>Welcome to BlackHorse Company</h1></center>");
 });
 
-app.listen(port, () => {
-  connectDB();
+const userSocketIdMap = [];
+IO.use((socket, next) => {
+  if (socket.handshake.query) {
+    let socketId = socket.handshake.query.socketId;
+    socket.socketUser = socketId;
+    userSocketIdMap[socket.socketUser] = socket.id;
+    next();
+  }
+});
+
+IO.on("connection", (socket) => {
+  console.log(userSocketIdMap);
+  socket.join(socket.socketUser);
+
+  socket.on('disconnect', () => {
+    delete userSocketIdMap[socket.socketUser];
+    console.log("deleted: ", userSocketIdMap);
+  });
+
+  socket.on("order", async (data) => {
+    // let orderId = data.orderId;
+    // let status = data.status;
+    // let supplierId = data.supplierId;
+    let deliveryId = data.deliveryId;
+    IO.to(userSocketIdMap[deliveryId]).emit("order", await getOrderByDelivery(deliveryId));
+  });
+});
+
+server.listen(port, async () => {
+  await connectDB();
   console.log(`listening on http://localhost:${port}`);
 });

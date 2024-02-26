@@ -8,6 +8,7 @@ import Offer from "../models/offerSchema.js";
 import Product from "../models/productSchema.js";
 import { transformationOrder, transformationSupplierProduct } from "../format/transformationObject.js";
 import paginateResponse from "./../utils/paginationResponse.js";
+import { check } from "express-validator";
 
 export const getAllOrder = async (req, res) => {
   let page = parseInt(req.query.page) || 1; // Current page, default to 1
@@ -96,6 +97,26 @@ export const updateOrder = async (req, res, next) => {
     });
   }
 };
+
+export const getOrderByDelivery = async (deliveryId) => {
+  // const deliveryId = req.params.deliveryId;
+  try{
+    const orders = await Order.find({deliveryBoy: deliveryId});
+    return await Promise.all(orders.map(async (order) => {
+      return await transformationOrder(order); // Transform each order
+    }))
+    // res.status(200).json({
+    //   status: "success",
+    //   data: 
+    // });
+  } catch (error) {
+    return [];
+    // res.status(500).json({
+    //   status: "fail",
+    //   message: error.message,
+    // });
+  }
+}
 
 export const createOrder = async (req, res) => {
   const orderData = req.body;

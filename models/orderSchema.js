@@ -66,6 +66,10 @@ const orderSchema = mongoose.Schema({
   governorate:{
     type: String,
   },
+  customerPhoneNumber: {
+    type: String,
+    required: [true, 'Order should have a customerPhoneNumber']
+  },
   customerName: {
     type: String,
     required: [true, 'Order should have a customerName']
