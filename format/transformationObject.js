@@ -32,7 +32,7 @@ export const transformationProduct = (product) => {
     images: product.images ?? [],
   };
 };
-export const transformationSupplierProduct = async (supplierProduct) => {
+export const transformationSupplierProduct = async (supplierProduct, quantity=0) => {
   const product = await Product.findById(supplierProduct.productId);
   const supplier = await Supplier.findById(supplierProduct.supplierId);
   const category = await Category.findOne({ _id: product.category });
@@ -54,6 +54,7 @@ export const transformationSupplierProduct = async (supplierProduct) => {
     category: category.name,
     supplierType: supplier.type,
     stock: supplierProduct.stock,
+    quantity: quantity
   };
 };
 export const transformationRating = (rating) => {
@@ -64,7 +65,7 @@ export const transformationRating = (rating) => {
     rate: rating.rate,
   };
 };
-export const transformationOffer = async (offer) => {
+export const transformationOffer = async (offer, quantity=0) => {
   const transformedProducts = await Promise.all(
     offer.productId.map(async (productId) => {
       const supplierProduct = await SupplierProduct.findOne({ productId });
@@ -85,6 +86,7 @@ export const transformationOffer = async (offer) => {
     unit: offer.unit,
     stock: offer.stock,
     products: transformedProducts.filter((product) => product !== null),
+    offerQuantity: quantity
   };
 }
 export const transformationOrder= async (order) => {
@@ -93,14 +95,14 @@ export const transformationOrder= async (order) => {
     order.products.map(async (product) => {
       const supplierProduct = await SupplierProduct.findOne({ productId:product.product });
       if (!supplierProduct) return null;
-      return transformationSupplierProduct(supplierProduct);
+      return transformationSupplierProduct(supplierProduct, product.quantity);
     })
   );
   const offers = await Promise.all(
     order.offers.map(async (offerId)=>{
       const offer = await Offer.findById(offerId.offer);
       if (!offer) return null;
-      return transformationOffer(offer);
+      return transformationOffer(offer, offer.quantity);
     })
   );
   return {
@@ -132,6 +134,7 @@ export const transformationOrder= async (order) => {
     longitude: order.longitude,
     promoCode: order.promoCode,
     supplierRating: order.supplierRating,
+    deliveryBoy: order.deliveryBoy ?? ""
   };
 };
 export const transformationDeliveryBoy = async (deliverBoy) => {
