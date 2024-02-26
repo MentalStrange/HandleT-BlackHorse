@@ -144,7 +144,7 @@ export const transformationDeliveryBoy = async (deliverBoy) => {
     image: deliverBoy.image,
     phone: deliverBoy.phone,
     deliveryDistrict: deliverBoy.region ?? "",
-    token: deliverBoy.access_token,
+    access_token: deliverBoy.access_token,
     // address: deliverBoy.address,
     car:transformationCar(car) ?? ""
   }
