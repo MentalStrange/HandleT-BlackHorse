@@ -52,14 +52,42 @@ export const getAllOrder = async (req, res) => {
     });
   }
 };
+
 export const updateOrder = async (req, res, next) => {
+  const order = await Order.findById(req.params.id);
+  const supplier = await Supplier.findById(order.supplierId);
+
   try {
-    const order = await Order.findByIdAndUpdate(req.params.id, req.body, {
+    if (req.body.status === "complete") {
+      // Update the supplier's wallet with the total price of the order
+      const fee = await Fee.findOne(); // Assuming there is only one fee entry
+      const blackHorseCommotion = order.totalPrice * (fee.amount/100);
+      supplier.wallet += blackHorseCommotion;
+      await supplier.save();
+    } else if (req.body.status === "cancelled") {
+      if(req.headers['user_type'] === "supplier"){
+        supplier.wallet += 5;
+        await supplier.save();
+      }
+
+      for(const product of order.products){
+        const supplierProduct = await SupplierProduct.findOne({ supplierId: supplier._id, productId: product.product });
+        supplierProduct.stock += product.quantity;
+        await supplierProduct.save();
+      }
+      for (const offer of order.offers) {
+        const offerData = await Offer.findById(offer.offer);
+        offerData.stock += offer.quantity;
+        await offerData.save();
+      }
+    }
+
+    const updatedOrder = await Order.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
     });
     res.status(200).json({
       status: "success",
-      data: order,
+      data: await transformationOrder(updatedOrder),
     });
   } catch (error) {
     res.status(500).json({
@@ -68,6 +96,7 @@ export const updateOrder = async (req, res, next) => {
     });
   }
 };
+
 export const createOrder = async (req, res) => {
   const orderData = req.body;
   const promoCode = req.body.promoCode;
@@ -139,13 +168,6 @@ export const createOrder = async (req, res) => {
       await offerData.save();
     }
 
-    // Update the supplier's wallet with the total price of the order
-    const fee = await Fee.findOne(); // Assuming there is only one fee entry
-    const blackHorseCommotion = totalPrice * (fee.amount/100);
-    const supplier = await Supplier.findById(supplierId);
-    supplier.wallet += blackHorseCommotion;
-    await supplier.save();
-
     // Create the order
     const newOrder = await Order.create(orderData);
     res.status(201).json({
@@ -171,7 +193,7 @@ export const getAllOrderByCustomerId = async (req, res) => {
       .skip(skip)
       .limit(limit);
     if (orders) {
-      const formattedOrders = await Promise.all(orders.map(async (order) => {        
+      const formattedOrders = await Promise.all(orders.map(async (order) => {
         return await transformationOrder(order); // Transform each order
       }));
       formattedOrders.reverse();
@@ -232,7 +254,7 @@ export const totalOrderBySupplierId = async (req, res) => {
       const startDate = new Date(new Date().getFullYear(), parseInt(month) - 1, 1);
       const endDate = new Date(new Date().getFullYear(), parseInt(month), 0);
       orders = await Order.find({ supplierId, orderDate: { $gte: startDate, $lte: endDate } });
-      
+
       if (orders && orders.length > 0) {
         res.status(200).json({
           status: "success",
@@ -246,7 +268,7 @@ export const totalOrderBySupplierId = async (req, res) => {
       }
     } else {
       orders = await Order.find({ supplierId });
-      
+
       if (orders && orders.length > 0) {
         res.status(200).json({
           status: "success",
@@ -267,14 +289,14 @@ export const getBestSeller = async (req, res) => {
   try {
     const bestSellers = await Order.aggregate([
       { $unwind: "$products" },
-      { 
-        $group: { 
+      {
+        $group: {
           _id: "$products.product",
           totalQuantity: { $sum: "$products.quantity" }
-        } 
+        }
       },
       { $sort: { totalQuantity: -1 } },
-      { 
+      {
         $lookup: {
           from: "products", // Assuming the name of the product collection is "products"
           localField: "_id",
