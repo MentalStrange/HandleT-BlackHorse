@@ -89,7 +89,7 @@ const orderSchema = mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'complete', 'delivery', 'waiting', 'cancelled'],
+    enum: ['pending', 'complete', 'delivery', 'accepted', 'canceled'],
     default: 'pending'
   },
   orderWeight: {
@@ -111,6 +111,10 @@ const orderSchema = mongoose.Schema({
     type: String,
     enum: ['notRating', 'rating', 'ignore'],
     default: 'notRating'
+  },
+  deliveryBoy:{
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"DeliveryBoy",
   }
 }, {
   timestamps: true,

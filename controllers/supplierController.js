@@ -9,6 +9,7 @@ export const getAllSupplier = async (req, res) => {
   try {
     const userRole = req.role; // Assuming user role is correctly populated in req.role
     const { page = 1, limit = 10, type } = req.query;
+    console.log('userRole', userRole);
     let query = { status: "active" };
     if (
       type &&
@@ -41,7 +42,6 @@ export const getAllSupplier = async (req, res) => {
         message: "Unauthorized access.",
       });
     }
-
     if (suppliers.length > 0) {
       res.status(200).json({
         status: "success",
@@ -63,7 +63,6 @@ export const getAllSupplier = async (req, res) => {
     });
   }
 };
-
 export const getCompany = async (req, res) => {
   try {
     const company = await Supplier.find();
@@ -200,7 +199,6 @@ export const addProductToSupplierList = async (req, res) => {
     });
   }
 };
-
 export const updateProductSupplier = async (req, res) => {
   const supplierId = req.params.id;
   const productId = req.body.productId;
@@ -228,7 +226,6 @@ export const updateProductSupplier = async (req, res) => {
     });
   }
 };
-
 export const deleteProductSupplier = async (req, res) => {
   const supplierId = req.params.id;
   const productId = req.body.productId;
@@ -250,7 +247,6 @@ export const deleteProductSupplier = async (req, res) => {
     });
   }
 }
-
 export const totalSalesBySupplierId = async (req, res) => {
   try {
     const supplierId = req.params.id;

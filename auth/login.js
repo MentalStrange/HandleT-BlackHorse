@@ -2,8 +2,8 @@ import Customer from "../models/customerSchema.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import Supplier from "../models/supplierSchema.js";
-import DeliveryBoy from "../models/supplierSchema.js";
 import {transformationCustomer} from "../format/transformationObject.js";
+import DeliveryBoy from "../models/deliveryBoySchema.js";
 const salt = 10 ;
 
 export const customerLogin = async (req, res) => {
@@ -27,14 +27,10 @@ export const customerLogin = async (req, res) => {
         message: req.headers['language'] === 'en' ? "Verify your email or password" : "قم من التحقق من البريد الإلكتروني أو كلمة المرور",
       });
     }
-    // here you should generate the token
-    // const token = generateToken(customer);
-    // const { password, ...rest } = customer[0]._doc;
     const cust = customer[0]._doc;
     res.status(200).json({
       status: "success",
-      data: transformationCustomer(cust),
-      access_token: jwt.sign({_id: cust._id, role: "customer"}, process.env.JWT_SECRET, {})
+      data: {...transformationCustomer(cust), access_token: jwt.sign({_id: cust._id, role: "customer"}, process.env.JWT_SECRET, {})},
     });
   } catch (error) {
     res.status(500).json({
@@ -69,8 +65,7 @@ export const supplierLogin = async (req, res) => {
     if(rest.type === "blackHorse"){
       res.status(200).json({
         status: "success",
-        data:  rest,
-        access_token: jwt.sign({_id: rest._id, role: "blackHorse"}, process.env.JWT_SECRET, {})
+        data:  {...rest, access_token: jwt.sign({_id: rest._id, role: "blackHorse"}, process.env.JWT_SECRET, {})},
       });
     }
     else{
@@ -92,13 +87,16 @@ export const deliveryBoyLogin = async (req, res) => {
   const deliveryBoyEmail = req.body.email;
   const deliveryBoyPassword = req.body.password;
   try {
-    const deliveryBoy = await DeliveryBoy.find({ email: deliveryBoyEmail });
+    const deliveryBoy = await DeliveryBoy.findOne({ email: deliveryBoyEmail });
     if (!deliveryBoy) {
       return res.status(404).json({
         status: "fail",
-        message: "deliveryBoy Not Found",
+        message: "Delivery Boy Not Found",
       });
     }
+    console.log('deliveryBoy', deliveryBoy);
+    
+    // Compare passwords using bcrypt.compare
     const isPasswordMatch = await bcrypt.compare(
       deliveryBoyPassword,
       deliveryBoy.password
@@ -106,17 +104,15 @@ export const deliveryBoyLogin = async (req, res) => {
     if (!isPasswordMatch) {
       return res.status(400).json({
         status: "fail",
-        message: "Password Not Correct",
+        message: "Incorrect Password",
       });
     }
-    const deliveryBoyType = deliveryBoy.type;
-    // here we should generate token
-    // const token = generateToken(deliveryBoy);
+    // If password is correct, generate JWT token
     const { password, ...rest } = deliveryBoy._doc;
     res.status(200).json({
       status: "success",
-      data: { ...rest },
-      access_token: jwt.sign({_id: rest._id, role: "deliveryBoy"}, process.env.JWT_SECRET, {})
+      data: {...rest ,access_token: jwt.sign({_id: rest._id, role: "deliveryBoy"}, process.env.JWT_SECRET, {})},
+      
     });
   } catch (error) {
     res.status(500).json({

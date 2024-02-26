@@ -1,7 +1,9 @@
+import Category from "../models/categorySchema.js";
 import Offer from "../models/offerSchema.js";
 import Product from "../models/productSchema.js";
 import SupplierProduct from "../models/supplierProductSchema.js";
 import Supplier from "../models/supplierSchema.js";
+import SubUnit from "../models/subUnitSchema.js";
 
 export const transformationCustomer = (customer) => {
   return {
@@ -18,7 +20,6 @@ export const transformationCustomer = (customer) => {
     status: customer.status ?? "",
   };
 };
-
 export const transformationProduct = (product) => {
   return {
     _id: product._id,
@@ -30,10 +31,12 @@ export const transformationProduct = (product) => {
     images: product.images ?? [],
   };
 };
-
 export const transformationSupplierProduct = async (supplierProduct) => {
   const product = await Product.findById(supplierProduct.productId);
   const supplier = await Supplier.findById(supplierProduct.supplierId);
+  const category = await Category.findOne({ _id: product.category });
+  const subUnit = await SubUnit.findById(product.subUnit);
+  console.log(subUnit);
   return {
     _id: product._id,
     title: product.title,
@@ -45,9 +48,9 @@ export const transformationSupplierProduct = async (supplierProduct) => {
     supplierId: supplier._id,
     desc: product.desc,
     unit: supplierProduct.unit ?? null,
-    subUnit: product.subUnit,
+    subUnit: subUnit.name,
     numberOfSubUnit: supplierProduct.numberOfSubUnit ?? null,
-    category: product.category,
+    category: category.name,
     supplierType: supplier.type,
     stock: supplierProduct.stock,
   };
@@ -60,7 +63,6 @@ export const transformationRating = (rating) => {
     rate: rating.rate,
   };
 };
-
 export const transformationOffer = async (offer) => {
   const transformedProducts = await Promise.all(
     offer.productId.map(async (productId) => {
@@ -83,8 +85,7 @@ export const transformationOffer = async (offer) => {
     stock: offer.stock,
     products: transformedProducts.filter((product) => product !== null),
   };
-};
-
+}
 export const transformationOrder= async (order) => {
   const supplier = await Supplier.findById(order.supplierId);
   const products = await Promise.all(
@@ -132,3 +133,17 @@ export const transformationOrder= async (order) => {
     supplierRating: order.supplierRating,
   };
 };
+export const transformationDeliveryBoy = (deliverBoy) => {
+  return{
+    _id: deliverBoy._id,
+    name: deliverBoy.name,
+    email: deliverBoy.email,
+    image: deliverBoy.image,
+    phone: deliverBoy.phone,
+    region: deliverBoy.region,
+    address: deliverBoy.address,
+    password: deliverBoy.password,
+    car:deliverBoy.car ?? null
+  }
+  
+}

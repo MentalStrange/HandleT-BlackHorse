@@ -5,14 +5,14 @@ export const authenticate = async (req, res, next) => {
     // get token from headers
     const authToken = req.headers.authorization;
     if (!authToken || !authToken.startsWith("Bearer")) {
-        return res.status(401).json({ success: false, message: "Token is not valid" });
+        return res.status(401).json({ status: "fail", message: "Token is not valid" });
     }
-    
     try {
         const token = authToken.split(" ")[1];
         const decoded = await jwt.verify(token, process.env.JWT_SECRET);
         req.userId = decoded._id;
         req.role = decoded.role;
+        console.log('req.role', req.role);
         next();
     } catch (error) {
         if (error instanceof jwt.TokenExpiredError) {
