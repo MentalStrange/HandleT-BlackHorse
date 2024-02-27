@@ -30,9 +30,6 @@ const supplierProductSchema = mongoose.Schema({
       type:mongoose.Schema.Types.ObjectId,
       ref:"Unit",
     },
-    numberOfSubUnit:{
-      type:Number,
-    },
     subUnit:{
       type:mongoose.Schema.Types.ObjectId,
       ref:"SubUnit",

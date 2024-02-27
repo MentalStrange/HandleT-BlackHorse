@@ -1,6 +1,6 @@
 import express from 'express';
 import {
-    addProductToSupplierList, deleteProductSupplier,
+    createProductSupplier, deleteProductSupplier,
     getCompany,
     getOrdersForSupplierInCurrentMonth,
     getSupplier,
@@ -29,7 +29,7 @@ Router.delete('/offer/:id', deleteOffer);
 
 Router.get('/product',getAllProduct)
 // Router.post('/product', createProduct);
-Router.patch('/addProductToList/:id', addProductToSupplierList);
+Router.post('/addProductToList/:id', createProductSupplier);
 Router.patch('/product/:id', updateProductSupplier);
 Router.delete('/product/:id', deleteProductSupplier);
 

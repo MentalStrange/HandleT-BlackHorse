@@ -144,8 +144,8 @@ export const updateSupplier = async (req, res) => {
     });
   }
 };
-export const addProductToSupplierList = async (req, res) => {
-  const supplierId = req.params.id;
+export const createProductSupplier = async (req, res) => {
+  const supplierId = req.body.id;
   const productId = req.body.productId;
   const productData = req.body;
   try {
@@ -185,7 +185,7 @@ export const addProductToSupplierList = async (req, res) => {
       afterSale: productData.afterSale ?? null,
       maxLimit: productData.maxLimit,
       unit: productData.unit ?? null,
-      numberOfSubUnit: productData.numberOfSubUnit ?? null
+      subUnit:product.subUnit,
     })
     await newSupplierProduct.save();
     res.status(200).json({
