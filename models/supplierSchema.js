@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 import SupplierProduct from "./supplierProductSchema.js";
-import { required } from "nodemon/lib/config/index.js";
 
 const supplierSchema = mongoose.Schema({
   name: {
