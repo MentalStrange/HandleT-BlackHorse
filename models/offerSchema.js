@@ -66,8 +66,11 @@ const offerSchema = new mongoose.Schema({
 });
 
 offerSchema.pre('save', async function (next) {
-  const Product = mongoose.model('Product');
-  const products = await Product.find({ _id: { $in: this.productId } });
+  const SupplierProduct = mongoose.model('SupplierProduct');
+  const products = await Promise.all(this.product.map(async (offerProduct) => {
+    const product = await SupplierProduct.findById(offerProduct.productId);
+    return product;
+  }));
   const totalWeight = products.reduce((sum, product) => sum + product.weight, 0);
   this.weight = totalWeight;
   next();
