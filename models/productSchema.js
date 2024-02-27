@@ -15,11 +15,6 @@ const productSchema = mongoose.Schema({
     type:Number,
     required:[true, 'Product should have a weight'],
   },
-  subUnit:{
-    type:mongoose.Schema.Types.ObjectId,
-    ref:"SubUnit",
-    required:[true, 'Product should be associated with a subUnit']
-  },
   images:[{
     type:String,
     // required:[true, 'Product should have images']

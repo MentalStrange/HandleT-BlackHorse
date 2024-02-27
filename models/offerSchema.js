@@ -1,16 +1,24 @@
 import mongoose from 'mongoose';
 
+const offerProduct = new mongoose.Schema({
+  productId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'SupplierProduct',
+  },
+  quantity: {
+    type: Number,
+  },
+})
 
 const offerSchema = new mongoose.Schema({
   supplierId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Supplier',
   },
-  productId: [
+  product: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'SupplierProduct',
-    },
+      type: offerProduct
+    }
   ],
   title: {
     type: String,

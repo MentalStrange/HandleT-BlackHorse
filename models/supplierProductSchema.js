@@ -22,11 +22,9 @@ const supplierProductSchema = mongoose.Schema({
     },
     afterSale:{
       type:Number,
-      // required:[true, 'Product should have a afterSale'],
     },
     maxLimit:{
       type:Number,
-      required:[true, 'Product should have a maxLimit'],
     },
     unit:{
       type:mongoose.Schema.Types.ObjectId,
@@ -34,6 +32,10 @@ const supplierProductSchema = mongoose.Schema({
     },
     numberOfSubUnit:{
       type:Number,
+    },
+    subUnit:{
+      type:mongoose.Schema.Types.ObjectId,
+      ref:"SubUnit",
     },
 })
 
