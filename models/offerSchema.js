@@ -15,7 +15,7 @@ const offerSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Supplier',
   },
-  product: [
+  products: [
     {
       type: offerProduct
     }

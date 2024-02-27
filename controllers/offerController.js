@@ -113,7 +113,7 @@ export const deleteOffer = async (req, res) => {
 export const createOffer = async (req, res) => {
   const offerData = req.body;
   const supplierId = req.body.supplierId;
-  const productIds = req.body.productId; // Array of product IDs
+  const productIds = req.body.products; // Array of product IDs
 
   try {
     const supplier = await Supplier.findById(supplierId);
