@@ -26,10 +26,6 @@ const offerSchema = new mongoose.Schema({
     type: Number,
     required: [true, 'Offer should have a Price'],
   },
-  quantity: {
-    type: Number,
-    required: [true, 'Offer should have a quantity'],
-  },
   afterSale: {
     type: Number,
     required: [true, 'Offer should have a discount'],
@@ -64,30 +60,43 @@ const offerSchema = new mongoose.Schema({
 });
 
 offerSchema.pre('save', async function (next) {
-  const Product = mongoose.model('Product');
-  const products = await Promise.all(this.products.map(async (offerProduct) => {
-    const product = await Product.findById(offerProduct.productId);
-    if (!product) throw new Error('Product not found');
-    console.log('product', product);
-    return product;
-  }));
-  const totalWeight = products.reduce((sum, product) => sum + product.weight, 0);
-  this.weight = totalWeight*this.quantity;
-  next();
+  try {
+    const Product = mongoose.model('Product');
+    const products = await Promise.all(this.products.map(async (offerProduct) => {
+      const product = await Product.findById(offerProduct.productId);
+      if (!product) throw new Error('Product not found');
+      return { ...product.toObject(), quantity: offerProduct.quantity }; // Include quantity for weight calculation
+    }));
+    const totalWeight = products.reduce((sum, product) => sum + (product.weight * product.quantity), 0);
+    this.weight = totalWeight;
+    next();
+  } catch (error) {
+    next(error);
+  }
 });
 
-offerSchema.pre('findByIdAndUpdate', async function (next) {
-  const Product = mongoose.model('Product');
-  const products = await Promise.all(this.products.map(async (offerProduct) => {
-    const product = await Product.findById(offerProduct.productId);
-    if (!product) throw new Error('Product not found');
-    console.log('product', product);
-    return product;
-  }));
-  const totalWeight = products.reduce((sum, product) => sum + product.weight, 0);
-  this.weight = totalWeight*this.quantity;
-  next();
-});
+// offerSchema.pre('findOneAndUpdate', async function (next) {
+//   try {
+//     const Product = mongoose.model('Product');
+//     const update = this._update.$set; // Get the $set part of the update object
+//     console.log('hello');
+//     if (!update || !update.products || !Array.isArray(update.products)) {
+//       return next(); // Skip processing if products array is not present or not an array
+//     }
+//     const products = await Promise.all(update.products.map(async (offerProduct) => {
+//       const product = await Product.findById(offerProduct.productId);
+//       console.log('product', product);
+//       if (!product) throw new Error('Product not found');
+//       return { ...product.toObject(), quantity: offerProduct.quantity }; // Include quantity for weight calculation
+//     }));
+//     const totalWeight = products.reduce((sum, product) => sum + (product.weight * product.quantity), 0);
+//     this._update.$set.weight = totalWeight;
+//     next();
+//   } catch (error) {
+//     next(error);
+//   }
+// });
+
 
 const Offer = mongoose.model('Offer', offerSchema);
 export default Offer;

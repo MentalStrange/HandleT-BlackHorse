@@ -24,36 +24,6 @@ const productSchema = mongoose.Schema({
     ref:"Category",
     required:[true, 'Product should be associated with a category']
   },
-  // price:{
-  //   type:Number,
-  //   required:[true, 'Product should have a price'],
-  // },
-  // afterSale:{
-  //   type:Number,
-  //   required:[true, 'Product should have a afterSale'],
-  //
-  // },
-  // maxLimit:{
-  //   type:Number,
-  //   required:[true, 'Product should have a maxLimit'],
-  // },
-  // unit:{
-  //   type:mongoose.Schema.Types.ObjectId,
-  //   ref:"Unit",
-  // },
-  // quantity:{
-  //   type:Number,
-  //   required:[true, 'Product should have a quantity'],
-  //   default:1
-  // },
-  // numberOfSubUnit:{
-  //   type:Number,
-  // },
-  // stock:{
-  //   type:Number,
-  //   required:[true, 'Product should have a stock'],
-  //   default:1
-  // },
 })
 
 productSchema.pre('remove', async function(next){

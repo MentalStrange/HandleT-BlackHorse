@@ -1,6 +1,8 @@
 import { transformationOffer } from "../format/transformationObject.js";
 import Offer from "../models/offerSchema.js"
 import Order from "../models/orderSchema.js";
+import Product from "../models/productSchema.js";
+import SupplierProduct from "../models/supplierProductSchema.js";
 import Supplier from "../models/supplierSchema.js";
 
 export const getAllOffer = async (req, res) => {
@@ -59,7 +61,20 @@ export const getOffer = async (req, res) => {
 };
 export const updateOffer = async (req, res) => {
   const offerId = req.params.id;
+  const products = req.body.products;
   try {
+    // const existProducts = await Promise.all(products.map(async (product) => {
+    //   const supplierProduct = await SupplierProduct.findById(product);
+    //   const adminProduct = await Product.findById(product);
+    //   if(!supplierProduct){
+    //     return res.status(404).json({
+    //       status:'fail',
+    //       message:`Product ${adminProduct.title} Not Found`
+    //     })
+    //   }else{
+    //     return supplierProduct;
+    //   }
+    // }))
     if (!offerId) {
       return res.status(400).json({
         status: 'fail',

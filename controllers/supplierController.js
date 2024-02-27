@@ -145,9 +145,10 @@ export const updateSupplier = async (req, res) => {
   }
 };
 export const createProductSupplier = async (req, res) => {
-  const supplierId = req.body.id;
+  const supplierId = req.body.supplierId;
   const productId = req.body.productId;
   const productData = req.body;
+  const role = req.role;
   try {
     const product = await Product.findById(productId);
     if (!product) {
@@ -169,7 +170,6 @@ export const createProductSupplier = async (req, res) => {
         message: "Supplier not found",
       });
     }
-
     const oldSupplierProduct= await SupplierProduct.findOne({productId: productId, supplierId: supplierId});
     if (oldSupplierProduct) {
       return res.status(207).json({
@@ -177,6 +177,13 @@ export const createProductSupplier = async (req, res) => {
         message: "Product already exists in supplier list",
       });
     }
+    // this check will only apply when add authentication.
+    // if(role === "gomlaGomla" || role === "compony" && req.subUnit != null){
+    //   return res.status(400).json({
+    //     status:"fail",
+    //     message:"You should sell By Unit only"
+    //   })
+    // }
     const newSupplierProduct = await SupplierProduct.create({
       supplierId: supplierId,
       productId: productId,

@@ -29,7 +29,7 @@ Router.delete('/offer/:id', deleteOffer);
 
 Router.get('/product',getAllProduct)
 // Router.post('/product', createProduct);
-Router.post('/addProductToList/:id', createProductSupplier);
+Router.post('/createProduct', createProductSupplier);
 Router.patch('/product/:id', updateProductSupplier);
 Router.delete('/product/:id', deleteProductSupplier);
 
