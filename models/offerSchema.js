@@ -1,6 +1,4 @@
 import mongoose from 'mongoose';
-import Product from './productSchema.js';
-
 const offerProduct = new mongoose.Schema({
   productId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -10,7 +8,6 @@ const offerProduct = new mongoose.Schema({
     type: Number,
   },
 })
-
 const offerSchema = new mongoose.Schema({
   supplierId: {
     type: mongoose.Schema.Types.ObjectId,
