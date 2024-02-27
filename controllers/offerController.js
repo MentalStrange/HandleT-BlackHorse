@@ -114,8 +114,15 @@ export const createOffer = async (req, res) => {
   const offerData = req.body;
   const supplierId = req.body.supplierId;
   const productIds = req.body.products; // Array of product IDs
-
+  const offerTitle = req.body.title
   try {
+    const offer = await Offer.findOne({title:offerTitle});
+    if(offer){
+      return res.status(400).json({
+        status:"fail",
+        message:"offer already exist"
+      })
+    }
     const supplier = await Supplier.findById(supplierId);
     if(!supplier){
       return res.status(404).json({

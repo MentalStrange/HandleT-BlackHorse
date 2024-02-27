@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import Product from './productSchema.js';
 
 const offerProduct = new mongoose.Schema({
   productId: {
@@ -66,13 +67,15 @@ const offerSchema = new mongoose.Schema({
 });
 
 offerSchema.pre('save', async function (next) {
-  const SupplierProduct = mongoose.model('SupplierProduct');
-  const products = await Promise.all(this.product.map(async (offerProduct) => {
-    const product = await SupplierProduct.findById(offerProduct.productId);
+  const Product = mongoose.model('Product');
+  const products = await Promise.all(this.products.map(async (offerProduct) => {
+    const product = await Product.findById(offerProduct.productId);
+    if (!product) throw new Error('Product not found');
+    console.log('product', product);
     return product;
   }));
   const totalWeight = products.reduce((sum, product) => sum + product.weight, 0);
-  this.weight = totalWeight;
+  this.weight = totalWeight*this.quantity;
   next();
 });
 
