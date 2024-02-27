@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
-import Product from "./productSchema.js";
 import SupplierProduct from "./supplierProductSchema.js";
+import { required } from "nodemon/lib/config/index.js";
 
 const supplierSchema = mongoose.Schema({
   name: {
@@ -17,6 +17,11 @@ const supplierSchema = mongoose.Schema({
     type: String,
     required: [true, "Supplier Should have a password"],
   },
+  nationalId:{
+    type:Number,
+    required:[true,"Supplier Should have a National Id"],
+    unique:true,
+  },
   wallet:{
     type:Number,
     default:0
@@ -29,10 +34,10 @@ const supplierSchema = mongoose.Schema({
     type: Number,
     required: [true, "Supplier Should have a Minimum Receipt"],
   },
-  maxOrderWeight: {
-    type: Number,
-    required: [true, "Supplier Should have a Maximum Weight for every receipt"],
-  },
+  // maxOrderWeight: {
+  //   type: Number,
+  //   required: [true, "Supplier Should have a Maximum Weight for every receipt"],
+  // },
   deliveryRegion: [
     {
       type: mongoose.Schema.Types.ObjectId,
@@ -85,10 +90,6 @@ const supplierSchema = mongoose.Schema({
       true,
       "Supplier Should have a  Delivery Days Number for every receipt",
     ],
-  },
-  credit: {
-    type: Number,
-    required: [true, "Supplier Should have a Credit"],
   },
   // products: [
   //   {

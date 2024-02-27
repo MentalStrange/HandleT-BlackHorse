@@ -70,10 +70,6 @@ const orderSchema = mongoose.Schema({
     type: String,
     required: [true, 'Order should have a customerPhoneNumber']
   },
-  customerName: {
-    type: String,
-    required: [true, 'Order should have a customerName']
-  },
   deliveryFees: {
     type: Number,
   },
@@ -180,19 +176,19 @@ orderSchema.pre("save", async function(next) {
 //   }
 // });
 
-const checkMaxWeight = async function (next) {
-  try {
-    const totalWeight = this.products.reduce((acc, curr) => acc + curr.productWeight, 0);
-    const supplier = await Supplier.findById(this.supplierId);
+// const checkMaxWeight = async function (next) {
+//   try {
+//     const totalWeight = this.products.reduce((acc, curr) => acc + curr.productWeight, 0);
+//     const supplier = await Supplier.findById(this.supplierId);
     
-    if (totalWeight > supplier.maxOrderWeight) {
-      throw new Error('Max Weight Exceeded');
-    }
-    next();
-  } catch (error) {
-    next(error);
-  }
-};
+//     if (totalWeight > supplier.maxOrderWeight) {
+//       throw new Error('Max Weight Exceeded');
+//     }
+//     next();
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 
 const checkMinPrice = async function (next) {
   try {
@@ -207,7 +203,7 @@ const checkMinPrice = async function (next) {
   }
 };
 
-orderSchema.pre('save', checkMaxWeight);
+// orderSchema.pre('save', checkMaxWeight);
 orderSchema.pre('save', checkMinPrice);
 
 const Order = mongoose.model('Order', orderSchema);
