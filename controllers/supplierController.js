@@ -230,7 +230,7 @@ export const deleteProductSupplier = async (req, res) => {
   const supplierId = req.params.id;
   const productId = req.body.productId;
   try {
-    const supplierProductId = await SupplierProduct.findOne({productId: productId, supplierId: supplierId});
+    const supplierProductId = await SupplierProduct.update({productId: productId, supplierId: supplierId});
     if (supplierProductId) {
       await SupplierProduct.deleteOne({ _id: supplierProductId._id });
       res.status(200).json({
