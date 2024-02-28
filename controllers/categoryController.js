@@ -48,3 +48,42 @@ export const getAllCategory = async (req,res) => {
     }); 
   }
 }
+export const deleteCategory = async (req, res) => {
+  const categoryId = req.params.id;
+  try {
+    if(categoryId){
+      await Category.findByIdAndDelete(categoryId);
+      res.status(200).json({
+        status:"success",
+        data:null
+      })
+    }else{
+      throw new Error("Can not found this category");
+    }
+  } catch (error) {
+    res.status(500).json({
+      status:'fail',
+      message:error.message,
+    })
+  }
+}
+export const updateCategory = async (req, res) => {
+  const categoryId = req.params.id;
+  const categoryData = req.body;
+  try {
+    if(categoryId){
+      await Category.findByIdAndUpdate(categoryId, categoryData, { new: true });
+      res.status(200).json({
+        status:"success",
+        data:categoryData
+      })
+    }else{
+      throw new Error("Can not found this category");
+    }
+  } catch (error) {
+    res.status(500).json({
+      status:'fail',
+      message:error.message,
+    })
+  }
+}

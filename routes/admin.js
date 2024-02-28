@@ -24,6 +24,7 @@ import {
 } from "../controllers/sharedFunction.js";
 import {
   createCategory,
+  deleteCategory,
   getAllCategory,
 } from "../controllers/categoryController.js";
 import { createCustomer, createSupplier } from "../auth/signup.js";
@@ -103,6 +104,7 @@ Router.delete("/product/:id", deleteProduct);
 
 Router.get("/getAllCategory", getAllCategory);
 Router.post("/category", upload.single("image"), createCategory);
+Router.delete('/category/:id', deleteCategory);
 
 Router.post("/deliveryBoy", createDeliveryBoy);
 Router.patch("/deliverBoy/:id", updateDeliveryBoy);
