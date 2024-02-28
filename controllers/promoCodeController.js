@@ -1,9 +1,18 @@
 import PromoCode from "../models/promocodeSchema.js";
+import Supplier from "../models/supplierSchema.js";
 
 export const createPromoCode = async (req, res) => {
   const promoCodeData = req.body;
   const oldPromoCode = req.body.code;
+  const supplierId = req.body.supplierId;
   try {
+    const supplier = await Supplier.findById(supplierId);
+    if (!supplier) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Supplier not found"
+      })
+    }
     const createdPromoCode = await PromoCode.create(promoCodeData);
     if (oldPromoCode) {
       return res.status(400).json({
