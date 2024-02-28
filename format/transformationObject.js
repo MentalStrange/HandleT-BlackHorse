@@ -5,6 +5,7 @@ import SupplierProduct from "../models/supplierProductSchema.js";
 import Supplier from "../models/supplierSchema.js";
 import SubUnit from "../models/subUnitSchema.js";
 import Car from "../models/carSchema.js";
+import Unit from "../models/unitSchema.js";
 
 export const transformationCustomer = (customer) => {
   return {
@@ -37,6 +38,7 @@ export const transformationSupplierProduct = async (supplierProduct, quantity=0)
   const supplier = await Supplier.findById(supplierProduct.supplierId);
   const category = await Category.findOne({ _id: product.category });
   const subUnit = await SubUnit.findById(supplierProduct.subUnit);
+  const unit =  supplierProduct.unit !== undefined ? await Unit.findById(supplierProduct.unit) : null ;
   return {
     _id: product._id,
     title: product.title,
@@ -44,12 +46,12 @@ export const transformationSupplierProduct = async (supplierProduct, quantity=0)
     afterSale: supplierProduct.afterSale ?? null,
     weight: product.weight,
     images: product.images ?? [],
-    maxLimit: supplierProduct.maxLimit,
+    maxLimit: supplierProduct.maxLimit ?? null,
     supplierId: supplier._id,
     desc: product.desc,
-    unit: supplierProduct.unit ?? null,
+    unit: unit ? unit.name : null,
     subUnit: subUnit.name,
-    numberOfSubUnit: supplierProduct.numberOfSubUnit ?? null,
+    numberOfSubUnit: unit ? unit.maxNumber : null,
     category: category.name,
     supplierType: supplier.type,
     stock: supplierProduct.stock,
@@ -78,14 +80,13 @@ export const transformationOffer = async (offer, quantity=0) => {
     title: offer.title,
     image: offer.image,
     price: offer.price,
-    quantity: offer.quantity,
     afterSale: offer.afterSale,
     maxLimit: offer.maxLimit,
     weight: offer.weight,
     unit: offer.unit,
     stock: offer.stock,
-    products: transformedProducts.filter((product) => product !== null),
-    offerQuantity: quantity
+    products: offer.products, // transformedProducts.filter((product) => product !== null),
+    quantity: quantity
   };
 }
 export const transformationOrder= async (order) => {

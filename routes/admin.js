@@ -52,7 +52,7 @@ import fs from "fs";
 import { restrict } from "../middlewares/restrictionMiddleware.js";
 import {
   createCar,
-  deleteCar,
+  deleteCar, getCarByWeight,
   getCars,
   updateCar,
 } from "../controllers/carController.js";
@@ -128,6 +128,7 @@ Router.post("/car", createCar);
 Router.get("/car", getCars);
 Router.patch("/car/:id", updateCar);
 Router.delete("/car/:id", deleteCar);
+Router.post("/getCarByWeight", getCarByWeight);
 
 Router.post('/region',createRegion)
 

@@ -28,7 +28,13 @@ export const getAllOffer = async (req, res) => {
         currentPage: page
       });
     } else {
-      throw new Error('Could not find offers');
+      res.status(200).json({
+        status: "success",
+        data: [],
+        totalPages: totalPages,
+        currentPage: page
+      });
+      // throw new Error('Could not find offers');
     }
   } catch (error) {
     res.status(500).json({
