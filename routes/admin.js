@@ -63,7 +63,7 @@ import {
 } from "../controllers/carController.js";
 import { createDeliveryBoy, updateDeliveryBoy } from "../controllers/deliveryBoyController.js";
 import validateField from "../middlewares/fieldMiddleware.js";
-import { createPromoCode } from "../controllers/promoCodeController.js";
+import { createPromoCode, deletePromoCode, getAllPromoCode, updatePromoCode } from "../controllers/promoCodeController.js";
 // import { authenticate } from '../middlewares/authorizationMiddleware.js';
 
 const storage = multer.diskStorage({
@@ -148,6 +148,8 @@ Router.get('/region', getAllRegion)
 Router.post('/group/expireDate',createExpireDateGroup)
 
 Router.post('/promoCode',createPromoCode);
-// Router.get('/promoCode',getPromoCode);
+Router.get('/promoCode',getAllPromoCode);
+Router.delete('/promoCode/:id',deletePromoCode);
+Router.patch('/promoCode/:id',updatePromoCode)
 
 export default Router;
