@@ -148,7 +148,7 @@ export const createProductSupplier = async (req, res) => {
   const supplierId = req.body.supplierId;
   const productId = req.body.productId;
   const productData = req.body;
-  const role = req.role;
+  // const role = req.role;
   try {
     const product = await Product.findById(productId);
     if (!product) {
@@ -158,6 +158,9 @@ export const createProductSupplier = async (req, res) => {
       });
     }
     const supplier = await Supplier.findById(supplierId);
+console.log('supplierId:', supplierId);
+console.log('supplier:', supplier);
+
     if(supplier.status === "inactive"){
       return res.status(401).json({
         status: "fail",
@@ -170,13 +173,13 @@ export const createProductSupplier = async (req, res) => {
         message: "Supplier not found",
       });
     }
-    const oldSupplierProduct= await SupplierProduct.findOne({productId: productId, supplierId: supplierId});
-    if (oldSupplierProduct) {
-      return res.status(207).json({
-        status: "fail",
-        message: "Product already exists in supplier list",
-      });
-    }
+    // const oldSupplierProduct= await SupplierProduct.findOne({productId: productId, supplierId: supplierId});
+    // if (oldSupplierProduct) {
+    //   return res.status(207).json({
+    //     status: "fail",
+    //     message: "Product already exists in supplier list",
+    //   });
+    // }
     // this check will only apply when add authentication.
     // if(role === "gomlaGomla" || role === "compony" && req.subUnit != null){
     //   return res.status(400).json({
@@ -185,23 +188,20 @@ export const createProductSupplier = async (req, res) => {
     //   })
     // }
     const newSupplierProduct = await SupplierProduct.create({
-      supplierId: supplierId,
-      productId: productId,
-      price: productData.price,
-      stock: productData.stock,
-      afterSale: productData.afterSale ?? null,
-      maxLimit: productData.maxLimit,
-      unit: productData.unit ?? null,
-      subUnit:product.subUnit,
+      supplierId,
+      productId,
+      ...productData
     })
-    await newSupplierProduct.save();
+    // await newSupplierProduct.save();
+    console.log('transformationSupplierProduct',await transformationSupplierProduct(newSupplierProduct));
+    
     res.status(200).json({
       status: "success",
       data: await transformationSupplierProduct(newSupplierProduct),
     });
   } catch (error) {
     res.status(500).json({
-      status: "fail",
+      status: "fail here",
       message: error.message,
     });
   }

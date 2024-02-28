@@ -37,6 +37,8 @@ export const transformationSupplierProduct = async (supplierProduct, quantity=0)
   const supplier = await Supplier.findById(supplierProduct.supplierId);
   const category = await Category.findOne({ _id: product.category });
   const subUnit = await SubUnit.findById(product.subUnit);
+  console.log('category', category.name, "subUnit", subUnit.name);
+  
   return {
     _id: product._id,
     title: product.title,
