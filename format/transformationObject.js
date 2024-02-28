@@ -108,7 +108,6 @@ export const transformationOrder= async (order) => {
     })
   );
   const car = await Car.findById(order.car);
-  console.log('car:', car);
   return {
     _id: order._id,
     orderNumber: order.orderNumber,
