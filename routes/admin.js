@@ -6,6 +6,7 @@ import {
   createRegion,
   createSubUnit,
   createUnit,
+  deleteRegion,
   deleteSubUnit,
   deleteSupplier,
   deleteUnit,
@@ -144,6 +145,7 @@ Router.post("/getCarByWeight", getCarByWeight);
 
 Router.post('/region',validateField,createRegion)
 Router.get('/region', getAllRegion)
+Router.delete('/region/:id',deleteRegion)
 
 Router.post('/group/expireDate',createExpireDateGroup)
 

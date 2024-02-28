@@ -9,6 +9,7 @@ import Region from "../models/regionSchema.js";
 import GroupExpireDate from "../models/groupExpireDate.js";
 import { transformationUnit } from "../format/transformationObject.js";
 import SubUnit from "../models/subUnitSchema.js";
+import mongoose from "mongoose"
 const salt = 10;
 
 export const deleteSupplier = async (req, res) => {
@@ -264,6 +265,28 @@ export const getAllRegion = async (req,res) => {
     res.status(500).json({
       status: "fail",
       message: error.message,
+    });
+  }
+}
+export const deleteRegion = async (req, res) => {
+  const regionId = req.params.id;
+  try {
+    if (!mongoose.Types.ObjectId.isValid(regionId)) {
+      throw new Error('Invalid region ID.');
+    }
+    const deletionResult = await Region.deleteOne({ _id: regionId });
+    if (deletionResult.deletedCount > 0) {
+      res.status(200).json({
+        status: 'success',
+        message: 'Region deleted successfully.',
+      });
+    } else {
+      throw new Error('Region not found.');
+    }
+  } catch (error) {
+    res.status(error.statusCode || 404).json({
+      status: 'fail',
+      message: error.message || 'Not Found',
     });
   }
 }
