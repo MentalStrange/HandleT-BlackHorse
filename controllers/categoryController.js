@@ -12,7 +12,6 @@ export const createCategory = async (req, res) => {
         message: 'Category already exists',
       });
     }
-
     const category = new Category({
       name: categoryData.name,
       image:`${process.env.SERVER_URL}${req.file.path.replace(/\\/g, '/')}`
@@ -47,5 +46,44 @@ export const getAllCategory = async (req,res) => {
       status:'fail',
       message: error.message
     }); 
+  }
+}
+export const deleteCategory = async (req, res) => {
+  const categoryId = req.params.id;
+  try {
+    if(categoryId){
+      await Category.findByIdAndDelete(categoryId);
+      res.status(200).json({
+        status:"success",
+        data:null
+      })
+    }else{
+      throw new Error("Can not found this category");
+    }
+  } catch (error) {
+    res.status(500).json({
+      status:'fail',
+      message:error.message,
+    })
+  }
+}
+export const updateCategory = async (req, res) => {
+  const categoryId = req.params.id;
+  const categoryData = req.body;
+  try {
+    if(categoryId){
+      await Category.findByIdAndUpdate(categoryId, categoryData, { new: true });
+      res.status(200).json({
+        status:"success",
+        data:categoryData
+      })
+    }else{
+      throw new Error("Can not found this category");
+    }
+  } catch (error) {
+    res.status(500).json({
+      status:'fail',
+      message:error.message,
+    })
   }
 }

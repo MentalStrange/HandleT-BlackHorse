@@ -27,7 +27,7 @@ const supplierSchema = mongoose.Schema({
   },
   desc: {
     type: String,
-    required: [true, "Supplier Should have a description"],
+    // required: [true, "Supplier Should have a description"],
   },
   minOrderPrice: {
     type: Number,
@@ -95,7 +95,7 @@ const supplierSchema = mongoose.Schema({
   status: {
     type: String,
     enum: ["active", "inactive"],
-    default: "inactive",
+    default: "active",
   },
   totalRating:{
     type:Number,

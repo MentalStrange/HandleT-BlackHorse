@@ -4,11 +4,17 @@ import {
   createExpireDateGroup,
   createFee,
   createRegion,
+  createSubUnit,
   createUnit,
+  deleteRegion,
+  deleteSubUnit,
   deleteSupplier,
   deleteUnit,
+  getAllRegion,
+  getAllSubUnits,
   getAllUnits,
   getFee,
+  updateSubUnit,
   updateUnit,
 } from "../controllers/adminController.js";
 import {
@@ -18,6 +24,7 @@ import {
 } from "../controllers/sharedFunction.js";
 import {
   createCategory,
+  deleteCategory,
   getAllCategory,
 } from "../controllers/categoryController.js";
 import { createCustomer, createSupplier } from "../auth/signup.js";
@@ -57,6 +64,8 @@ import {
   updateCar,
 } from "../controllers/carController.js";
 import { createDeliveryBoy, updateDeliveryBoy } from "../controllers/deliveryBoyController.js";
+import validateField from "../middlewares/fieldMiddleware.js";
+import { createPromoCode, deletePromoCode, getAllPromoCode, updatePromoCode } from "../controllers/promoCodeController.js";
 // import { authenticate } from '../middlewares/authorizationMiddleware.js';
 
 const storage = multer.diskStorage({
@@ -96,6 +105,7 @@ Router.delete("/product/:id", deleteProduct);
 
 Router.get("/getAllCategory", getAllCategory);
 Router.post("/category", upload.single("image"), createCategory);
+Router.delete('/category/:id', deleteCategory);
 
 Router.post("/deliveryBoy", createDeliveryBoy);
 Router.patch("/deliverBoy/:id", updateDeliveryBoy);
@@ -122,6 +132,11 @@ Router.get("/unit", getAllUnits);
 Router.patch("/unit/:id", updateUnit);
 Router.delete("/unit/:id", deleteUnit);
 
+Router.post('/subUnit',createSubUnit);
+Router.get('/subUnit',getAllSubUnits);
+Router.patch('/subUnit/:id',updateSubUnit);
+Router.delete('/subUnit/:id',deleteSubUnit);
+
 Router.get("/fee", getFee);
 Router.post("/fee", createFee);
 
@@ -131,8 +146,15 @@ Router.patch("/car/:id", updateCar);
 Router.delete("/car/:id", deleteCar);
 Router.post("/getCarByWeight", getCarByWeight);
 
-Router.post('/region',createRegion)
+Router.post('/region',validateField,createRegion)
+Router.get('/region', getAllRegion)
+Router.delete('/region/:id',deleteRegion)
 
 Router.post('/group/expireDate',createExpireDateGroup)
+
+Router.post('/promoCode',createPromoCode);
+Router.get('/promoCode',getAllPromoCode);
+Router.delete('/promoCode/:id',deletePromoCode);
+Router.patch('/promoCode/:id',updatePromoCode)
 
 export default Router;

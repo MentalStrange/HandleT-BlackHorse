@@ -1,23 +1,24 @@
 import mongoose from 'mongoose';
 const carSchema = mongoose.Schema({
-  type:{
-    type:String,
-    required:[true, "Car should have a type"],
+  type: {
+    type: String,
+    required: [true, 'Car should have a type'],
   },
-  maxWeight:{
-    type:Number,
-    required:[true, "Car should have a maxWeight"],
+  maxWeight: {
+    type: Number,
+    required: [true, 'Car should have a maxWeight'],
   },
-  image:{
-    type:String,
-    required:[true, "Car should have an image"],
+  image: {
+    type: String,
+    required: [true, 'Car should have an image'],
   },
-  number:{
-    type:String,
-    required:[true, "Car should have a number"],
+  number: {
+    type: String,
+    required: [true, 'Car should have a number'],
+    // Use a custom index to enforce uniqueness case-insensitively
+    index: { unique: true, collation: { locale: 'en', strength: 2 } },
   },
-
-})
+});
 
 const Car = mongoose.model('Car', carSchema);
-export default Car;
+export default Car

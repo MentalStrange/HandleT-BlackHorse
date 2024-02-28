@@ -4,16 +4,29 @@ import { transformationCar } from "../format/transformationObject.js";
 import Car from "../models/carSchema.js";
 
 // Create a new car
-const createCar = async (req,res) => {
+const createCar = async (req, res) => {
   const carData = req.body;
+
   try {
     const newCar = new Car(carData);
     const savedCar = await newCar.save();
-    res.status(201).json({ status: 'success', data: transformationCar(savedCar)});
+    const transformedCar = {
+      ...savedCar.toObject(), // Copy properties from savedCar
+    };
+    res.status(201).json({ status: 'success', data: transformedCar });
   } catch (error) {
-    return { status: 'fail', message: error.message };
+    if (error.name === 'MongoError' && error.code === 11000) {
+      res.status(400).json({
+        status: 'fail',
+        message: 'Car number already exists. Please choose a unique number.',
+      });
+    } else {
+      res.status(500).json({ status: 'fail', message: error.message });
+    }
   }
 };
+
+
 // Read cars
 const getCars = async (req,res) => {
   try {

@@ -1,9 +1,32 @@
-import { transformationDeliveryBoy } from "../format/transformationObject.js";import Car from "../models/carSchema.js";
+import { transformationDeliveryBoy } from "../format/transformationObject.js";
+import Car from "../models/carSchema.js";
 import DeliveryBoy from "../models/deliveryBoySchema.js";
+import Region from "../models/regionSchema.js";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+const salt = 10 ;
 export const createDeliveryBoy = async (req, res) => {
   const deliverBoyData = req.body;
   const deliveryBoyEmail = req.body.email;
+  const deliveryRegion = req.body.region;
+  const carId = req.body.car;
+  console.log('region', deliveryRegion);
+  
   try {
+    const region = await Region.findById(deliveryRegion);
+    if (!region) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Region not found",
+      });
+    }
+    const car = await Car.findById(carId);
+    if (!car) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Car not found",
+      });
+    }
     const oldDeliveryBoy = await DeliveryBoy.find({ email: deliveryBoyEmail });
     if (oldDeliveryBoy.length > 0) {
       return res.status(400).json({
@@ -20,7 +43,7 @@ export const createDeliveryBoy = async (req, res) => {
     await deliveryBoy.save();
     res.status(201).json({
       status: "success",
-      data: deliveryBoy,
+      data: await transformationDeliveryBoy(deliveryBoy),
     });
   } catch (error) {
     res.status(error.statusCode || 500).json({

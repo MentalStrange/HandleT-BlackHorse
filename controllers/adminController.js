@@ -7,6 +7,9 @@ import Unit from "../models/unitSchema.js";
 import Fee from "../models/feesSchema.js";
 import Region from "../models/regionSchema.js";
 import GroupExpireDate from "../models/groupExpireDate.js";
+import { transformationUnit } from "../format/transformationObject.js";
+import SubUnit from "../models/subUnitSchema.js";
+import mongoose from "mongoose"
 const salt = 10;
 
 export const deleteSupplier = async (req, res) => {
@@ -28,7 +31,6 @@ export const deleteSupplier = async (req, res) => {
     });
   }
 };
-
 export const deleteHomeSlideShow = async (req, res) => {
   const homeSlideShowId = req.params.id;
   try {
@@ -118,13 +120,19 @@ export const createUnit = async (req,res) => {
   const unit = req.body;
   const existingUnit = await Unit.findOne({ name: unit.name });
   if (existingUnit) {
-    throw new Error(`Unit or subunit '${unit.name}' already exists`);
+    return res.status(400).json({
+      status: "fail",
+      message: `Unit ${unit.name} exists`,
+    })
   }
-  const newUnit = new Unit(unit);
+  const newUnit = new Unit({
+    name:unit.name,
+    maxNumber:unit.number
+  });
   await newUnit.save();
   res.status(201).json({
     status: "success",
-    data: newUnit,
+    data: transformationUnit(newUnit),
   });
 }
 export const updateUnit = async (req,res) => {
@@ -221,10 +229,13 @@ export const createFee = async (req, res) => {
   }
 }
 export const createRegion = async (req, res) => {
-  const region = req.body;
+  const region = req.body;  
   const existingRegion = await Region.findOne({ name: region.name });
   try{if (existingRegion) {
-    throw new Error(`Region or subregion '${region.name}' already exists`);
+    return res.status(400).json({
+      status: "fail",
+      message: `Region ${region.name} exists`,
+    }) 
   }
   const newRegion = new Region(region);
   await newRegion.save();
@@ -236,6 +247,46 @@ export const createRegion = async (req, res) => {
     res.status(500).json({
       status: "fail",
       message: error.message,
+    });
+  }
+}
+export const getAllRegion = async (req,res) => {
+  try {
+    const regions = await Region.find();
+    if (regions) {
+      res.status(200).json({
+        status: "success",
+        data: regions,
+      });
+    } else {
+      throw new Error("Could not find regions");
+    }
+  } catch (error) {
+    res.status(500).json({
+      status: "fail",
+      message: error.message,
+    });
+  }
+}
+export const deleteRegion = async (req, res) => {
+  const regionId = req.params.id;
+  try {
+    if (!mongoose.Types.ObjectId.isValid(regionId)) {
+      throw new Error('Invalid region ID.');
+    }
+    const deletionResult = await Region.deleteOne({ _id: regionId });
+    if (deletionResult.deletedCount > 0) {
+      res.status(200).json({
+        status: 'success',
+        message: 'Region deleted successfully.',
+      });
+    } else {
+      throw new Error('Region not found.');
+    }
+  } catch (error) {
+    res.status(error.statusCode || 404).json({
+      status: 'fail',
+      message: error.message || 'Not Found',
     });
   }
 }
@@ -251,6 +302,76 @@ export const createExpireDateGroup = async (req, res) => {
       status: "success",
       data: newExpireDateGroup,
     });
+  } catch (error) {
+    res.status(500).json({
+      status: "fail",
+      message: error.message,
+    });
+  }
+}
+export const createSubUnit = async (req, res) => {
+  const subUnit = req.body;
+  const existingSubUnit = await SubUnit.findOne({ name: subUnit.name });
+  if (existingSubUnit) {
+    throw new Error(`Subunit '${subUnit.name}' already exists`);
+  }
+  const newSubUnit = new SubUnit(subUnit);
+  await newSubUnit.save();
+  res.status(201).json({
+    status: "success",
+    data: newSubUnit,
+  });
+}
+export const updateSubUnit = async (req, res) => {
+  const subUnitId = req.params.id;
+  const subUnitData = req.body;
+  const subUnit = await SubUnit.findByIdAndUpdate(
+    subUnitId,
+    subUnitData,
+    { new: true }
+  );
+  if (subUnit) {
+    res.status(200).json({
+      status: "success",
+      data: subUnit,
+    });
+  } else {
+    throw new Error(`Subunit not found`);
+  }
+}
+export const deleteSubUnit = async (req, res) => {
+  const subUnitId = req.params.id;
+  try {
+    if (!mongoose.Types.ObjectId.isValid(subUnitId)) {
+      throw new Error('Invalid subUnit ID.');
+    }
+    const deletionResult = await SubUnit.deleteOne({ _id: subUnitId });
+    if (deletionResult.deletedCount > 0) {
+      res.status(200).json({
+        status: 'success',
+        message: 'SubUnit deleted successfully.',
+      });
+    } else {
+      throw new Error('SubUnit not found.');
+    }
+  } catch (error) {
+    res.status(error.statusCode || 404).json({
+      status: 'fail',
+      message: error.message || 'Not Found',
+    });
+  }
+};
+export const getAllSubUnits = async (req, res) => {
+  try {
+    const subUnits = await SubUnit.find();
+    if (subUnits) {
+      res.status(200).json({
+        status: "success",
+        data: subUnits,
+      });
+    } else {
+      throw new Error("Could not find subUnits");
+    }
   } catch (error) {
     res.status(500).json({
       status: "fail",
