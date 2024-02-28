@@ -119,7 +119,10 @@ export const createUnit = async (req,res) => {
   const unit = req.body;
   const existingUnit = await Unit.findOne({ name: unit.name });
   if (existingUnit) {
-    throw new Error(`Unit or subunit '${unit.name}' already exists`);
+    return res.status(400).json({
+      status: "fail",
+      message: `Unit ${unit.name} exists`,
+    })
   }
   const newUnit = new Unit({
     name:unit.name,
@@ -131,7 +134,6 @@ export const createUnit = async (req,res) => {
     data: transformationUnit(newUnit),
   });
 }
-
 export const updateUnit = async (req,res) => {
   const unitId = req.params.id;
   const unitData = req.body;
@@ -226,10 +228,13 @@ export const createFee = async (req, res) => {
   }
 }
 export const createRegion = async (req, res) => {
-  const region = req.body;
+  const region = req.body;  
   const existingRegion = await Region.findOne({ name: region.name });
   try{if (existingRegion) {
-    throw new Error(`Region or subregion '${region.name}' already exists`);
+    return res.status(400).json({
+      status: "fail",
+      message: `Region ${region.name} exists`,
+    }) 
   }
   const newRegion = new Region(region);
   await newRegion.save();
