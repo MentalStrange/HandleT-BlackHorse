@@ -57,6 +57,7 @@ import {
   updateCar,
 } from "../controllers/carController.js";
 import { createDeliveryBoy, updateDeliveryBoy } from "../controllers/deliveryBoyController.js";
+import validateField from "../middlewares/fieldMiddleware.js";
 // import { authenticate } from '../middlewares/authorizationMiddleware.js';
 
 const storage = multer.diskStorage({
@@ -130,7 +131,7 @@ Router.patch("/car/:id", updateCar);
 Router.delete("/car/:id", deleteCar);
 Router.post("/getCarByWeight", getCarByWeight);
 
-Router.post('/region',createRegion)
+Router.post('/region',validateField,createRegion)
 
 Router.post('/group/expireDate',createExpireDateGroup)
 

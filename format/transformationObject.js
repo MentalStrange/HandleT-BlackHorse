@@ -150,7 +150,7 @@ export const transformationDeliveryBoy = async (deliverBoy) => {
     email: deliverBoy.email,
     password: deliverBoy.password ?? "",
     image: deliverBoy.image,
-    phone: deliverBoy.phone,
+    phoneNumber: deliverBoy.phone,
     deliveryDistrict: deliverBoy.region ?? "",
     access_token: deliverBoy.access_token,
     address: deliverBoy.address ?? '',

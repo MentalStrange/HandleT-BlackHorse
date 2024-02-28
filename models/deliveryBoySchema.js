@@ -22,7 +22,7 @@ const deliveryBoySchema = mongoose.Schema({
   },
   image:{
     type:String,
-    // required:[true,'Delivery Boy Should have an image'],
+    required:[true,'Delivery Boy Should have an image'],
   },
   phone:{
     type:String,
