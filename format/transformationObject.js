@@ -36,7 +36,7 @@ export const transformationSupplierProduct = async (supplierProduct, quantity=0)
   const product = await Product.findById(supplierProduct.productId);
   const supplier = await Supplier.findById(supplierProduct.supplierId);
   const category = await Category.findOne({ _id: product.category });
-  const subUnit = await SubUnit.findById(product.subUnit);
+  const subUnit = await SubUnit.findById(supplierProduct.subUnit);
   return {
     _id: product._id,
     title: product.title,
@@ -66,7 +66,7 @@ export const transformationRating = (rating) => {
 };
 export const transformationOffer = async (offer, quantity=0) => {
   const transformedProducts = await Promise.all(
-    offer.productId.map(async (productId) => {
+    offer.products.map(async (productId) => {
       const supplierProduct = await SupplierProduct.findOne({ productId });
       if (!supplierProduct) return null;
       return transformationSupplierProduct(supplierProduct);
