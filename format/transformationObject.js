@@ -90,6 +90,8 @@ export const transformationOffer = async (offer, quantity=0) => {
   };
 }
 export const transformationOrder= async (order) => {
+  console.log('order:', order);
+  
   const supplier = await Supplier.findById(order.supplierId);
   const products = await Promise.all(
     order.products.map(async (product) => {
@@ -105,6 +107,8 @@ export const transformationOrder= async (order) => {
       return transformationOffer(offer, offer.quantity);
     })
   );
+  const car = await Car.findById(order.car);
+  console.log('car:', car);
   return {
     _id: order._id,
     orderNumber: order.orderNumber,
@@ -135,7 +139,7 @@ export const transformationOrder= async (order) => {
     promoCode: order.promoCode,
     supplierRating: order.supplierRating,
     deliveryBoy: order.deliveryBoy ?? "",
-    car: order.car ?? "",
+    car:car ??"",
   };
 };
 export const transformationDeliveryBoy = async (deliverBoy) => {
