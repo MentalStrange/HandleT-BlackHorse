@@ -244,6 +244,24 @@ export const createRegion = async (req, res) => {
     });
   }
 }
+export const getAllRegion = async (req,res) => {
+  try {
+    const regions = await Region.find();
+    if (regions) {
+      res.status(200).json({
+        status: "success",
+        data: regions,
+      });
+    } else {
+      throw new Error("Could not find regions");
+    }
+  } catch (error) {
+    res.status(500).json({
+      status: "fail",
+      message: error.message,
+    });
+  }
+}
 export const createExpireDateGroup = async (req, res) => {
   const expireDateGroup = req.body;
   try {

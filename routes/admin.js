@@ -7,6 +7,7 @@ import {
   createUnit,
   deleteSupplier,
   deleteUnit,
+  getAllRegion,
   getAllUnits,
   getFee,
   updateUnit,
@@ -132,6 +133,7 @@ Router.delete("/car/:id", deleteCar);
 Router.post("/getCarByWeight", getCarByWeight);
 
 Router.post('/region',validateField,createRegion)
+Router.get('/region', getAllRegion)
 
 Router.post('/group/expireDate',createExpireDateGroup)
 
