@@ -4,12 +4,16 @@ import {
   createExpireDateGroup,
   createFee,
   createRegion,
+  createSubUnit,
   createUnit,
+  deleteSubUnit,
   deleteSupplier,
   deleteUnit,
   getAllRegion,
+  getAllSubUnits,
   getAllUnits,
   getFee,
+  updateSubUnit,
   updateUnit,
 } from "../controllers/adminController.js";
 import {
@@ -122,6 +126,11 @@ Router.post("/unit", createUnit);
 Router.get("/unit", getAllUnits);
 Router.patch("/unit/:id", updateUnit);
 Router.delete("/unit/:id", deleteUnit);
+
+Router.post('/subUnit',createSubUnit);
+Router.get('/subUnit',getAllSubUnits);
+Router.patch('/subUnit/:id',updateSubUnit);
+Router.delete('/subUnit/:id',deleteSubUnit);
 
 Router.get("/fee", getFee);
 Router.post("/fee", createFee);
