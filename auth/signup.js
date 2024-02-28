@@ -9,7 +9,7 @@ export const createSupplier = async (req, res) => {
   const supplierData = req.body;
   const supplierEmail = req.body.email;
   try {
-    const oldSupplier = await Supplier.find({ email: supplierEmail });
+    const oldSupplier = await Supplier.find({ email: supplierEmail.toLowerCase() });
     if (oldSupplier.length > 0) {
       return res.status(400).json({
         status: 'fail',
@@ -20,6 +20,7 @@ export const createSupplier = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, salt);
     const newSupplier = new Supplier({
       ...supplierData,
+      email: supplierEmail.toLowerCase(),
       password: hashedPassword,
     });
     await newSupplier.save();

@@ -33,10 +33,6 @@ const supplierSchema = mongoose.Schema({
     type: Number,
     required: [true, "Supplier Should have a Minimum Receipt"],
   },
-  // maxOrderWeight: {
-  //   type: Number,
-  //   required: [true, "Supplier Should have a Maximum Weight for every receipt"],
-  // },
   deliveryRegion: [
     {
       type: mongoose.Schema.Types.ObjectId,

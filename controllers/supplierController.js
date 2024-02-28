@@ -158,8 +158,6 @@ export const createProductSupplier = async (req, res) => {
       });
     }
     const supplier = await Supplier.findById(supplierId);
-console.log('supplierId:', supplierId);
-console.log('supplier:', supplier);
 
     if(supplier.status === "inactive"){
       return res.status(401).json({

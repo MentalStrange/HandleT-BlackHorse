@@ -13,7 +13,7 @@ import {
 } from "../controllers/adminController.js";
 import {
   createProduct,
-  deleteProduct,
+  deleteProduct, getProducts,
   updateProduct,
 } from "../controllers/sharedFunction.js";
 import {
@@ -90,6 +90,7 @@ Router.get(
   getAllProduct
 );
 Router.post("/product", createProduct);
+Router.get("/products", getProducts);
 Router.patch("/product/:id", updateProduct);
 Router.delete("/product/:id", deleteProduct);
 
