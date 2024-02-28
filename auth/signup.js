@@ -8,24 +8,36 @@ const salt = 10 ;
 export const createSupplier = async (req, res) => {
   const supplierData = req.body;
   const supplierEmail = req.body.email;
+
   try {
-    const oldSupplier = await Supplier.find({ email: supplierEmail });
-    if (oldSupplier.length > 0) {
+    // Check for existing supplier using findOne
+    const existingSupplier = await Supplier.findOne({ email: supplierEmail });
+    if (existingSupplier) {
       return res.status(400).json({
         status: 'fail',
         message: 'Supplier already exists',
       });
-    }
-    const password = req.body.password;
+    }    
+    const password = req.body.password;    
     const hashedPassword = await bcrypt.hash(password, salt);
-    const newSupplier = new Supplier({
-      ...supplierData,
+    const newSupplier = await Supplier.create({
+      name: supplierData.name,
+      email: supplierData.email,
+      phone: supplierData.phoneNumber,
+      image: supplierData.image,
+      nationalId: supplierData.nationalId,
+      minOrderPrice: supplierData.minOrderPrice,
+      deliveryRegion: supplierData.deliveryRegion,
+      workingDays: supplierData.workingDays,
+      workingHours: supplierData.workingHours,
+      deliveryDaysNumber: supplierData.deliveryDaysNumber,
+      type: supplierData.type,
       password: hashedPassword,
     });
-    await newSupplier.save();
+    // await newSupplier.save();
     res.status(201).json({
       status: 'success',
-      data: await transformationSupplier(newSupplier),
+      data: await transformationSupplier(newSupplier), // Replace with your desired transformation logic
     });
   } catch (error) {
     console.error(error);
@@ -35,6 +47,7 @@ export const createSupplier = async (req, res) => {
     });
   }
 };
+
 
 export const createCustomer = async (req,res) => {
   const customerData = req.body;

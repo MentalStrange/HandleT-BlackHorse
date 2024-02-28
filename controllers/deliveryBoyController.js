@@ -2,11 +2,16 @@ import { transformationDeliveryBoy } from "../format/transformationObject.js";
 import Car from "../models/carSchema.js";
 import DeliveryBoy from "../models/deliveryBoySchema.js";
 import Region from "../models/regionSchema.js";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+const salt = 10 ;
 export const createDeliveryBoy = async (req, res) => {
   const deliverBoyData = req.body;
   const deliveryBoyEmail = req.body.email;
-  const deliveryRegion = req.body.deliveryRegion;
+  const deliveryRegion = req.body.region;
   const carId = req.body.car;
+  console.log('region', deliveryRegion);
+  
   try {
     const region = await Region.findById(deliveryRegion);
     if (!region) {
@@ -38,7 +43,7 @@ export const createDeliveryBoy = async (req, res) => {
     await deliveryBoy.save();
     res.status(201).json({
       status: "success",
-      data: transformationDeliveryBoy(deliveryBoy),
+      data: await transformationDeliveryBoy(deliveryBoy),
     });
   } catch (error) {
     res.status(error.statusCode || 500).json({
