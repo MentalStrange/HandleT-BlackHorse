@@ -131,7 +131,16 @@ export const getAllProductAssignedToSupplier = async (req, res) => {
         },
       });
     } else {
-      throw new Error("No products found");
+      res.status(200).json({
+        status: "success",
+        data: {
+          products: [],
+          totalProducts: totalProducts,
+          currentPage: page,
+          totalPages: Math.ceil(totalProducts / pageSize),
+        },
+      });
+      // throw new Error("No products found");
     }
   } catch (error) {
     res.status(500).json({
@@ -196,18 +205,25 @@ export const getProductsByOfferId = async (req, res) => {
         message: "Offer not found",
       })
     }
-    const products = await Promise.all(
-      offer.productId.map(async (productId) => {
-        const supplierProduct = await SupplierProduct.findOne({productId});
-        if (!supplierProduct) {
-          return null; // If supplierProduct not found, return null
-        }
-        const transformedProduct = await transformationSupplierProduct(supplierProduct);
-        return transformedProduct;
-      })
-    );
-    const validProducts = products.filter((product) => product !== null);
-    paginateResponse(res,req.query,products,products.length)
+    let offerProducts = [];
+    for (const prod of offer.products) {
+      const sp = await SupplierProduct.findOne({ productId: prod.productId })
+      offerProducts.push(await transformationSupplierProduct(sp, prod.quantity))
+    }
+    // const products = await Promise.all(
+    //   offer.products.map(async (productId) => {
+    //     const supplierProduct = await SupplierProduct.findOne({productId});
+    //     if (!supplierProduct) {
+    //       return null; // If supplierProduct not found, return null
+    //     }
+    //     console.log("supplierProduct:", supplierProduct);
+    //     const transformedProduct = await transformationSupplierProduct(supplierProduct);
+    //     return transformedProduct;
+    //   })
+    // );
+    // const validProducts = products.filter((product) => product !== null);
+    // paginateResponse(res,req.query,products,products.length)
+    paginateResponse(res,req.query, offerProducts, offerProducts.length)
   } catch (error) {
     res.status(500).json({
       status: "fail",

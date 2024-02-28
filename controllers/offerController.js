@@ -28,7 +28,13 @@ export const getAllOffer = async (req, res) => {
         currentPage: page
       });
     } else {
-      throw new Error('Could not find offers');
+      res.status(200).json({
+        status: "success",
+        data: [],
+        totalPages: totalPages,
+        currentPage: page
+      });
+      // throw new Error('Could not find offers');
     }
   } catch (error) {
     res.status(500).json({
@@ -88,6 +94,7 @@ export const updateOffer = async (req, res) => {
         message: 'Offer data is missing',
       });
     }
+
     const offer = await Offer.findByIdAndUpdate(offerId, offerData, { new: true });
     if (!offer) {
       return res.status(404).json({
@@ -95,6 +102,15 @@ export const updateOffer = async (req, res) => {
         message: 'Could not find offer',
       });
     }
+
+    let updateWeight = 0.0;
+    for(const iterOffer of offer.products) {
+      const iterProduct = await Product.findById(iterOffer.productId);
+      updateWeight += iterProduct.weight * iterOffer.quantity;
+    }
+    offer.weight = updateWeight;
+    await offer.save();  // update offer weight
+
     res.status(200).json({
       status: 'success',
       data: offer,

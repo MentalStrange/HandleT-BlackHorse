@@ -53,7 +53,6 @@ export const getAllOrder = async (req, res) => {
 export const updateOrder = async (req, res, next) => {
   const order = await Order.findById(req.params.id);
   const supplier = await Supplier.findById(order.supplierId);
-
   try {
     if (req.body.status === "complete") {
       // Update the supplier's wallet with the total price of the order
@@ -76,6 +75,12 @@ export const updateOrder = async (req, res, next) => {
         const offerData = await Offer.findById(offer.offer);
         offerData.stock += offer.quantity;
         await offerData.save();
+
+        for(const iterProduct of offerData.products){   // increanet offer's product
+          const sp = await SupplierProduct.findOne({ supplierId: supplier._id, productId: iterProduct.productId });
+          sp.stock += iterProduct.quantity * offer.quantity;
+          await sp.save();
+        }
       }
     }
 
@@ -119,8 +124,8 @@ export const createOrder = async (req, res) => {
   const promoCode = req.body.promoCode;
   const customerId = req.body.customerId;
   const supplierId = req.body.supplierId;
-  const products = req.body.products; // Array of products with { productId, quantity }
-  const offers = req.body.offers; // Array of offers with { offerId, quantity }
+  const products = req.body.products ?? []; // Array of products with { productId, quantity }
+  const offers = req.body.offers ?? []; // Array of offers with { offerId, quantity }
   const totalPrice = req.body.totalPrice;
 
   try {
@@ -154,7 +159,15 @@ export const createOrder = async (req, res) => {
           message: `Product with title ${prod.title} is not available or out of stock`
         });
       }
+      if(!supplierProduct || supplierProduct.maxLimit < product.quantity) {
+        const prod = await Product.findById(product.product)
+        return res.status(400).json({
+          status: "fail",
+          message: `The maximum quantity allowed for purchasing ${prod.title} is ${supplierProduct.maxLimit}`
+        })
+      }
     }
+
     for (const offer of offers) {
       const offerData = await Offer.findById(offer.offer);
       if (!offerData || offerData.stock < offer.quantity) {
@@ -163,13 +176,25 @@ export const createOrder = async (req, res) => {
           message: `Offer with title ${offerData.title} is not available or out of stock`
         });
       }
-      if(!offerData || offerData.quantity < offer.quantity) {
+      if(!offerData || offerData.maxLimit < offer.quantity) {
         return res.status(400).json({
           status: "fail",
-          message: `The maximum quantity allowed for purchasing ${offerData.title} is ${offerData.quantity}`
+          message: `The maximum quantity allowed for purchasing ${offerData.title} is ${offerData.maxLimit}`
         })
       }
+
+      for (const iterProduct of offerData.products) {
+        const sp = await SupplierProduct.findOne({ supplierId, productId: iterProduct.productId });
+        if (!sp || sp.stock < iterProduct.quantity) {
+          const prod = await Product.findById(iterProduct.productId)
+          return res.status(400).json({
+            status: "fail",
+            message: `Product with title ${prod.title} in offer ${offerData.title} is not available or out of stock`
+          });
+        }
+      }
     }
+
     // Calculate the total price of the order including products and offers
     // let totalPrice = 0;
     for(const product of products){
@@ -183,6 +208,12 @@ export const createOrder = async (req, res) => {
       // totalPrice += offerData.price * offer.quantity;
       offerData.stock -= offer.quantity;
       await offerData.save();
+
+      for(const iterProduct of offerData.products){   // decrement offer's product
+        const sp = await SupplierProduct.findOne({ supplierId, productId: iterProduct.productId });
+        sp.stock -= iterProduct.quantity * offer.quantity;
+        await sp.save();
+      }
     }
 
     // Create the order

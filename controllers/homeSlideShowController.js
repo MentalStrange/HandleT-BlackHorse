@@ -43,7 +43,6 @@ export const deleteHomeSlideShow = async (req, res, next) => {
 export const getAllHomeSlideShow = async (req, res) => {
   try {
     const homeSlideShow = await HomeSlideShow.find();
-    console.log('homeSlideShow', homeSlideShow);
     if (homeSlideShow) {
       res.status(200).json({
         status: "success",

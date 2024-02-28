@@ -6,7 +6,6 @@ import Car from "../models/carSchema.js";
 // Create a new car
 const createCar = async (req,res) => {
   const carData = req.body;
-  console.log('carData', carData);
   try {
     const newCar = new Car(carData);
     const savedCar = await newCar.save();
@@ -55,5 +54,35 @@ const deleteCar = async (req,res) => {
   }
 };
 
+const getCarByWeight = async (req,res) => {
+  const orderWeight = req.body.orderWeight;
+  try{
+    const car = await Car.aggregate([
+      {
+        $addFields: {
+          absoluteDifference: { $abs: { $subtract: ['$maxWeight', orderWeight] } } // Calculate absolute difference
+        }
+      },
+      {
+        $match: {
+          $or: [
+            { maxWeight: orderWeight }, // Include exact match case
+            { maxWeight: { $gt: orderWeight } } // Also include cases where maxWeight is greater than orderWeight
+          ]
+        }
+      },
+      {
+        $sort: { absoluteDifference: 1 } // Sort by absolute difference
+      },
+      { $limit: 1 } // Limit to the closest car
+    ]);
+    if(!car){
+      res.status(404).json({ status: 'fail', message: 'Car not found' });
+    }
+    res.status(200).json({ status: 'success', message: transformationCar(car[0]) });
+  } catch (error) {
+    res.status(500).json({ status: 'fail', message: error.message });
+  }
+}
 
-export { createCar, getCars, updateCar, deleteCar };
+export { createCar, getCars, updateCar, deleteCar, getCarByWeight };

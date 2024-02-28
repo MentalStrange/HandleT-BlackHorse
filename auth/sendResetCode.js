@@ -82,7 +82,7 @@ export const resetPasswordCustomer = async (req, res) => {
         res.status(200).json({
             status: "success",
             data: transformationCustomer(customer),
-            access_token: jwt.sign({_id: newCustomer._id, role: "customer"}, process.env.JWT_SECRET, {})
+            access_token: jwt.sign({_id: customer._id, role: "customer"}, process.env.JWT_SECRET, {})
         });
     } catch (error) {
         res.status(500).json({

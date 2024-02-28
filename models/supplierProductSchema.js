@@ -33,6 +33,7 @@ const supplierProductSchema = mongoose.Schema({
     subUnit:{
       type:mongoose.Schema.Types.ObjectId,
       ref:"SubUnit",
+      required:[true, 'Product should have a subUnit'],
     },
 })
 
