@@ -18,23 +18,6 @@ const adminSchema =  mongoose.Schema({
   image: {
     type: String,
   },
-  phone: {
-    type: String,
-  },
-  address: {
-    country:{
-      type:String,
-    },
-    city:{
-      type:String,
-    },
-    street:{
-      type:string
-    },
-    zip:{
-      type:Number,
-    }
-  },
   createdAt: {
     type: Date,
     default: Date.now,
@@ -44,5 +27,4 @@ const adminSchema =  mongoose.Schema({
 });
 
 const Admin = mongoose.model('Admin', adminSchema);
-
 export default Admin;

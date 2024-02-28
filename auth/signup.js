@@ -2,7 +2,7 @@ import Customer from "../models/customerSchema.js";
 import Supplier from "../models/supplierSchema.js";
 import bcrypt from 'bcrypt';
 import jwt from "jsonwebtoken";
-import {transformationCustomer} from "../format/transformationObject.js";
+import {transformationCustomer, transformationSupplier} from "../format/transformationObject.js";
 const salt = 10 ;
 
 export const createSupplier = async (req, res) => {
@@ -25,7 +25,7 @@ export const createSupplier = async (req, res) => {
     await newSupplier.save();
     res.status(201).json({
       status: 'success',
-      data: newSupplier,
+      data: await transformationSupplier(newSupplier),
     });
   } catch (error) {
     console.error(error);

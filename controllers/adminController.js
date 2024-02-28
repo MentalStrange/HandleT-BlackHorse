@@ -7,6 +7,7 @@ import Unit from "../models/unitSchema.js";
 import Fee from "../models/feesSchema.js";
 import Region from "../models/regionSchema.js";
 import GroupExpireDate from "../models/groupExpireDate.js";
+import { transformationUnit } from "../format/transformationObject.js";
 const salt = 10;
 
 export const deleteSupplier = async (req, res) => {
@@ -28,7 +29,6 @@ export const deleteSupplier = async (req, res) => {
     });
   }
 };
-
 export const deleteHomeSlideShow = async (req, res) => {
   const homeSlideShowId = req.params.id;
   try {
@@ -124,7 +124,7 @@ export const createUnit = async (req,res) => {
   await newUnit.save();
   res.status(201).json({
     status: "success",
-    data: newUnit,
+    data: transformationUnit(newUnit),
   });
 }
 export const updateUnit = async (req,res) => {

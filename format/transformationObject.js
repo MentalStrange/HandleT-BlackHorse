@@ -6,6 +6,7 @@ import Supplier from "../models/supplierSchema.js";
 import SubUnit from "../models/subUnitSchema.js";
 import Car from "../models/carSchema.js";
 import Unit from "../models/unitSchema.js";
+import Region from "../models/regionSchema.js";
 
 export const transformationCustomer = (customer) => {
   return {
@@ -157,20 +158,34 @@ export const transformationDeliveryBoy = async (deliverBoy) => {
   }
   
 }
-export const transformationSupplier = (supplier) => {
+export const transformationSupplier = async (supplier) => {
+  const deliveryRegion = await Promise.all(
+    supplier.deliveryRegion.map(async (region) => {
+      const regionName = await Region.findById(region);
+      if(!regionName){
+        return res.status(404).json({
+          success: false,
+          message: "Region not found",
+        })
+      }
+      if (!regionName) return null;
+      return regionName.name;
+    })
+  )
   return{
     name: supplier.name,
     email: supplier.email,
     password: supplier.password,
     nationalId: supplier.nationalId,
     phoneNumber: supplier.phoneNumber,
-    deliveryRegion: supplier.deliveryRegion ?? "",
+    minOrderPrice: supplier.minOrderPrice ?? "",
+    deliveryRegion: deliveryRegion ?? "",
     workingDays: supplier.workingDays ?? "",
     workingHours: supplier.workingHours ?? "",
     deliveryDaysNumber: supplier.deliveryDaysNumber ?? "",
     type: supplier.type,
     image: supplier.image,
-    shopImages: supplier.shopImages,
+    shopImages: supplier.placeImage,
     _id: supplier._id
   }
 }
@@ -181,5 +196,19 @@ export const transformationCar = (car)=>{
     type: car.type,
     number: car.number ?? '',
     maxWeight: car.maxWeight
+  }
+}
+export const transformationUnit = (unit)=>{
+  return {
+    _id: unit._id,
+    name: unit.name,
+    number: unit.maxNumber,
+  }
+}
+export const transformationPromoCode = (promoCode)=>{
+  return {
+    _id: promoCode._id,
+    code: promoCode.code,
+    discountPercentage: promoCode.discount,
   }
 }

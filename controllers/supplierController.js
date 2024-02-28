@@ -158,9 +158,6 @@ export const createProductSupplier = async (req, res) => {
       });
     }
     const supplier = await Supplier.findById(supplierId);
-console.log('supplierId:', supplierId);
-console.log('supplier:', supplier);
-
     if(supplier.status === "inactive"){
       return res.status(401).json({
         status: "fail",
@@ -173,13 +170,13 @@ console.log('supplier:', supplier);
         message: "Supplier not found",
       });
     }
-    // const oldSupplierProduct= await SupplierProduct.findOne({productId: productId, supplierId: supplierId});
-    // if (oldSupplierProduct) {
-    //   return res.status(207).json({
-    //     status: "fail",
-    //     message: "Product already exists in supplier list",
-    //   });
-    // }
+    const oldSupplierProduct= await SupplierProduct.findOne({productId: productId, supplierId: supplierId});
+    if (oldSupplierProduct) {
+      return res.status(207).json({
+        status: "fail",
+        message: "Product already exists in supplier list",
+      });
+    }
     // this check will only apply when add authentication.
     // if(role === "gomlaGomla" || role === "compony" && req.subUnit != null){
     //   return res.status(400).json({
@@ -192,9 +189,6 @@ console.log('supplier:', supplier);
       productId,
       ...productData
     })
-    // await newSupplierProduct.save();
-    console.log('transformationSupplierProduct',await transformationSupplierProduct(newSupplierProduct));
-    
     res.status(200).json({
       status: "success",
       data: await transformationSupplierProduct(newSupplierProduct),

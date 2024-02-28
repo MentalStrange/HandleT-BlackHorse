@@ -11,6 +11,11 @@ const deliveryBoySchema = mongoose.Schema({
     unique:true,
     match: /^\S+@\S+\.\S+$/, 
   },
+  nationalId:{
+    type:Number,
+    required:[true,'Delivery Boy Should have a national Id'],
+    unique:true,
+  },
   password:{
     type:String,
     required:[true,'Delivery Boy Should have a password']
