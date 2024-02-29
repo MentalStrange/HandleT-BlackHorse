@@ -1,4 +1,5 @@
 import Category from "../models/categorySchema.js";
+import fs from "fs";
 
 export const createCategory = async (req, res) => {
   const categoryData = req.body;
@@ -14,7 +15,7 @@ export const createCategory = async (req, res) => {
     }
     const category = new Category({
       name: categoryData.name,
-      image:`${process.env.SERVER_URL}${req.file.path.replace(/\\/g, '/')}`
+      image:`${process.env.SERVER_URL}${req.file.path.replace(/\\/g, '/').replace(/^upload\//, '')}`
     });
     await category.save();
     res.status(201).json({
@@ -52,7 +53,9 @@ export const deleteCategory = async (req, res) => {
   const categoryId = req.params.id;
   try {
     if(categoryId){
-      await Category.findByIdAndDelete(categoryId);
+      const category = await Category.findByIdAndDelete(categoryId);
+      const pathName = category.image.split('/').slice(3).join('/');
+      fs.unlink('upload/' + pathName, (err) => {});
       res.status(200).json({
         status:"success",
         data:null
@@ -81,6 +84,26 @@ export const updateCategory = async (req, res) => {
       throw new Error("Can not found this category");
     }
   } catch (error) {
+    res.status(500).json({
+      status:'fail',
+      message:error.message,
+    })
+  }
+}
+
+export const changeImageCategory = async (req, res) => {
+  const categoryId = req.params.id;
+  try {
+    const category = await Category.findById(categoryId);
+    const pathName = category.image.split('/').slice(3).join('/');
+    fs.unlink('upload/' + pathName, (err) => {});
+    category.image = `${process.env.SERVER_URL}${req.file.path.replace(/\\/g, '/').replace(/^upload\//, '')}`
+    await category.save();
+    res.status(200).json({
+      status:"success",
+      data: category
+    })
+   } catch (error) {
     res.status(500).json({
       status:'fail',
       message:error.message,

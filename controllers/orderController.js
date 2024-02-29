@@ -461,29 +461,21 @@ export const getBestSeller = async (req, res) => {
       },
     ]);
 
-    if (bestSellers && bestSellers.length > 0) {
-      const productIds = bestSellers.map((seller) => seller._id);
-      const products = await SupplierProduct.find({
-        productId: { $in: productIds },
-      });
-      console.log('products', products);
-      
-      const formattedProducts = await Promise.all(
-        products.map(async (product) => {
-          return await transformationSupplierProduct(product);
-        })
-      );
-      res.status(200).json({
-        status: "success",
-        data: formattedProducts,
-      });
-    } else {
-      // If no best sellers are found, respond with a message
-      res.status(200).json({
-        status: "success",
-        message: "No best sellers found",
-      });
-    }
+    const productIds = bestSellers.map((seller) => seller._id);
+    const products = await SupplierProduct.find({
+      productId: { $in: productIds },
+    });
+    console.log('products', products);
+    
+    const formattedProducts = await Promise.all(
+      products.map(async (product) => {
+        return await transformationSupplierProduct(product);
+      })
+    );
+    res.status(200).json({
+      status: "success",
+      data: formattedProducts,
+    });
   } catch (error) {
     // If an error occurs, respond with a 500 status and error message
     res.status(500).json({

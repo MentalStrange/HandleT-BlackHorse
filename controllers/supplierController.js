@@ -378,3 +378,30 @@ export const lastOrdersBySupplierId = async (req, res) => {
     });
   }
 };
+export const uploadPhoto = async (req, res) => {
+  const supplierId = req.params.id;
+  try {
+    const supplier = await Supplier.findOne({ _id: supplierId });
+    if (!supplier) {
+      return res.status(207).json({
+        status: "fail",
+        message: "Supplier not found"
+      });
+    }
+
+    const pathName = supplier.image.split('/').slice(3).join('/');
+    fs.unlink('upload/' + pathName, (err) => {});
+    supplier.image = `${process.env.SERVER_URL}${req.file.path.replace(/\\/g, '/').replace(/^upload\//, '')}`;
+    await supplier.save();
+    return res.status(200).json({
+      status: "success",
+      data: await transformationSupplier(supplier),
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      status: "error",
+      message: "Internal server error"
+    });
+  }
+};

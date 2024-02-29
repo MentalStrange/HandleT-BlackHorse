@@ -20,12 +20,15 @@ import {
 import {
   createProduct,
   deleteProduct, getProducts,
+  storage,
   updateProduct,
 } from "../controllers/sharedFunction.js";
 import {
   createCategory,
   deleteCategory,
+  updateCategory,
   getAllCategory,
+  changeImageCategory,
 } from "../controllers/categoryController.js";
 import { createCustomer, createSupplier } from "../auth/signup.js";
 import {
@@ -54,8 +57,6 @@ import {
 } from "../controllers/homeSlideShowController.js";
 import { authenticate } from "../middlewares/authorizationMiddleware.js";
 import { getAllProduct } from "../controllers/productsController.js";
-import path from "path";
-import fs from "fs";
 import { restrict } from "../middlewares/restrictionMiddleware.js";
 import {
   createCar,
@@ -69,19 +70,9 @@ import { createPromoCode, deletePromoCode, getAllPromoCode, updatePromoCode } fr
 import { checkAllFieldsFilled } from "../middlewares/isActive.js";
 // import { authenticate } from '../middlewares/authorizationMiddleware.js';
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    fs.mkdirSync("upload/category", { recursive: true });
-    cb(null, "upload/category");
-  },
-  filename: (req, file, cb) => {
-    cb(
-      null,
-      `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`
-    );
-  },
-});
-const upload = multer({ storage: storage });
+
+const uploadCategory = multer({ storage: storage('category') });
+const uploadSlideShow = multer({ storage: storage('slideshow') });
 
 const Router = express.Router();
 
@@ -93,20 +84,17 @@ Router.patch("/supplier/:id", updateSupplier);
 
 Router.get("/customer", createCustomer);
 // Router.delete('/customer/:id',deleteCustomer);
-Router.get(
-  "/product",
-  authenticate,
-  restrict(["blackHorse", "company"]),
-  getAllProduct
-);
+Router.get("/product", authenticate, restrict(["blackHorse", "company"]), getAllProduct);
 Router.post("/product", createProduct);
 Router.get("/products", getProducts);
 Router.patch("/product/:id", updateProduct);
 Router.delete("/product/:id", deleteProduct);
 
 Router.get("/getAllCategory", getAllCategory);
-Router.post("/category", upload.single("image"), createCategory);
+Router.post("/category", uploadCategory.single("image"), createCategory);
+Router.patch("/category/:id", updateCategory);
 Router.delete('/category/:id', deleteCategory);
+Router.patch("/category/changeImage/:id", uploadCategory.single("image"), changeImageCategory);
 
 Router.post("/deliveryBoy", createDeliveryBoy);
 Router.patch("/deliverBoy/:id", updateDeliveryBoy);
@@ -115,7 +103,7 @@ Router.get("/offer", getAllOffer);
 Router.post("/offer", createOffer);
 Router.delete("/offer/:id", deleteOffer);
 
-Router.post("/homeSlideShow", createHomeSlideShow);
+Router.post("/homeSlideShow", uploadSlideShow.single("image"), createHomeSlideShow);
 Router.get("/homeSlideShow", getAllHomeSlideShow);
 Router.delete("/homeSlideShow/:id", deleteHomeSlideShow);
 

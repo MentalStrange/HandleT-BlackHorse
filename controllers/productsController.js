@@ -95,14 +95,24 @@ export const getProductByCategory = async (req, res) => {
 };
 export const getAllProductAssignedToSupplier = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
-  const pageSize = 20;
+  const pageSize = 6 ;
   const search = req.query.search || "";
   const filterCategory = req.query.category || "";
+  const priceOrder = req.query.price;
 
   try {
-    let baseQuery = SupplierProduct.find()
+    let baseQuery;
+    if(priceOrder){
+      baseQuery = SupplierProduct.find()
+      .sort({ price: parseInt(priceOrder) })
       .skip((page - 1) * pageSize)
       .limit(pageSize);
+    } else {
+      baseQuery = SupplierProduct.find()
+      .skip((page - 1) * pageSize)
+      .limit(pageSize);
+    }
+
     if (search) {
       baseQuery = baseQuery.find({
         $or: [
