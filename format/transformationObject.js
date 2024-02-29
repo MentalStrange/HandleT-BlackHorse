@@ -40,6 +40,9 @@ export const transformationSupplierProduct = async (supplierProduct, quantity=0)
   const category = await Category.findOne({ _id: product.category });
   const subUnit = await SubUnit.findById(supplierProduct.subUnit);
   const unit =  supplierProduct.unit !== undefined ? await Unit.findById(supplierProduct.unit) : null ;
+  if(!supplier){
+    throw new Error('supplier Not Found')
+  }
   return {
     _id: product._id,
     title: product.title,

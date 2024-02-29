@@ -442,6 +442,7 @@ export const totalOrderBySupplierId = async (req, res) => {
 export const getBestSeller = async (req, res) => {
   try {
     const bestSellers = await Order.aggregate([
+      { $match: { products: { $exists: true, $ne: [] } } }, // Filter out null or empty products array
       { $unwind: "$products" },
       {
         $group: {
@@ -465,6 +466,8 @@ export const getBestSeller = async (req, res) => {
       const products = await SupplierProduct.find({
         productId: { $in: productIds },
       });
+      console.log('products', products);
+      
       const formattedProducts = await Promise.all(
         products.map(async (product) => {
           return await transformationSupplierProduct(product);
