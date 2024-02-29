@@ -184,6 +184,7 @@ export const transformationSupplier = async (supplier) => {
     deliveryDaysNumber: supplier.deliveryDaysNumber ?? "",
     type: supplier.type,
     image: supplier.image,
+    status: supplier.status,
     placeImages: supplier.placeImage,
     rating: supplier.averageRating ?? 0,
     desc: supplier.desc ?? "",
