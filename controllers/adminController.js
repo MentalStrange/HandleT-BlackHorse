@@ -281,6 +281,13 @@ export const deleteRegion = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(regionId)) {
       throw new Error('Invalid region ID.');
     }
+    const regionToDelete = await Region.findById(regionId);
+    await Promise.all([
+      Supplier.deleteMany({ deliveryRegion: regionId }), // Assuming Supplier references regions as a list of IDs
+      Customer.deleteMany({ region: regionId }),
+      Group.deleteMany({ region: regionId }),
+      DeliveryBoy.deleteMany({ region: regionId }),
+    ]);
     const deletionResult = await Region.deleteOne({ _id: regionId });
     if (deletionResult.deletedCount > 0) {
       res.status(200).json({

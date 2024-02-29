@@ -3,15 +3,15 @@ import Supplier from "./../models/supplierSchema.js";
 import Order from "./../models/orderSchema.js";
 import Product from "../models/productSchema.js";
 import SupplierProduct from "../models/supplierProductSchema.js";
-import {transformationProduct, transformationSupplier, transformationSupplierProduct} from "../format/transformationObject.js";
+import {transformationOrder, transformationSupplier, transformationSupplierProduct} from "../format/transformationObject.js";
+import paginateResponse from "../utils/paginationResponse.js";
 import Unit from "../models/unitSchema.js";
 
 export const getAllSupplier = async (req, res) => {
   try {
-    const userRole = req.role; // Assuming user role is correctly populated in req.role
-    const { page = 1, limit = 10, type } = req.query;
-    console.log('userRole', userRole);
+    const userRole = req.role;
     let query = { status: "active" };
+    const { type } = req.query;
     if (
       type &&
       ["gomla", "gomlaGomla", "blackHorse", "company"].includes(type)
@@ -30,13 +30,9 @@ export const getAllSupplier = async (req, res) => {
     if (userRole === "customer" || userRole === "supplier") {
       totalSuppliers = await Supplier.countDocuments(query);
       suppliers = await Supplier.find(query)
-        .skip((page - 1) * limit)
-        .limit(limit);
     } else if (userRole === "blackHorse") {
       totalSuppliers = await Supplier.countDocuments(query);
       suppliers = await Supplier.find(query)
-        .skip((page - 1) * limit)
-        .limit(limit);
     } else {
       return res.status(403).json({
         status: "fail",
@@ -44,13 +40,7 @@ export const getAllSupplier = async (req, res) => {
       });
     }
     if (suppliers.length > 0) {
-      res.status(200).json({
-        status: "success",
-        totalSuppliers,
-        currentPage: page,
-        totalPages: Math.ceil(totalSuppliers / limit),
-        data: suppliers,
-      });
+      paginateResponse(res, req.query, transformationSupplier(suppliers), totalSuppliers);
     } else {
       res.status(404).json({
         status: "fail",
@@ -67,15 +57,15 @@ export const getAllSupplier = async (req, res) => {
 export const getCompany = async (req, res) => {
   try {
     const company = await Supplier.find();
-    console.log("company", company);
     const activeCompanies = company.filter(
       (company) => company.status === "active" && company.type === "company"
     );
-    if (activeCompanies.length > 0) {
-      res.status(200).json({
-        status: "success",
-        data: activeCompanies,
-      });
+    const totalRecords = activeCompanies.length; 
+    const companyTransformation = await Promise.all(
+      activeCompanies.map(async (company) => transformationSupplier(company))
+    );
+    if (companyTransformation.length > 0) {
+      paginateResponse(res, req.query, companyTransformation, totalRecords);
     } else {
       res.status(404).json({
         status: "fail",
@@ -130,7 +120,7 @@ export const updateSupplier = async (req, res) => {
     if (updatedSupplier) {
       res.status(200).json({
         status: "success",
-        data: updatedSupplier,
+        data: await transformationSupplier(updatedSupplier),
       });
     } else {
       res.status(404).json({
@@ -350,6 +340,9 @@ export const getOrdersForSupplierInCurrentMonth = async (req, res) => {
 export const lastOrdersBySupplierId = async (req, res) => {
   try {
     const supplierId = req.params.id;
+    const page = parseInt(req.query.page) || 1; // Extract page parameter from query string
+    const limit = parseInt(req.query.limit) || 10; // Extract limit parameter from query string
+
     const supplier = await Supplier.findById(supplierId);
     if (!supplier) {
       return res.status(404).json({
@@ -358,16 +351,20 @@ export const lastOrdersBySupplierId = async (req, res) => {
       });
     }
     
+    const totalOrdersCount = await Order.countDocuments({ supplierId });
     const lastOrders = await Order.find({ supplierId })
       .sort({ createdAt: -1 })
-      .limit(3)
-      .populate("supplierId");
-      
+      .skip((page - 1) * limit)
+      .limit(limit)
+      .populate("customerId");
+
     if (lastOrders && lastOrders.length > 0) {
-      res.status(200).json({
-        status: "success",
-        data: lastOrders,
-      });
+      const formattedOrders = await Promise.all(
+        lastOrders.map(async (order) => {
+          return await transformationOrder(order); // Transform each order
+        })
+      );
+      paginateResponse(res, req.query, formattedOrders, totalOrdersCount); // Apply pagination to transformed orders
     } else {
       res.status(404).json({
         status: "fail",

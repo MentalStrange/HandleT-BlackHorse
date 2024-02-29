@@ -162,17 +162,8 @@ export const transformationDeliveryBoy = async (deliverBoy) => {
   }
   
 }
-export const transformationSupplier = async (supplier) => {
-  const deliveryRegion = await Promise.all(
-    supplier.deliveryRegion.map(async (region) => {
-      const regionName = await Region.findById(region);
-      if(!regionName){
-        throw new Error(`Region not with id ${region} found`);
-      }
-      if (!regionName) return null;
-      return regionName.name;
-    })
-  )
+export const transformationSupplier = async (supplier) => {  
+  console.log('supplier', supplier);
   return{
     name: supplier.name,
     email: supplier.email,
@@ -180,7 +171,7 @@ export const transformationSupplier = async (supplier) => {
     nationalId: supplier.nationalId,
     phoneNumber: supplier.phoneNumber,
     minOrderPrice: supplier.minOrderPrice ?? "",
-    deliveryRegion: deliveryRegion ?? "",
+    deliveryRegion: supplier.deliveryRegion ?? "",
     workingDays: supplier.workingDays ?? "",
     workingHours: supplier.workingHours ?? "",
     deliveryDaysNumber: supplier.deliveryDaysNumber ?? "",

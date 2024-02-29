@@ -66,6 +66,7 @@ import {
 import { createDeliveryBoy, updateDeliveryBoy } from "../controllers/deliveryBoyController.js";
 import validateField from "../middlewares/fieldMiddleware.js";
 import { createPromoCode, deletePromoCode, getAllPromoCode, updatePromoCode } from "../controllers/promoCodeController.js";
+import { checkAllFieldsFilled } from "../middlewares/isActive.js";
 // import { authenticate } from '../middlewares/authorizationMiddleware.js';
 
 const storage = multer.diskStorage({
@@ -87,7 +88,7 @@ const Router = express.Router();
 Router.get("/supplier", authenticate, getAllSupplier);
 Router.get("/supplier/:id", getSupplier);
 Router.delete("/supplier/:id", deleteSupplier);
-Router.post("/supplier", createSupplier);
+Router.post("/supplier", checkAllFieldsFilled, createSupplier);
 Router.patch("/supplier/:id", updateSupplier);
 
 Router.get("/customer", createCustomer);

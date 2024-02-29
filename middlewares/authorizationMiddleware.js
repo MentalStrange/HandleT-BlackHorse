@@ -4,6 +4,8 @@ import jwt from "jsonwebtoken";
 export const authenticate = async (req, res, next) => {
     // get token from headers
     const authToken = req.headers.authorization;
+    console.log('authToken', authToken);
+    
     if (!authToken || !authToken.startsWith("Bearer")) {
         return res.status(401).json({ status: "fail", message: "Token is not valid" });
     }
