@@ -92,7 +92,7 @@ const getCarByWeight = async (req,res) => {
     if(!car){
       res.status(404).json({ status: 'fail', message: 'Car not found' });
     }
-    res.status(200).json({ status: 'success', message: transformationCar(car[0]) });
+    res.status(200).json({ status: 'success', data: transformationCar(car[0]) });
   } catch (error) {
     res.status(500).json({ status: 'fail', message: error.message });
   }

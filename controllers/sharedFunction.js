@@ -4,10 +4,26 @@ import mongoose, {connect} from "mongoose";
 import Customer from "../models/customerSchema.js";
 import Rating from "../models/ratingSchema.js";
 import Supplier from "../models/supplierSchema.js";
-import { transformationProduct } from "../format/transformationObject.js";
+import {transformationOffer, transformationProduct} from "../format/transformationObject.js";
 import jwt from "jsonwebtoken";
 import SupplierProduct from "../models/supplierProductSchema.js";
+import Offer from "../models/offerSchema.js";
+import paginateResponse from "../utils/paginationResponse.js";
 
+export const getProducts = async (req, res) => {
+  const page = parseInt(req.query.page) || 1;
+  const pageSize = parseInt(req.query.pageSize) || 10;
+
+  const productsCount = await Product.countDocuments();
+  const products = await Product.find()
+      .skip((page - 1) * pageSize)
+      .limit(pageSize);
+  const adminProducts = await Promise.all(products.map(async (product)=>{
+        return transformationProduct(product);
+      })
+  );
+  await paginateResponse(res, req.query, adminProducts, productsCount);
+}
 export const createProduct = async (req, res) => {
   const productData = req.body;
   const productTitle = req.body.title;
@@ -39,6 +55,7 @@ export const createProduct = async (req, res) => {
     });
   }
 };
+
 export const updateProduct = async (req, res) => {
   const productId = req.params.id;
   const productData = req.body;

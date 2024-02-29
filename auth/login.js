@@ -44,7 +44,7 @@ export const supplierLogin = async (req, res) => {
   const supplierEmail = req.body.email;
   const supplierPassword = req.body.password;
   try {
-    const supplier = await Supplier.find({ email: supplierEmail });
+    const supplier = await Supplier.find({ email: supplierEmail.toLowerCase() });
     if (supplier.length === 0) {
       return res.status(404).json({
         status: "fail",
