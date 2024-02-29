@@ -98,12 +98,21 @@ export const getAllProductAssignedToSupplier = async (req, res) => {
   const pageSize = 20;
   const search = req.query.search || "";
   const filterCategory = req.query.category || "";
-  const priceOrder = req.query.price || 0;
+  const priceOrder = req.query.price;
 
   try {
-    let baseQuery = SupplierProduct.find().sort({ price: parseInt(priceOrder) })
+    let baseQuery;
+    if(priceOrder){
+      baseQuery = SupplierProduct.find()
+      .sort({ price: parseInt(priceOrder) })
       .skip((page - 1) * pageSize)
       .limit(pageSize);
+    } else {
+      baseQuery = SupplierProduct.find()
+      .skip((page - 1) * pageSize)
+      .limit(pageSize);
+    }
+
     if (search) {
       baseQuery = baseQuery.find({
         $or: [
