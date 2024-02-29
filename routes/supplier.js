@@ -7,7 +7,8 @@ import {
     lastOrdersBySupplierId,
     totalSalesBySupplierId,
     updateProductSupplier,
-    updateSupplier
+    updateSupplier,
+    uploadPhoto,
 } from '../controllers/supplierController.js';
 import { createOffer, deleteOffer, getAllOffer, getOffer, getOfferBySupplierId, updateOffer } from '../controllers/offerController.js';
 import { getAllOrder, getAllOrderBySupplierId, totalOrderBySupplierId } from '../controllers/orderController.js';
@@ -20,7 +21,7 @@ const uploadSupplier = multer({ storage: storage('supplier') });
 
 const Router = express.Router();
 
-Router.patch("/uploadPhoto/:id", uploadCustomer.single("image"), uploadPhoto);
+Router.patch("/uploadPhoto/:id", uploadSupplier.single("image"), uploadPhoto);
 
 Router.get('/company', getCompany);
 Router.get('/:id', getSupplier);
