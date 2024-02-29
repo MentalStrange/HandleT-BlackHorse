@@ -163,10 +163,7 @@ export const transformationSupplier = async (supplier) => {
     supplier.deliveryRegion.map(async (region) => {
       const regionName = await Region.findById(region);
       if(!regionName){
-        return res.status(404).json({
-          success: false,
-          message: "Region not found",
-        })
+        throw new Error(`Region not with id ${region} found`);
       }
       if (!regionName) return null;
       return regionName.name;
