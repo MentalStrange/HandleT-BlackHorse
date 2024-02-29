@@ -91,7 +91,6 @@ export const transformationOffer = async (offer, quantity=0) => {
   };
 }
 export const transformationOrder= async (order) => {
-  console.log('order:', order);
   
   const supplier = await Supplier.findById(order.supplierId);
   const products = await Promise.all(
@@ -182,7 +181,9 @@ export const transformationSupplier = async (supplier) => {
     deliveryDaysNumber: supplier.deliveryDaysNumber ?? "",
     type: supplier.type,
     image: supplier.image,
-    shopImages: supplier.placeImage,
+    placeImages: supplier.placeImage,
+    rating: supplier.averageRating ?? 0,
+    desc: supplier.desc,
     _id: supplier._id
   }
 }

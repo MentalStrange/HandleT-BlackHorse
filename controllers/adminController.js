@@ -212,6 +212,13 @@ export const getFee = async (req, res) => {
 }
 export const createFee = async (req, res) => {
   try {
+    const amount = req.body.amount;
+    if(amount >= 100){
+      return res.status(400).json({
+        status: "fail",
+        message: "Amount should be less than 100%"
+      })
+    }
     await Fee.deleteMany();
     const newFee = new Fee({
       amount: req.body.amount

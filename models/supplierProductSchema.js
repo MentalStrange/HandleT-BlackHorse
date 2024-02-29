@@ -1,4 +1,6 @@
 import mongoose from 'mongoose';
+import Product from './productSchema.js';
+import Unit from './unitSchema.js';
 
 const supplierProductSchema = mongoose.Schema({
     supplierId: {
@@ -36,7 +38,6 @@ const supplierProductSchema = mongoose.Schema({
       required:[true, 'Product should have a subUnit'],
     },
 })
-
 const SupplierProduct = mongoose.model('SupplierProduct', supplierProductSchema);
 
 export default SupplierProduct;
