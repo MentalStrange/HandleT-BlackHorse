@@ -3,7 +3,6 @@ import Order from "../models/orderSchema.js";
 import Customer from "../models/customerSchema.js";
 import multer from 'multer';
 import { v2 as cloudinary } from 'cloudinary';
-import path from 'path';
 import fs from 'fs';
 import {transformationCustomer} from "../format/transformationObject.js";
 
