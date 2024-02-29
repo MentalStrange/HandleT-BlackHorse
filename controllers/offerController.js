@@ -193,6 +193,13 @@ export const createOffer = async (req, res) => {
 export const getOfferBySupplierId = async (req, res) => {
   const supplierId = req.params.id;
   try {
+    const supplier = await Supplier.findById(supplierId);
+    if(!supplier || supplier.status === 'inactive'){
+      return res.status(404).json({
+        status: "fail",
+        message: "Supplier not found",
+      })
+    }
     const offers = await Offer.find({ supplierId });
     if (offers && offers.length > 0) { // Check if offers array is not empty
       const transformedOffers = await Promise.all(offers.map(async (offer) => {
