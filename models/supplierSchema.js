@@ -37,10 +37,6 @@ const supplierSchema = mongoose.Schema({
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Region",
-      required: [
-        true,
-        "Supplier Should have a Delivery Region for every receipt",
-      ],
     },
   ],
   workingDays: [
@@ -71,20 +67,14 @@ const supplierSchema = mongoose.Schema({
   },
   image: {
     type: String,
-    required: [true, "Supplier Should have an image"],
   },
   placeImage: [
     {
       type: String,
-      required: [true, "Supplier Should have an image"],
     },
   ],
   deliveryDaysNumber: {
     type: Number,
-    required: [
-      true,
-      "Supplier Should have a  Delivery Days Number for every receipt",
-    ],
   },
   // products: [
   //   {

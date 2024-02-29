@@ -112,6 +112,7 @@ export const transformationOrder= async (order) => {
     })
   );
   const car = await Car.findById(order.car);
+  if(!car) throw new Error('car Not Found');
   return {
     _id: order._id,
     orderNumber: order.orderNumber,
@@ -142,7 +143,7 @@ export const transformationOrder= async (order) => {
     promoCode: order.promoCode,
     supplierRating: order.supplierRating,
     deliveryBoy: order.deliveryBoy ?? "",
-    car:car ??"",
+    car:car ??{},
   };
 };
 export const transformationDeliveryBoy = async (deliverBoy) => {
