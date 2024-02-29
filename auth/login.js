@@ -71,8 +71,7 @@ export const supplierLogin = async (req, res) => {
     else{
       res.status(200).json({
         status: "success",
-        data:  rest,
-        access_token: jwt.sign({_id: rest._id, role: rest.type}, process.env.JWT_SECRET, {})
+        data:  {...(await transformationSupplier(supplier[0]._doc)), access_token: jwt.sign({_id: rest._id, role: req.role}, process.env.JWT_SECRET, {})},
       });
     }
   } catch (error) {

@@ -187,7 +187,7 @@ export const transformationSupplier = async (supplier) => {
     image: supplier.image,
     placeImages: supplier.placeImage,
     rating: supplier.averageRating ?? 0,
-    desc: supplier.desc ?? null,
+    desc: supplier.desc ?? "",
     _id: supplier._id
   }
 }
