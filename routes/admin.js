@@ -25,7 +25,9 @@ import {
 import {
   createCategory,
   deleteCategory,
+  updateCategory,
   getAllCategory,
+  changeImageCategory,
 } from "../controllers/categoryController.js";
 import { createCustomer, createSupplier } from "../auth/signup.js";
 import {
@@ -105,7 +107,9 @@ Router.delete("/product/:id", deleteProduct);
 
 Router.get("/getAllCategory", getAllCategory);
 Router.post("/category", upload.single("image"), createCategory);
+Router.patch("/category/:id", updateCategory);
 Router.delete('/category/:id', deleteCategory);
+Router.patch("/category/changeImage/:id", upload.single("image"), changeImageCategory);
 
 Router.post("/deliveryBoy", createDeliveryBoy);
 Router.patch("/deliverBoy/:id", updateDeliveryBoy);

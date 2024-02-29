@@ -14,7 +14,7 @@ export const createCategory = async (req, res) => {
     }
     const category = new Category({
       name: categoryData.name,
-      image:`${process.env.SERVER_URL}${req.file.path.replace(/\\/g, '/')}`
+      image:`${process.env.SERVER_URL}${req.file.path.replace(/\\/g, '/').replace(/^upload\//, '')}`
     });
     await category.save();
     res.status(201).json({
@@ -81,6 +81,26 @@ export const updateCategory = async (req, res) => {
       throw new Error("Can not found this category");
     }
   } catch (error) {
+    res.status(500).json({
+      status:'fail',
+      message:error.message,
+    })
+  }
+}
+
+export const changeImageCategory = async (req, res) => {
+  const categoryId = req.params.id;
+  try {
+    const category = await Category.findById(categoryId);
+    console.log(category.image);
+    fs.unlink(category.image);
+    category.image = `${process.env.SERVER_URL}${req.file.path.replace(/\\/g, '/').replace(/^upload\//, '')}`
+    await category.save();
+    res.status(200).json({
+      status:"success",
+      data: category
+    })
+   } catch (error) {
     res.status(500).json({
       status:'fail',
       message:error.message,

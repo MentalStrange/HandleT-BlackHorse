@@ -98,9 +98,10 @@ export const getAllProductAssignedToSupplier = async (req, res) => {
   const pageSize = 20;
   const search = req.query.search || "";
   const filterCategory = req.query.category || "";
+  const priceOrder = req.query.price || 0;
 
   try {
-    let baseQuery = SupplierProduct.find()
+    let baseQuery = SupplierProduct.find().sort({ price: parseInt(priceOrder) })
       .skip((page - 1) * pageSize)
       .limit(pageSize);
     if (search) {
