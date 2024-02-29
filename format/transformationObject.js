@@ -174,7 +174,7 @@ export const transformationSupplier = async (supplier) => {
   return{
     name: supplier.name,
     email: supplier.email,
-    password: supplier.password,
+    wallet: supplier.wallet,
     nationalId: supplier.nationalId,
     phoneNumber: supplier.phoneNumber,
     minOrderPrice: supplier.minOrderPrice ?? "",
