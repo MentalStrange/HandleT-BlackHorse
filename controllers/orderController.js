@@ -163,13 +163,13 @@ export const createOrder = async (req, res) => {
   const carId = req.body.car;
   const totalPrice = req.body.totalPrice;
   try {
-    const car = await Car.findById(carId);
-    if (!car) {
-      return res.status(404).json({
-        status: "fail",
-        message: "Car not found",
-      });
-    }
+    // const car = await Car.findById(carId);
+    // if (!car) {
+    //   return res.status(404).json({
+    //     status: "fail",
+    //     message: "Car not found",
+    //   });
+    // }
     const supplier = await Supplier.findById(supplierId);
     if (!supplier) {
       return res.status(400).json({

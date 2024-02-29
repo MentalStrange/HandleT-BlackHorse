@@ -2,7 +2,6 @@ import express from 'express';
 import {
     getAllCategory,
     updateCustomer,
-    deletePhoto,
     uploadPhoto,
     getCustomerById
 } from '../controllers/customerController.js';
@@ -14,6 +13,10 @@ import { createRating } from '../controllers/ratingController.js';
 import { authenticate } from "../middlewares/authorizationMiddleware.js";
 import { getAllSupplier } from '../controllers/supplierController.js';
 import { createGroup, getAllGroupForCustomer } from '../controllers/groupController.js';
+import { storage } from '../controllers/sharedFunction.js';
+import multer from 'multer';
+
+const uploadCustomer = multer({ storage: storage('customer') });
 
 const Router = express.Router();
 
@@ -33,8 +36,7 @@ Router.patch("/order/:id", updateOrder);
 Router.get('/order/bestSeller',getBestSeller);
 Router.get("/order/:id", getAllOrderByCustomerId);
 
-Router.patch ("/uploadPhoto/:id", uploadPhoto);
-Router.delete("/deletePhoto/:id", deletePhoto);
+Router.patch("/uploadPhoto/:id", uploadCustomer.single("image"), uploadPhoto);
 
 Router.post("/promoCode",applyPromoCode)
 

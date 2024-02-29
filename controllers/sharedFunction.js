@@ -6,6 +6,9 @@ import Rating from "../models/ratingSchema.js";
 import Supplier from "../models/supplierSchema.js";
 import {transformationOffer, transformationProduct} from "../format/transformationObject.js";
 import jwt from "jsonwebtoken";
+import multer from "multer";
+import fs from "fs";
+import path from 'path';
 import SupplierProduct from "../models/supplierProductSchema.js";
 import Offer from "../models/offerSchema.js";
 import paginateResponse from "../utils/paginationResponse.js";
@@ -140,3 +143,13 @@ export const uploadImageToCloudinary = async (imagePath) => {
     throw error;
   }
 }
+
+export const storage = (folderName) => multer.diskStorage({
+  destination: (req, file, cb) => {
+    fs.mkdirSync(`upload/${folderName}`, { recursive: true });
+    cb(null, `upload/${folderName}`);
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${file.fieldname}-${Date.now()}${path.extname(file.originalname)}`);
+  },
+});

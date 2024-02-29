@@ -1,20 +1,16 @@
 import HomeSlideShow from "../models/homeSlideShowSchema.js";
+import fs from "fs";
+
 export const createHomeSlideShow = async (req, res) => {
-  const homeSlideShowImages = req.body;
-  console.log('homeSlideShowImages', homeSlideShowImages);
   try {
-    if(homeSlideShowImages.image.length > 0) {
-      const newSlideShowImages = await HomeSlideShow.create(homeSlideShowImages);
-      res.status(201).json({
-        status: "success",
-        data: newSlideShowImages
-      });
-    } else {
-      res.status(400).json({
-        status: "fail",
-        message: "No images provided"
-      });
-    }
+    const homeSlideShow = new HomeSlideShow({
+      image:`${process.env.SERVER_URL}${req.file.path.replace(/\\/g, '/').replace(/^upload\//, '')}`
+    });
+    await homeSlideShow.save();
+    res.status(201).json({
+      status: "success",
+      data: homeSlideShow
+    });
   } catch (error) {
     res.status(500).json({
       status: "fail",
@@ -27,7 +23,9 @@ export const deleteHomeSlideShow = async (req, res, next) => {
   const homeSlideShowId = req.params.id;
   try {
     if(homeSlideShowId){
-      await HomeSlideShow.deleteById(homeSlideShowId);
+      const homeSlideShow = await HomeSlideShow.findByIdAndDelete(homeSlideShowId);
+      const pathName = homeSlideShow.image.split('/').slice(3).join('/');
+      fs.unlink('upload/' + pathName, (err) => {});
       res.status(204).json({
         status:"success",
         data:null,

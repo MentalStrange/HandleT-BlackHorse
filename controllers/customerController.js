@@ -96,111 +96,30 @@ export const updateCustomer = async (req, res) => {
 }
 
 /************************************ UploadPhoto Customer ************************************/
-
-// Configure Multer to handle file uploads
-const storage = multer.diskStorage({
-  destination: './upload/customer',
-  filename: (req, file, callback) => {
-    const customerId = req.params.id;
-    callback(null, `${customerId}${path.extname(file.originalname)}`);
-  },
-});
-
-const upload = multer({ storage: storage }).single('image');
-
-// Function to handle file upload
 export const uploadPhoto = async (req, res) => {
-  upload(req, res, async (err) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).send('Error uploading file.');
-    }
-
-    const customerId = req.params.id;
-    try {
-      const customer = await Customer.findOne({ _id: customerId });
-      if (!customer) {
-        return res.status(207).json({
-          status: "fail",
-          message: "Customer not found"
-        });
-      }
-
-      // Upload image to Cloudinary
-      await cloudinary.uploader.upload(
-          req.file.path, {
-            public_id: customerId, // .${path.extname(req.file.originalname)}
-            overwrite: true
-          }, async (error, result) => {
-        fs.unlinkSync(req.file.path);         // Delete the temporary file
-        if (error) {
-          console.error(error);
-          return res.status(500).json({
-            status: "error",
-            message: "Internal server error"
-          });
-        }
-
-        customer.image = result.secure_url;
-        await customer.save();
-        return res.status(200).json({
-          status: "success",
-          data: transformationCustomer(customer),
-        });
-      });
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({
-        status: "error",
-        message: "Internal server error"
-      });
-    }
-  });
-};
-
-/************************************ DeletePhoto Customer ************************************/
-// Define the directory where the images are stored
-const uploadDirectory = './upload/customer';
-
-export const deletePhoto = async (req, res) => {
   const customerId = req.params.id;
   try {
-    const customer = await Customer.findOne({_id: customerId});
+    const customer = await Customer.findOne({ _id: customerId });
     if (!customer) {
       return res.status(207).json({
         status: "fail",
         message: "Customer not found"
-      })
-    }
-2
-    const imagePath =  path.join(uploadDirectory, path.basename(customer['image']));
-    // Check if the file exists
-    fs.stat(imagePath, (err, stats) => {
-      if (err) {
-        console.error('Error accessing file:', err);
-        return;
-      }
-
-      fs.unlink(imagePath, async (err) => { // Delete the file
-        if (err) {
-          console.error('Error deleting file:', err);
-          return;
-        }
-        customer.image = null;
-        await customer.save();
-        return res.status(200).json({
-          status: "success",
-          data: transformationCustomer(customer),
-          message: req.headers['language'] === 'en' ? "The account photo has been successfully deleted" : "تم مسح صورة الحساب بنجاح"
-        });
       });
+    }
+
+    const pathName = customer.image.split('/').slice(3).join('/');
+    fs.unlink('upload/' + pathName, (err) => {});
+    customer.image = `${process.env.SERVER_URL}${req.file.path.replace(/\\/g, '/').replace(/^upload\//, '')}`;
+    await customer.save();
+    return res.status(200).json({
+      status: "success",
+      data: transformationCustomer(customer),
     });
   } catch (error) {
-    // Handle any errors that occur during the process
     console.error(error);
     return res.status(500).json({
       status: "error",
       message: "Internal server error"
     });
   }
-};
+}
