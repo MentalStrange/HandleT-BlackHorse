@@ -46,7 +46,7 @@ export const supplierLogin = async (req, res) => {
   try {
     const supplier = await Supplier.find({ email: supplierEmail.toLowerCase() });
     if (supplier.length === 0) {
-      return res.status(404).json({
+      return res.status(207).json({
         status: "fail",
         message: "Supplier Not Found",
       });
@@ -56,7 +56,7 @@ export const supplierLogin = async (req, res) => {
       supplier[0].password
     );
     if (!isPasswordMatch) {
-      return res.status(400).json({
+      return res.status(207).json({
         status: "fail",
         message: "Password Not Correct",
       });
