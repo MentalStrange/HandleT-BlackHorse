@@ -4,6 +4,7 @@ import Order from "./../models/orderSchema.js";
 import Product from "../models/productSchema.js";
 import SupplierProduct from "../models/supplierProductSchema.js";
 import {transformationProduct, transformationSupplier, transformationSupplierProduct} from "../format/transformationObject.js";
+import Unit from "../models/unitSchema.js";
 
 export const getAllSupplier = async (req, res) => {
   try {
@@ -148,6 +149,7 @@ export const createProductSupplier = async (req, res) => {
   const supplierId = req.body.supplierId;
   const productId = req.body.productId;
   const productData = req.body;
+  const unitId = req.body.unit;
   // const role = req.role;
   try {
     const product = await Product.findById(productId);
@@ -156,6 +158,11 @@ export const createProductSupplier = async (req, res) => {
         status: "fail",
         message: "Product not found",
       });
+    }
+    const unit = await Unit.findById(unitId);
+    let unitWeight = 0;
+    if(unit){
+      unitWeight = product.weight*unit.maxNumber;
     }
     const supplier = await Supplier.findById(supplierId);
     if(supplier.status === "inactive"){
@@ -191,7 +198,7 @@ export const createProductSupplier = async (req, res) => {
     })
     res.status(200).json({
       status: "success",
-      data: await transformationSupplierProduct(newSupplierProduct),
+      data: await transformationSupplierProduct(newSupplierProduct, unitWeight),
     });
   } catch (error) {
     res.status(500).json({

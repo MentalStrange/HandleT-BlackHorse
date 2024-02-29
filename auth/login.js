@@ -10,11 +10,11 @@ export const customerLogin = async (req, res) => {
   const customerEmail = req.body.email;
   const customerPassword = req.body.password;
   try {
-    const customer = await Customer.find({ email: customerEmail });
+    const customer = await Customer.find({ email: customerEmail.toLowerCase() });
     if (customer.length === 0) {
       return res.status(203).json({ // email not found
         status: "fail",
-        message: req.headers['language'] === 'en' ? "Verify your email or password" : "قم من التحقق من البريد الإلكتروني أو كلمة المرور",
+        message: req.headers['language'] === 'en' ? "Verify your emil or password" : "قم من التحقق من البريد الإلكتروني أو كلمة المرور",
       });
     }
     const isPasswordMatch = await bcrypt.compare(
