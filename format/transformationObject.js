@@ -34,7 +34,7 @@ export const transformationProduct = (product) => {
     images: product.images ?? [],
   };
 };
-export const transformationSupplierProduct = async (supplierProduct, quantity=0) => {
+export const transformationSupplierProduct = async (supplierProduct, quantity=1) => {
   const product = await Product.findById(supplierProduct.productId);
   const supplier = await Supplier.findById(supplierProduct.supplierId);
   const category = await Category.findOne({ _id: product.category });
@@ -70,7 +70,7 @@ export const transformationRating = (rating) => {
     rate: rating.rate,
   };
 };
-export const transformationOffer = async (offer, quantity=0) => {
+export const transformationOffer = async (offer, quantity=1) => {
   const transformedProducts = await Promise.all(
     offer.products.map(async (productId) => {
       const supplierProduct = await SupplierProduct.findOne({ productId });
