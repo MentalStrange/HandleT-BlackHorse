@@ -95,7 +95,7 @@ export const getProductByCategory = async (req, res) => {
 };
 export const getAllProductAssignedToSupplier = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
-  const pageSize = 20;
+  const pageSize = 4 ;
   const search = req.query.search || "";
   const filterCategory = req.query.category || "";
   const priceOrder = req.query.price;
