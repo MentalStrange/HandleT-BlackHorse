@@ -65,7 +65,7 @@ export const supplierLogin = async (req, res) => {
     if(rest.type === "blackHorse"){
       res.status(200).json({
         status: "success",
-        data:  {...(await transformationSupplier(supplier[0]._doc)), access_token: jwt.sign({_id: rest._id, role: "blackHorse"}, process.env.JWT_SECRET, {})},
+        data: {...(await transformationSupplier(supplier[0]._doc)), access_token: jwt.sign({_id: rest._id, role: "blackHorse"}, process.env.JWT_SECRET, {})},
       });
     }
     else{

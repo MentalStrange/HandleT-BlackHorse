@@ -171,7 +171,6 @@ export const transformationSupplier = async (supplier) => {
       return regionName.name;
     })
   )
-  console.log(supplier.desc);
   return{
     name: supplier.name,
     email: supplier.email,
