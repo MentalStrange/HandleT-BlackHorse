@@ -406,3 +406,9 @@ export const uploadPhoto = async (req, res) => {
     });
   }
 };
+export const uploadPlaceImages = async (req, res) => {
+
+};
+export const deletePlaceImages = async (req, res) => {
+  
+};
