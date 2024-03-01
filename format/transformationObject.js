@@ -43,6 +43,15 @@ export const transformationSupplierProduct = async (supplierProduct, quantity=1)
   if(!supplier){
     throw new Error('supplier Not Found')
   }
+  if(!product){
+    throw new Error('product Not Found')
+  }
+  if(!category){
+    throw new Error('category Not Found')
+  }
+  if(!subUnit){
+    throw new Error('subUnit Not Found')
+  }
   return {
     _id: product._id,
     title: product.title,
@@ -93,17 +102,19 @@ export const transformationOffer = async (offer, quantity=1) => {
     quantity: quantity
   };
 }
-export const transformationOrder= async (order) => {
-  
+export const transformationOrder= async (order) => {  
   const supplier = await Supplier.findById(order.supplierId);
   if(!supplier) throw new Error('supplier Not Found');
   const products = await Promise.all(
     order.products.map(async (product) => {
       const supplierProduct = await SupplierProduct.findOne({ productId:product.product });
+      console.log('supplierProduct', supplierProduct);
       if (!supplierProduct)  throw new Error('supplierProduct Not Found');
       return transformationSupplierProduct(supplierProduct, product.quantity);
     })
   );
+  console.log('products', products);
+  
   const offers = await Promise.all(
     order.offers.map(async (offerId)=>{
       const offer = await Offer.findById(offerId.offer);
@@ -162,14 +173,16 @@ export const transformationDeliveryBoy = async (deliverBoy) => {
   }
   
 }
-export const transformationSupplier = async (supplier) => {  
-  const deliveryRegion = await Promise.all(
-    supplier.deliveryRegion.map(async (regionId)=>{
-      const region = await Region.findById(regionId);
-      return region.name;
-    })
-  );
-
+export const transformationSupplier = async (supplier) => {
+  let deliveryRegionName = [];
+  if(supplier.deliveryRegion){
+      deliveryRegionName = await Promise.all(
+      supplier.deliveryRegion.map(async (regionId)=>{
+        const region = await Region.findById(regionId);
+        return region.name;
+      })
+    );
+  }
   return{
     name: supplier.name,
     email: supplier.email,
@@ -177,14 +190,14 @@ export const transformationSupplier = async (supplier) => {
     nationalId: supplier.nationalId,
     phoneNumber: supplier.phoneNumber,
     minOrderPrice: supplier.minOrderPrice ?? "",
-    deliveryRegion: deliveryRegion ?? [],
+    deliveryRegion: deliveryRegionName ?? [],
     workingDays: supplier.workingDays ?? "",
     workingHours: supplier.workingHours ?? "",
     deliveryDaysNumber: supplier.deliveryDaysNumber ?? "",
     type: supplier.type,
     image: supplier.image,
     status: supplier.status,
-    placeImages: supplier.placeImage,
+    placeImage: supplier.placeImage,
     rating: supplier.averageRating ?? 0,
     desc: supplier.desc ?? "",
     _id: supplier._id

@@ -297,13 +297,9 @@ export const createOrder = async (req, res) => {
 };
 export const getAllOrderByCustomerId = async (req, res) => {
   const customerId = req.params.id;
-  const page = parseInt(req.query.page) || 1; // Default to page 1 if not provided
-  const limit = parseInt(req.query.limit) || 10; // Default to 10 items per page if not provided
-  const skip = (page - 1) * limit;
-
   try {
     const ordersCount = await Order.countDocuments({ customerId });
-    const orders = await Order.find({ customerId }).skip(skip).limit(limit);
+    const orders = await Order.find({ customerId });
     if (orders) {
       const formattedOrders = await Promise.all(
         orders.map(async (order) => {

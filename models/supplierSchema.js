@@ -89,9 +89,11 @@ const supplierSchema = mongoose.Schema({
   },
   totalRating: {
     type: Number,
+    default: 0,
   },
   averageRating: {
     type: Number,
+    default: 0,
   },
 });
 supplierSchema.pre("remove", async function (next) {
