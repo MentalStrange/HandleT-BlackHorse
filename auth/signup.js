@@ -26,12 +26,12 @@ export const createSupplier = async (req, res) => {
       if (!regionName) {
         throw new Error(`Region with ID ${region} not found`);
       }
-      return regionName.name;
+      return regionName;
     });
-
+    console.log('regionPromises', await Promise.all(regionPromises));
+    
     try {
       const deliveryRegion = await Promise.all(regionPromises);
-      console.log('deliveryRegion', deliveryRegion);
       // All regions are valid, proceed with supplier creation
       const password = req.body.password;    
       const hashedPassword = await bcrypt.hash(password, salt);
@@ -49,8 +49,6 @@ export const createSupplier = async (req, res) => {
         type: supplierData.type,
         password: hashedPassword,
       });
-      console.log('newSupplier', newSupplier);
-      
       return res.status(201).json({
         status: 'success',
         data: await transformationSupplier(newSupplier),
@@ -63,7 +61,6 @@ export const createSupplier = async (req, res) => {
       });
     }
   } catch (error) {
-    console.error(error);
     return res.status(error.statusCode || 500).json({
       status: 'fail',
       message: error.message || 'Internal Server Error',

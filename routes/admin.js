@@ -79,7 +79,7 @@ const Router = express.Router();
 Router.get("/supplier", authenticate, getAllSupplier);
 Router.get("/supplier/:id", getSupplier);
 Router.delete("/supplier/:id", deleteSupplier);
-Router.post("/supplier", checkAllFieldsFilled, createSupplier);
+Router.post("/supplier", createSupplier);
 Router.patch("/supplier/:id", updateSupplier);
 
 Router.get("/customer", createCustomer);

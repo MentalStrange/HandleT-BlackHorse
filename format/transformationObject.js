@@ -163,7 +163,6 @@ export const transformationDeliveryBoy = async (deliverBoy) => {
   
 }
 export const transformationSupplier = async (supplier) => {  
-  console.log('supplier', supplier);
   return{
     name: supplier.name,
     email: supplier.email,
