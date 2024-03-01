@@ -162,7 +162,7 @@ export const createOrder = async (req, res) => {
   const offers = req.body.offers ?? []; // Array of offers with { offerId, quantity }
   const carId = req.body.car;
   const totalPrice = req.body.totalPrice;
-  try {
+  try {    
     const car = await Car.findById(carId);
     if (!car) {
       return res.status(404).json({
@@ -176,6 +176,12 @@ export const createOrder = async (req, res) => {
         status: "fail",
         message: "Supplier not found",
       });
+    }
+    if(!req.body.totalPrice >= supplier.minOrderPrice){
+      return res.status(400).json({
+        status: "fail",
+        message: "Total price should be greater than min order price",
+      })
     }
     // Check if the promo code is valid and associated with the supplier
     if (promoCode) {
@@ -206,8 +212,6 @@ export const createOrder = async (req, res) => {
         supplierId,
         productId: product.product,
       });
-      console.log("supplierProduct:", supplierProduct);
-
       if (!supplierProduct || supplierProduct.stock < product.quantity) {
         const prod = await Product.findById(product.product);
         return res.status(400).json({
@@ -223,7 +227,6 @@ export const createOrder = async (req, res) => {
         });
       }
     }
-
     for (const offer of offers) {
       const offerData = await Offer.findById(offer.offer);
       if (!offerData || offerData.stock < offer.quantity) {

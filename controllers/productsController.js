@@ -9,11 +9,11 @@ import {
   transformationSupplierProduct,
 } from "../format/transformationObject.js";
 import paginateResponse from "./../utils/paginationResponse.js";
+import { searchProducts } from "../utils/search.js";
 
 export const getProductBySupplier = async (req, res) => {
   const supplierId = req.params.id;
-  const page = parseInt(req.query.page) || 1; // Get the page number from the query parameters
-  const pageSize = parseInt(req.query.pageSize) || 10; // Get the page size from the query parameters
+  const search = req.query.search;
   try {
     const supplier = await Supplier.findById(supplierId);
     if (!supplier) {
@@ -26,9 +26,6 @@ export const getProductBySupplier = async (req, res) => {
       supplierId,
     });
     const supplierProducts = await SupplierProduct.find({ supplierId })
-      .populate("productId")
-      .skip((page - 1) * pageSize)
-      .limit(pageSize);
     if (!supplierProducts || supplierProducts.length === 0) {
       throw new Error("No products found for this supplier");
     }
@@ -41,10 +38,8 @@ export const getProductBySupplier = async (req, res) => {
         return transformedProduct;
       })
     );
-    
-    // Call the pagination utility function to send paginated response
-    await paginateResponse(res, req.query, products, supplierProductsCount);
-    
+    const searchedProducts = searchProducts(products, search);    
+    await paginateResponse(res, req.query, searchedProducts?await searchedProducts:products, supplierProductsCount);
   } catch (error) {
     res.status(500).json({
       status: "fail",
@@ -52,12 +47,12 @@ export const getProductBySupplier = async (req, res) => {
     });
   }
 };
+
 export const getProductByCategory = async (req, res) => {
   const categoryId = req.params.id;
-  const page = parseInt(req.query.page) || 1;
-  const pageSize = parseInt(req.query.pageSize) || 10;
+  const search = req.query.search;
   try {
-    const category = await Category.findOne({_id:categoryId});
+    const category = await Category.findOne({_id: categoryId});
     if (!category) {
       return res.status(404).json({
         status: "fail",
@@ -65,27 +60,16 @@ export const getProductByCategory = async (req, res) => {
       });
     }
     const supplierProducts = await SupplierProduct.find()
-    // .populate({
-    //   path: "productId",
-    //   match: { category: categoryId }, // Match products by category
-    // })
-    .skip((page - 1) * pageSize)
-    .limit(pageSize);
     const productsWithSupplier = supplierProducts.filter(
       (supplierProduct) => supplierProduct.supplierId
     );
-    console.log('productsWithSupplier', productsWithSupplier);
     const transformedProducts = await Promise.all(
       productsWithSupplier.map(async (supplierProduct) => {
         return await transformationSupplierProduct(supplierProduct);
       })
     );
-    res.status(200).json({
-      status: "success",
-      data: transformedProducts,
-      currentPage: page,
-      totalPages: Math.ceil(productsWithSupplier.length / pageSize),
-    });
+    const searchedProducts = searchProducts(transformedProducts, req.query.search);
+    await paginateResponse(res, req.query, searchedProducts?await searchedProducts:transformedProducts, productsWithSupplier.length);
   } catch (error) {
     res.status(500).json({
       status: "fail",
@@ -95,7 +79,7 @@ export const getProductByCategory = async (req, res) => {
 };
 export const getAllProductAssignedToSupplier = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
-  const pageSize = 6 ;
+  const pageSize = 6;
   const search = req.query.search || "";
   const filterCategory = req.query.category || "";
   const priceOrder = req.query.price;
@@ -123,35 +107,16 @@ export const getAllProductAssignedToSupplier = async (req, res) => {
     if (filterCategory) {
       baseQuery = baseQuery.find({ "productId.category.name": filterCategory }); // Filter by category name
     }
-    const totalProducts = await SupplierProduct.countDocuments(
-      baseQuery._conditions
-    );
+    const totalProducts = await SupplierProduct.countDocuments(baseQuery._conditions);
     const products = await baseQuery;
-    if (products.length > 0) {
-      const formattedProducts = await Promise.all(
-        products.map((product) => transformationSupplierProduct(product))
-      );
-      res.status(200).json({
-        status: "success",
-        data: {
-          products: formattedProducts,
-          totalProducts: totalProducts,
-          currentPage: page,
-          totalPages: Math.ceil(totalProducts / pageSize),
-        },
-      });
-    } else {
-      res.status(200).json({
-        status: "success",
-        data: {
-          products: [],
-          totalProducts: totalProducts,
-          currentPage: page,
-          totalPages: Math.ceil(totalProducts / pageSize),
-        },
-      });
-      // throw new Error("No products found");
-    }
+
+    // Formatting products
+    const formattedProducts = await Promise.all(
+      products.map((product) => transformationSupplierProduct(product))
+    );
+
+    // Paginate the formatted products
+    await paginateResponse(res, req.query, formattedProducts, totalProducts, page, pageSize);
   } catch (error) {
     res.status(500).json({
       status: "fail",
@@ -159,16 +124,13 @@ export const getAllProductAssignedToSupplier = async (req, res) => {
     });
   }
 };
+
 export const getAllProduct = async (req, res) => {
-  const page = parseInt(req.query.page) || 1;
-  const pageSize = 20;
   const search = req.query.search || "";
   const filterCategory = req.query.category || "";
 
   try {
-    let baseQuery = Product.find()
-      .skip((page - 1) * pageSize)
-      .limit(pageSize);
+    let baseQuery = Product.find();
     if (search) {
       baseQuery = baseQuery.find({
         $or: [
@@ -180,20 +142,12 @@ export const getAllProduct = async (req, res) => {
       baseQuery = baseQuery.find({ "productId.category.name": filterCategory }); // Filter by category name
     }
     const totalProducts = await Product.countDocuments(baseQuery._conditions);
-    const products = await baseQuery;
+    const products = await baseQuery
     if (products.length > 0) {
       const formattedProducts = await Promise.all(
         products.map((product) => transformationProduct(product))
       );
-      res.status(200).json({
-        status: "success",
-        data: {
-          products: formattedProducts,
-          totalProducts: totalProducts,
-          currentPage: page,
-          totalPages: Math.ceil(totalProducts / pageSize),
-        },
-      });
+      await paginateResponse(res, req.query, formattedProducts, totalProducts);
     } else {
       throw new Error("No products found");
     }
@@ -204,6 +158,7 @@ export const getAllProduct = async (req, res) => {
     });
   }
 };
+
 export const getProductsByOfferId = async (req, res) => {
   const offerId = req.params.id;
   

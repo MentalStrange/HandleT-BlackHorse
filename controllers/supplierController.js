@@ -150,7 +150,6 @@ export const updateSupplier = async (req, res) => {
     });
   }
 };
-
 export const createProductSupplier = async (req, res) => {
   const supplierId = req.body.supplierId;
   const productId = req.body.productId;

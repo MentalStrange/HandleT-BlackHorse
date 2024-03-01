@@ -138,18 +138,18 @@ orderSchema.pre('save', async function(next) {
 });
 
 // Middleware to generate unique order number before saving
-orderSchema.pre('save', async function (next) {
-  try {
-    if (!this.orderNumber) {
-      const lastOrder = await this.constructor.findOne().sort({ orderNumber: -1 }).limit(1);
-      const newOrderNumber = lastOrder ? lastOrder.orderNumber + 1 : 1;
-      this.orderNumber = newOrderNumber;
-    }
-    next();
-  } catch (error) {
-    next(error);
-  }
-});
+// orderSchema.pre('save', async function (next) {
+//   try {
+//     if (!this.orderNumber) {
+//       const lastOrder = await this.constructor.findOne().sort({ orderNumber: -1 }).limit(1);
+//       const newOrderNumber = lastOrder ? lastOrder.orderNumber + 1 : 1;
+//       this.orderNumber = newOrderNumber;
+//     }
+//     next();
+//   } catch (error) {
+//     next(error);
+//   }
+// });
 
 orderSchema.pre("save", async function(next) {
   try {
@@ -204,7 +204,7 @@ const checkMinPrice = async function (next) {
 };
 
 // orderSchema.pre('save', checkMaxWeight);
-orderSchema.pre('save', checkMinPrice);
+// orderSchema.pre('save', checkMinPrice);
 
 const Order = mongoose.model('Order', orderSchema);
 export default Order;

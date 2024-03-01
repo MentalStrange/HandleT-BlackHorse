@@ -108,12 +108,10 @@ export const transformationOrder= async (order) => {
   const products = await Promise.all(
     order.products.map(async (product) => {
       const supplierProduct = await SupplierProduct.findOne({ productId:product.product });
-      console.log('supplierProduct', supplierProduct);
       if (!supplierProduct)  throw new Error('supplierProduct Not Found');
       return transformationSupplierProduct(supplierProduct, product.quantity);
     })
   );
-  console.log('products', products);
   
   const offers = await Promise.all(
     order.offers.map(async (offerId)=>{
