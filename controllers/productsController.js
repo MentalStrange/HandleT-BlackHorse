@@ -26,6 +26,9 @@ export const getProductBySupplier = async (req, res) => {
       supplierId,
     });
     const supplierProducts = await SupplierProduct.find({ supplierId })
+      .populate("productId")
+      .skip((page - 1) * pageSize)
+      .limit(pageSize);
     if (!supplierProducts || supplierProducts.length === 0) {
       throw new Error("No products found for this supplier");
     }

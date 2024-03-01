@@ -7,6 +7,7 @@ import {transformationOrder, transformationSupplier, transformationSupplierProdu
 import paginateResponse from "../utils/paginationResponse.js";
 import Unit from "../models/unitSchema.js";
 import fs from "fs";
+import jwt from "jsonwebtoken";
 
 export const getAllSupplier = async (req, res) => {
   try {
@@ -43,9 +44,9 @@ export const getAllSupplier = async (req, res) => {
     if (suppliers.length > 0) {
       paginateResponse(res, req.query, transformationSupplier(suppliers), totalSuppliers);
     } else {
-      res.status(404).json({
-        status: "fail",
-        message: "No suppliers found.",
+      res.status(200).json({
+        status: "success",
+        data: [],
       });
     }
   } catch (error) {
@@ -85,10 +86,18 @@ export const getSupplier = async (req, res) => {
   try {
     const supplier = await Supplier.findById(id);
     if (supplier) {
-      res.status(200).json({
-        status: "success",
-        data: await transformationSupplier(supplier),
-      });
+      if(supplier.type === "blackHorse"){
+        res.status(200).json({
+          status: "success",
+          data: {...(await transformationSupplier(supplier)), access_token: jwt.sign({_id: supplier._id, role: "blackHorse"}, process.env.JWT_SECRET, {})},
+        });
+      }
+      else{
+        res.status(200).json({
+          status: "success",
+          data:  {...(await transformationSupplier(supplier)), access_token: jwt.sign({_id: supplier._id, role: req.role}, process.env.JWT_SECRET, {})},
+        });
+      }
     } else {
       res.status(404).json({
         status: "fail",
@@ -133,10 +142,18 @@ export const updateSupplier = async (req, res) => {
       // Update the status of the supplier
       updatedSupplier.status = status;
       await updatedSupplier.save();
-      res.status(200).json({
-        status: "success",
-        data: await transformationSupplier(updatedSupplier),
-      });
+      if(updatedSupplier.type === "blackHorse"){
+        res.status(200).json({
+          status: "success",
+          data: {...(await transformationSupplier(updatedSupplier)), access_token: jwt.sign({_id: updatedSupplier._id, role: "blackHorse"}, process.env.JWT_SECRET, {})},
+        });
+      }
+      else{
+        res.status(200).json({
+          status: "success",
+          data:  {...(await transformationSupplier(updatedSupplier)), access_token: jwt.sign({_id: updatedSupplier._id, role: req.role}, process.env.JWT_SECRET, {})},
+        });
+      }
     } else {
       res.status(404).json({
         status: "fail",
@@ -421,8 +438,57 @@ export const uploadPhoto = async (req, res) => {
   }
 };
 export const uploadPlaceImages = async (req, res) => {
+  const supplierId = req.params.id;
+  try{
+    const supplier = await Supplier.findById(supplierId);
+    if (!supplier) {
+      return res.status(207).json({
+        status: "fail",
+        message: "Supplier not found"
+      });
+    }
 
+    const imagePaths = req.files.map(file => `${process.env.SERVER_URL}${file.path.replace(/\\/g, '/').replace(/^upload\//, '')}`);
+    supplier.placeImage = supplier.placeImage.concat(imagePaths);
+    await supplier.save();
+    res.status(200).json({
+      status: "success",
+      data: supplier.placeImage,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      status: "error",
+      message: "Internal server error"
+    });
+  }
 };
 export const deletePlaceImages = async (req, res) => {
-  
+  const supplierId = req.params.id;
+  const placeImage = req.body.placeImage;
+  try{
+    const supplier = await Supplier.findById(supplierId);
+    if (!supplier) {
+      return res.status(207).json({
+        status: "fail",
+        message: "Supplier not found"
+      });
+    }
+
+    const pathName = placeImage.split('/').slice(3).join('/');
+    fs.unlink('upload/' + pathName, (err) => {});
+    supplier.placeImage = supplier.placeImage.filter(image => image !== placeImage);
+    await supplier.save();
+    res.status(200).json({
+      status: "success",
+      data: supplier.placeImage,
+    });
+   } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      status: "error",
+      message: "Internal server error"
+    });
+  }
+ 
 };
