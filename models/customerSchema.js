@@ -20,7 +20,7 @@ const customerSchema =  mongoose.Schema({
   },
   phone:{
     type:String,
-    required:[true,'Customer Should have a Phone']
+    // required:[true,'Customer Should have a Phone']
   },
   region:{
     type:mongoose.Schema.Types.ObjectId,
