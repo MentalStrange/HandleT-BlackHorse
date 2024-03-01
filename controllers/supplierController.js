@@ -7,6 +7,7 @@ import {transformationOrder, transformationSupplier, transformationSupplierProdu
 import paginateResponse from "../utils/paginationResponse.js";
 import Unit from "../models/unitSchema.js";
 import fs from "fs";
+import jwt from "jsonwebtoken";
 
 export const getAllSupplier = async (req, res) => {
   try {
@@ -85,10 +86,18 @@ export const getSupplier = async (req, res) => {
   try {
     const supplier = await Supplier.findById(id);
     if (supplier) {
-      res.status(200).json({
-        status: "success",
-        data: await transformationSupplier(supplier),
-      });
+      if(supplier.type === "blackHorse"){
+        res.status(200).json({
+          status: "success",
+          data: {...(await transformationSupplier(supplier)), access_token: jwt.sign({_id: supplier._id, role: "blackHorse"}, process.env.JWT_SECRET, {})},
+        });
+      }
+      else{
+        res.status(200).json({
+          status: "success",
+          data:  {...(await transformationSupplier(supplier)), access_token: jwt.sign({_id: supplier._id, role: req.role}, process.env.JWT_SECRET, {})},
+        });
+      }
     } else {
       res.status(404).json({
         status: "fail",
@@ -133,10 +142,18 @@ export const updateSupplier = async (req, res) => {
       // Update the status of the supplier
       updatedSupplier.status = status;
       await updatedSupplier.save();
-      res.status(200).json({
-        status: "success",
-        data: await transformationSupplier(updatedSupplier),
-      });
+      if(updatedSupplier.type === "blackHorse"){
+        res.status(200).json({
+          status: "success",
+          data: {...(await transformationSupplier(updatedSupplier)), access_token: jwt.sign({_id: updatedSupplier._id, role: "blackHorse"}, process.env.JWT_SECRET, {})},
+        });
+      }
+      else{
+        res.status(200).json({
+          status: "success",
+          data:  {...(await transformationSupplier(updatedSupplier)), access_token: jwt.sign({_id: updatedSupplier._id, role: req.role}, process.env.JWT_SECRET, {})},
+        });
+      }
     } else {
       res.status(404).json({
         status: "fail",
