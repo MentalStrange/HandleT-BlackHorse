@@ -119,6 +119,20 @@ export const updateSupplier = async (req, res) => {
       { new: true }
     );
     if (updatedSupplier) {
+      // Check if any required fields are empty or missing
+      let status = 'active'; // Assume status is active by default
+      Object.entries(updatedSupplier.toObject()).forEach(([key, value]) => {
+        if (Array.isArray(value) && value.length === 0) {
+          status = 'inactive';
+        } else if (typeof value === 'string' && value.trim() === '') {
+          status = 'inactive';
+        } else if (typeof value === 'number' && (isNaN(value))) {
+          status = 'inactive';
+        }
+      });
+      // Update the status of the supplier
+      updatedSupplier.status = status;
+      await updatedSupplier.save();
       res.status(200).json({
         status: "success",
         data: await transformationSupplier(updatedSupplier),
@@ -136,6 +150,7 @@ export const updateSupplier = async (req, res) => {
     });
   }
 };
+
 export const createProductSupplier = async (req, res) => {
   const supplierId = req.body.supplierId;
   const productId = req.body.productId;
