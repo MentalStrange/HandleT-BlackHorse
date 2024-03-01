@@ -16,14 +16,14 @@ const supplierSchema = mongoose.Schema({
     type: String,
     required: [true, "Supplier Should have a password"],
   },
-  nationalId:{
-    type:Number,
-    required:[true,"Supplier Should have a National Id"],
-    unique:true,
+  nationalId: {
+    type: Number,
+    required: [true, "Supplier Should have a National Id"],
+    unique: true,
   },
-  wallet:{
-    type:Number,
-    default:0
+  wallet: {
+    type: Number,
+    default: 0,
   },
   desc: {
     type: String,
@@ -85,12 +85,12 @@ const supplierSchema = mongoose.Schema({
   status: {
     type: String,
     enum: ["active", "inactive"],
-    default: "inactive",
+    // default: "active",
   },
-  totalRating:{
-    type:Number,
+  totalRating: {
+    type: Number,
   },
-  averageRating:{
+  averageRating: {
     type: Number,
   },
 });
@@ -102,5 +102,6 @@ supplierSchema.pre("remove", async function (next) {
     next(error);
   }
 });
+
 const Supplier = mongoose.model("Supplier", supplierSchema);
 export default Supplier;
