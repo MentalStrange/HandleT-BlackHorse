@@ -396,7 +396,7 @@ export const uploadPhoto = async (req, res) => {
     await supplier.save();
     return res.status(200).json({
       status: "success",
-      data: await transformationSupplier(supplier),
+      data: supplier.image,
     });
   } catch (error) {
     console.error(error);
