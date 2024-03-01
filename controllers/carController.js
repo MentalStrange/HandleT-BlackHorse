@@ -95,7 +95,7 @@ const getCarByWeight = async (req,res) => {
       { $limit: 1 } // Limit to the closest car
     ]);
     if(!car){
-      res.status(404).json({ status: 'fail', message: 'Car not found' });
+      res.status(207).json({ status: 'fail', message: 'Car not found' });
     }
     res.status(200).json({ status: 'success', data: transformationCar(car[0]) });
   } catch (error) {
@@ -103,7 +103,7 @@ const getCarByWeight = async (req,res) => {
   }
 }
 
-const changeImage = async (req, res) => {
+const changeImageCar = async (req, res) => {
   const carId = req.params.id;
   try {
     const car = await Car.findById(carId);
@@ -123,4 +123,4 @@ const changeImage = async (req, res) => {
   }
 }
 
-export { createCar, getCars, updateCar, deleteCar, getCarByWeight, changeImage };
+export { createCar, getCars, updateCar, deleteCar, getCarByWeight, changeImageCar };

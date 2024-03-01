@@ -153,7 +153,7 @@ export const transformationDeliveryBoy = async (deliverBoy) => {
     name: deliverBoy.name,
     email: deliverBoy.email,
     password: deliverBoy.password ?? "",
-    image: deliverBoy.image,
+    image: deliverBoy.image ?? "",
     phoneNumber: deliverBoy.phone,
     deliveryDistrict: deliverBoy.region ?? "",
     access_token: deliverBoy.access_token,
