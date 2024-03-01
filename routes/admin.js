@@ -63,6 +63,7 @@ import {
   deleteCar, getCarByWeight,
   getCars,
   updateCar,
+  changeImage,
 } from "../controllers/carController.js";
 import { createDeliveryBoy, updateDeliveryBoy } from "../controllers/deliveryBoyController.js";
 import validateField from "../middlewares/fieldMiddleware.js";
@@ -73,6 +74,7 @@ import { checkAllFieldsFilled } from "../middlewares/isActive.js";
 
 const uploadCategory = multer({ storage: storage('category') });
 const uploadSlideShow = multer({ storage: storage('slideshow') });
+const uploadCar = multer({ storage: storage('car') });
 
 const Router = express.Router();
 
@@ -129,9 +131,10 @@ Router.delete('/subUnit/:id',deleteSubUnit);
 Router.get("/fee", getFee);
 Router.post("/fee", createFee);
 
-Router.post("/car", createCar);
+Router.post("/car", uploadCar.single("image"), createCar);
 Router.get("/car", getCars);
 Router.patch("/car/:id", updateCar);
+Router.patch("/car/changeImage/:id", uploadCar.single("image"), changeImage);
 Router.delete("/car/:id", deleteCar);
 Router.post("/getCarByWeight", getCarByWeight);
 

@@ -6,6 +6,7 @@ import SupplierProduct from "../models/supplierProductSchema.js";
 import {transformationOrder, transformationSupplier, transformationSupplierProduct} from "../format/transformationObject.js";
 import paginateResponse from "../utils/paginationResponse.js";
 import Unit from "../models/unitSchema.js";
+import fs from "fs";
 
 export const getAllSupplier = async (req, res) => {
   try {
@@ -381,7 +382,7 @@ export const lastOrdersBySupplierId = async (req, res) => {
 export const uploadPhoto = async (req, res) => {
   const supplierId = req.params.id;
   try {
-    const supplier = await Supplier.findOne({ _id: supplierId });
+    const supplier = await Supplier.findById(supplierId);
     if (!supplier) {
       return res.status(207).json({
         status: "fail",

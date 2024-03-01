@@ -2,18 +2,21 @@
 
 import { transformationCar } from "../format/transformationObject.js";
 import Car from "../models/carSchema.js";
+import fs from "fs";
 
 // Create a new car
 const createCar = async (req, res) => {
   const carData = req.body;
 
   try {
-    const newCar = new Car(carData);
-    const savedCar = await newCar.save();
-    const transformedCar = {
-      ...savedCar.toObject(), // Copy properties from savedCar
-    };
-    res.status(201).json({ status: 'success', data: transformedCar });
+    const newCar = new Car({
+      type: carData.type,
+      maxWeight: carData.maxWeight,
+      image: `${process.env.SERVER_URL}${req.file.path.replace(/\\/g, '/').replace(/^upload\//, '')}`,
+      number: carData.number,
+    });
+    await newCar.save();
+    res.status(201).json({ status: 'success', data: transformationCar(newCar) });
   } catch (error) {
     if (error.name === 'MongoError' && error.code === 11000) {
       res.status(400).json({
@@ -58,6 +61,8 @@ const deleteCar = async (req,res) => {
   try {
     const deletedCar = await Car.findByIdAndDelete(carId);
     if (deletedCar) {
+      const pathName = deletedCar.image.split('/').slice(3).join('/');
+      fs.unlink('upload/' + pathName, (err) => {});
       res.status(200).json({ status: 'success', data: null });
     } else {
       res.status(404).json({ status: 'fail', message: 'Car not found' });
@@ -98,4 +103,24 @@ const getCarByWeight = async (req,res) => {
   }
 }
 
-export { createCar, getCars, updateCar, deleteCar, getCarByWeight };
+const changeImage = async (req, res) => {
+  const carId = req.params.id;
+  try {
+    const car = await Car.findById(carId);
+    const pathName = car.image.split('/').slice(3).join('/');
+    fs.unlink('upload/' + pathName, (err) => {});
+    car.image = `${process.env.SERVER_URL}${req.file.path.replace(/\\/g, '/').replace(/^upload\//, '')}`
+    await car.save();
+    res.status(200).json({
+      status:"success",
+      data: transformationCar(car)
+    })
+   } catch (error) {
+    res.status(500).json({
+      status:'fail',
+      message:error.message,
+    })
+  }
+}
+
+export { createCar, getCars, updateCar, deleteCar, getCarByWeight, changeImage };
