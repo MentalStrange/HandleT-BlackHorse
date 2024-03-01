@@ -26,9 +26,6 @@ export const getProductBySupplier = async (req, res) => {
       supplierId,
     });
     const supplierProducts = await SupplierProduct.find({ supplierId })
-      .populate("productId")
-      .skip((page - 1) * pageSize)
-      .limit(pageSize);
     if (!supplierProducts || supplierProducts.length === 0) {
       throw new Error("No products found for this supplier");
     }
@@ -81,45 +78,35 @@ export const getProductByCategory = async (req, res) => {
   }
 };
 export const getAllProductAssignedToSupplier = async (req, res) => {
-  const page = parseInt(req.query.page) || 1;
-  const pageSize = 6;
   const search = req.query.search || "";
-  const filterCategory = req.query.category || "";
-  const priceOrder = req.query.price;
+  const pageSize = parseInt(req.query.pageSize) || 10;
+  const page = parseInt(req.query.page) || 1;
 
   try {
-    let baseQuery;
-    if(priceOrder){
-      baseQuery = SupplierProduct.find()
-      .sort({ price: parseInt(priceOrder) })
-      .skip((page - 1) * pageSize)
-      .limit(pageSize);
-    } else {
-      baseQuery = SupplierProduct.find()
-      .skip((page - 1) * pageSize)
-      .limit(pageSize);
-    }
+    // Fetch all supplier products
+    const supplierProducts = await SupplierProduct.find();
 
-    if (search) {
-      baseQuery = baseQuery.find({
-        $or: [
-          { "productId.title": { $regex: search, $options: "i" } }, // Search by product title
-        ],
-      });
-    }
-    if (filterCategory) {
-      baseQuery = baseQuery.find({ "productId.category.name": filterCategory }); // Filter by category name
-    }
-    const totalProducts = await SupplierProduct.countDocuments(baseQuery._conditions);
-    const products = await baseQuery;
-
-    // Formatting products
-    const formattedProducts = await Promise.all(
-      products.map((product) => transformationSupplierProduct(product))
+    // Filter supplier products with suppliers
+    const productsWithSupplier = supplierProducts.filter(
+      (supplierProduct) => supplierProduct.supplierId
     );
 
-    // Paginate the formatted products
-    await paginateResponse(res, req.query, formattedProducts, totalProducts, page, pageSize);
+    // Transform each supplier product if needed
+    const transformedProducts = await Promise.all(
+      productsWithSupplier.map(async (supplierProduct) => {
+        return await transformationSupplierProduct(supplierProduct);
+      })
+    );
+    console.log('transformedProducts', transformedProducts);
+    
+    // Apply search functionality
+    const searchedProducts = searchProducts(transformedProducts, search);
+
+    // Paginate the searched products
+    const totalProducts = searchedProducts.length;
+
+    // Return paginated products
+    await paginateResponse(res, req.query, searchedProducts, searchedProducts.length);
   } catch (error) {
     res.status(500).json({
       status: "fail",
@@ -127,7 +114,6 @@ export const getAllProductAssignedToSupplier = async (req, res) => {
     });
   }
 };
-
 export const getAllProduct = async (req, res) => {
   const search = req.query.search || "";
   const filterCategory = req.query.category || "";
