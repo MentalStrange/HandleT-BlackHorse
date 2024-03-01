@@ -422,7 +422,22 @@ export const uploadPhoto = async (req, res) => {
   }
 };
 export const uploadPlaceImages = async (req, res) => {
-
+  const supplierId = req.params.id;
+  try{
+    const supplier = await Supplier.findById(supplierId);
+    if (!supplier) {
+      return res.status(207).json({
+        status: "fail",
+        message: "Supplier not found"
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      status: "error",
+      message: "Internal server error"
+    });
+  }
 };
 export const deletePlaceImages = async (req, res) => {
   
