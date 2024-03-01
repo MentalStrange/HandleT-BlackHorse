@@ -437,7 +437,7 @@ export const uploadPlaceImages = async (req, res) => {
     await supplier.save();
     res.status(200).json({
       status: "success",
-      data: await transformationSupplier(supplier),
+      data: supplier.placeImage,
     });
   } catch (error) {
     console.error(error);
@@ -465,7 +465,7 @@ export const deletePlaceImages = async (req, res) => {
     await supplier.save();
     res.status(200).json({
       status: "success",
-      data: await transformationSupplier(supplier),
+      data: supplier.placeImage,
     });
    } catch (error) {
     console.error(error);
