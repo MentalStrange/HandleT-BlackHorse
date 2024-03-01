@@ -4,7 +4,21 @@ import DeliveryBoy from "../models/deliveryBoySchema.js";
 import Region from "../models/regionSchema.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import fs from "fs";
 const salt = 10 ;
+
+export const getAllDeliveryBoy = async (req, res) => {
+  const allDeliveryBoys = await Promise.all(
+    (await DeliveryBoy.find()).map(async (delivery) => {
+      return transformationDeliveryBoy(delivery);
+    })
+  );
+  res.status(200).json({
+    status: "success",
+    data: allDeliveryBoys,
+  });
+}
+
 export const createDeliveryBoy = async (req, res) => {
   const deliverBoyData = req.body;
   const deliveryBoyEmail = req.body.email;
@@ -81,5 +95,33 @@ export const updateDeliveryBoy = async (req,res) => {
     res.status(500).json({
       status: "fail",
       message: error.message,
-    });}
+    });
+  }
+}
+
+export const changeImageDeliveryBoy = async (req, res) => {
+  const deliveryBoyId = req.params.id;
+  try{
+    const deliveryBoy = await DeliveryBoy.findById(deliveryBoyId);
+    if (!deliveryBoy) {
+      return res.status(207).json({
+        status: "fail",
+        message: "DeliveryBoy not found"
+      });
+    }
+
+    const pathName = deliveryBoy.image.split('/').slice(3).join('/');
+    fs.unlink('upload/' + pathName, (err) => {});
+    deliveryBoy.image = `${process.env.SERVER_URL}${req.file.path.replace(/\\/g, '/').replace(/^upload\//, '')}`;
+    await deliveryBoy.save();
+    return res.status(200).json({
+      status: "success",
+      data: await transformationDeliveryBoy(deliveryBoy),
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "fail",
+      message: error.message,
+    });
+  }
 }

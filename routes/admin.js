@@ -63,9 +63,9 @@ import {
   deleteCar, getCarByWeight,
   getCars,
   updateCar,
-  changeImage,
+  changeImageCar,
 } from "../controllers/carController.js";
-import { createDeliveryBoy, updateDeliveryBoy } from "../controllers/deliveryBoyController.js";
+import { createDeliveryBoy, updateDeliveryBoy, changeImageDeliveryBoy , getAllDeliveryBoy } from "../controllers/deliveryBoyController.js";
 import validateField from "../middlewares/fieldMiddleware.js";
 import { createPromoCode, deletePromoCode, getAllPromoCode, updatePromoCode } from "../controllers/promoCodeController.js";
 import { checkAllFieldsFilled } from "../middlewares/isActive.js";
@@ -74,6 +74,8 @@ import { checkAllFieldsFilled } from "../middlewares/isActive.js";
 
 const uploadCategory = multer({ storage: storage('category') });
 const uploadSlideShow = multer({ storage: storage('slideshow') });
+const uploadDeliveryBoy = multer({ storage: storage('deliveryboy') });
+const uploadProducts = multer({ storage: storage('product') });
 const uploadCar = multer({ storage: storage('car') });
 
 const Router = express.Router();
@@ -87,7 +89,7 @@ Router.patch("/supplier/:id", updateSupplier);
 Router.get("/customer", createCustomer);
 // Router.delete('/customer/:id',deleteCustomer);
 Router.get("/product", authenticate, restrict(["blackHorse", "company"]), getAllProduct);
-Router.post("/product", createProduct);
+Router.post("/product", createProduct); // uploadProducts.array("images"),
 Router.get("/products", getProducts);
 Router.patch("/product/:id", updateProduct);
 Router.delete("/product/:id", deleteProduct);
@@ -98,8 +100,10 @@ Router.patch("/category/:id", updateCategory);
 Router.delete('/category/:id', deleteCategory);
 Router.patch("/category/changeImage/:id", uploadCategory.single("image"), changeImageCategory);
 
+Router.get("/deliveryBoys", getAllDeliveryBoy);
 Router.post("/deliveryBoy", createDeliveryBoy);
 Router.patch("/deliverBoy/:id", updateDeliveryBoy);
+Router.patch("/deliverBoy/changeImage/:id", uploadDeliveryBoy.single("image"), changeImageDeliveryBoy);
 
 Router.get("/offer", getAllOffer);
 Router.post("/offer", createOffer);
@@ -134,7 +138,7 @@ Router.post("/fee", createFee);
 Router.post("/car", uploadCar.single("image"), createCar);
 Router.get("/car", getCars);
 Router.patch("/car/:id", updateCar);
-Router.patch("/car/changeImage/:id", uploadCar.single("image"), changeImage);
+Router.patch("/car/changeImage/:id", uploadCar.single("image"), changeImageCar);
 Router.delete("/car/:id", deleteCar);
 Router.post("/getCarByWeight", getCarByWeight);
 
