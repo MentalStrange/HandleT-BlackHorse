@@ -43,9 +43,9 @@ export const getAllSupplier = async (req, res) => {
     if (suppliers.length > 0) {
       paginateResponse(res, req.query, transformationSupplier(suppliers), totalSuppliers);
     } else {
-      res.status(404).json({
-        status: "fail",
-        message: "No suppliers found.",
+      res.status(200).json({
+        status: "success",
+        data: [],
       });
     }
   } catch (error) {
@@ -431,6 +431,14 @@ export const uploadPlaceImages = async (req, res) => {
         message: "Supplier not found"
       });
     }
+
+    const imagePaths = req.files.map(file => `${process.env.SERVER_URL}${file.path.replace(/\\/g, '/').replace(/^upload\//, '')}`);
+    supplier.placeImage = supplier.placeImage.concat(imagePaths);
+    await supplier.save();
+    res.status(200).json({
+      status: "success",
+      data: await transformationSupplier(supplier),
+    });
   } catch (error) {
     console.error(error);
     return res.status(500).json({
@@ -440,5 +448,31 @@ export const uploadPlaceImages = async (req, res) => {
   }
 };
 export const deletePlaceImages = async (req, res) => {
-  
+  const supplierId = req.params.id;
+  const placeImage = req.body.placeImage;
+  try{
+    const supplier = await Supplier.findById(supplierId);
+    if (!supplier) {
+      return res.status(207).json({
+        status: "fail",
+        message: "Supplier not found"
+      });
+    }
+
+    const pathName = placeImage.split('/').slice(3).join('/');
+    fs.unlink('upload/' + pathName, (err) => {});
+    supplier.placeImage = supplier.placeImage.filter(image => image !== placeImage);
+    await supplier.save();
+    res.status(200).json({
+      status: "success",
+      data: await transformationSupplier(supplier),
+    });
+   } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      status: "error",
+      message: "Internal server error"
+    });
+  }
+ 
 };

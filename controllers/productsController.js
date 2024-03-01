@@ -29,9 +29,9 @@ export const getProductBySupplier = async (req, res) => {
       .populate("productId")
       .skip((page - 1) * pageSize)
       .limit(pageSize);
-    if (!supplierProducts || supplierProducts.length === 0) {
-      throw new Error("No products found for this supplier");
-    }
+    // if (!supplierProducts || supplierProducts.length === 0) {
+    //   throw new Error("No products found for this supplier");
+    // }
     // Transform each supplierProduct using the transformation function
     const products = await Promise.all(
       supplierProducts.map(async (supplierProduct) => {

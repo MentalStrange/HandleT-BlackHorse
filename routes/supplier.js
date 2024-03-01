@@ -10,6 +10,7 @@ import {
     updateSupplier,
     uploadPhoto,
     uploadPlaceImages,
+    deletePlaceImages,
 } from '../controllers/supplierController.js';
 import { createOffer, deleteOffer, getAllOffer, getOffer, getOfferBySupplierId, updateOffer } from '../controllers/offerController.js';
 import { getAllOrder, getAllOrderBySupplierId, totalOrderBySupplierId } from '../controllers/orderController.js';
@@ -24,7 +25,8 @@ const uploadPlaceImage = multer({ storage: storage('placeimages') });
 const Router = express.Router();
 
 Router.patch("/uploadPhoto/:id", uploadSupplier.single("image"), uploadPhoto);
-// Router.post("/uploadPlaceImages/:id", uploadPlaceImages.array("placeImages"), uploadPlaceImages);
+Router.post("/uploadPlaceImage/:id", uploadPlaceImage.array("placeImage"), uploadPlaceImages);
+Router.delete("/deletePlaceImage/:id", deletePlaceImages);
 
 Router.get('/company', getCompany);
 Router.get('/:id', getSupplier);
