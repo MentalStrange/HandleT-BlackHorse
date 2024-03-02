@@ -182,9 +182,9 @@ export const createProductSupplier = async (req, res) => {
       });
     }
     const unit = await Unit.findById(unitId);
-    let unitWeight = 0;
+    let unitWeight = product.weight;
     if(unit){
-      unitWeight = product.weight*unit.maxNumber;
+      unitWeight *= unit.maxNumber;
     }
     const supplier = await Supplier.findById(supplierId);
     if(supplier.status === "inactive"){
