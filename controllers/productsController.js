@@ -4,6 +4,8 @@ import Category from "../models/categorySchema.js";
 import Offer from "../models/offerSchema.js";
 import Order from "../models/orderSchema.js";
 import SupplierProduct from "../models/supplierProductSchema.js";
+import fs from "fs";
+
 import {
   transformationProduct,
   transformationSupplierProduct,
@@ -181,6 +183,60 @@ export const getProductByOrderId = async (req, res) => {
     res.status(500).json({
       status: "fail",
       message: error.message,
+    });
+  }
+};
+export const uploadProductImages = async (req, res) => {
+  const productId = req.params.id;
+  try{
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(207).json({
+        status: "fail",
+        message: "product not found"
+      });
+    }
+
+    const imagePaths = req.files.map(file => `${process.env.SERVER_URL}${file.path.replace(/\\/g, '/').replace(/^upload\//, '')}`);
+    product.images = product.images.concat(imagePaths);
+    await product.save();
+    res.status(200).json({
+      status: "success",
+      data: await transformationProduct(product),
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      status: "error",
+      message: "Internal server error"
+    });
+  }
+};
+export const deleteProductImage = async (req, res) => {
+  const productId = req.params.id;
+  const productImage = req.body.image;
+  try{
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(207).json({
+        status: "fail",
+        message: "product not found"
+      });
+    }
+
+    const pathName = productImage.split('/').slice(3).join('/');
+    fs.unlink('upload/' + pathName, (err) => {});
+    product.images = product.images.filter(image => image !== productImage);
+    await product.save();
+    res.status(200).json({
+      status: "success",
+      data: await transformationProduct(product),
+    });
+   } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      status: "error",
+      message: "Internal server error"
     });
   }
 };

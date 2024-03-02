@@ -1,4 +1,3 @@
-import { v2 as cloudinary } from 'cloudinary';
 import Product from "../models/productSchema.js";
 import mongoose, {connect} from "mongoose";
 import Customer from "../models/customerSchema.js";
@@ -49,11 +48,12 @@ export const createProduct = async (req, res) => {
       weight: req.body.weight,
       subUnit: req.body.subUnit,
       category: req.body.category,
+      images: req.files.map(file => `${process.env.SERVER_URL}${file.path.replace(/\\/g, '/').replace(/^upload\//, '')}`)
     });
     await newProduct.save();
     res.status(201).json({
       status: 'success',
-      data: transformationProduct(newProduct),
+      data: await transformationProduct(newProduct),
     });
   } catch (error) {
     res.status(error.statusCode || 404).json({
@@ -76,7 +76,7 @@ export const updateProduct = async (req, res) => {
     if (updatedProduct) {
       res.status(200).json({
         status: "success",
-        data: transformationProduct(updatedProduct),
+        data: await transformationProduct(updatedProduct),
       });
     } else {
       throw new Error(`Product not found`);
@@ -144,16 +144,6 @@ export const calcAvgRating = async (userId, isCustomer) => {
       await customer.save();
     }
 };
-
-export const uploadImageToCloudinary = async (imagePath) => {
-  try {
-    const result = await cloudinary.uploader.upload(imagePath);
-    return result.secure_url;
-  } catch (error) {
-    console.error('Error uploading image to Cloudinary:', error);
-    throw error;
-  }
-}
 
 export const storage = (folderName) => multer.diskStorage({
   destination: (req, file, cb) => {
