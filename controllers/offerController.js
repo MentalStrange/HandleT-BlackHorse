@@ -127,7 +127,10 @@ export const deleteOffer = async (req, res) => {
   const offerId = req.params.id;
   try {
     if(offerId){
-      await Offer.findByIdAndDelete(offerId);
+      const offer = await Offer.findByIdAndDelete(offerId)
+      offer.image = offer.image ?? "";
+      const pathName = offer.image.split('/').slice(3).join('/');
+      fs.unlink('upload/' + pathName, (err) => {});
       res.status(200).json({
         status:"success",
         data:null
