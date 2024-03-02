@@ -1,5 +1,6 @@
 import Category from "../models/categorySchema.js";
 import fs from "fs";
+import Product from "../models/productSchema.js";
 
 export const createCategory = async (req, res) => {
   const categoryData = req.body;
@@ -52,6 +53,13 @@ export const getAllCategory = async (req,res) => {
 export const deleteCategory = async (req, res) => {
   const categoryId = req.params.id;
   try {
+    const product = await Product.findOne({ category: categoryId });
+    if(product){
+      return res.status(403).json({
+        status: 'fail',
+        message: 'Category is used in products',
+      })
+    }
     if(categoryId){
       const category = await Category.findByIdAndDelete(categoryId);
       const pathName = category.image.split('/').slice(3).join('/');

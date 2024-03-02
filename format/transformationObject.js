@@ -35,12 +35,13 @@ export const transformationProduct = async (product) => {
     images: product.images ?? [],
   };
 };
-export const transformationSupplierProduct = async (supplierProduct, quantity=1) => {
+export const transformationSupplierProduct = async (supplierProduct, quantity=1, unitWeight) => {
   const product = await Product.findById(supplierProduct.productId);
   const supplier = await Supplier.findById(supplierProduct.supplierId);
   const category = await Category.findOne({ _id: product.category });
   const subUnit = await SubUnit.findById(supplierProduct.subUnit);
   const unit =  supplierProduct.unit !== undefined ? await Unit.findById(supplierProduct.unit) : null ;
+  
   if(!supplier){
     throw new Error('supplier Not Found')
   }
@@ -58,7 +59,7 @@ export const transformationSupplierProduct = async (supplierProduct, quantity=1)
     title: product.title,
     price: supplierProduct.price,
     afterSale: supplierProduct.afterSale ?? null,
-    weight: product.weight,
+    weight: unitWeight ? unitWeight : product.weight,
     images: product.images ?? [],
     maxLimit: supplierProduct.maxLimit ?? null,
     supplierId: supplier._id,

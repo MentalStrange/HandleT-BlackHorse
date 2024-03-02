@@ -88,6 +88,13 @@ export const updateProduct = async (req, res) => {
 export const deleteProduct = async (req, res) => {
   const productId = req.params.id;
   try {
+    const supplierProduct = await SupplierProduct.findOne({ productId });
+    if(supplierProduct) {
+      return res.status(403).json({
+        status: 'fail',
+        message: 'Product is used in supplier products',
+      })
+    }
     const deletionResult = await Product.deleteOne({ _id: productId });
     if (deletionResult.deletedCount > 0) {
       await SupplierProduct.deleteMany({ productId: productId});
