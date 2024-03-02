@@ -10,6 +10,7 @@ import GroupExpireDate from "../models/groupExpireDate.js";
 import { transformationUnit } from "../format/transformationObject.js";
 import SubUnit from "../models/subUnitSchema.js";
 import mongoose from "mongoose"
+import SupplierProduct from "../models/supplierProductSchema.js";
 const salt = 10;
 
 export const deleteSupplier = async (req, res) => {
@@ -159,6 +160,13 @@ export const updateUnit = async (req,res) => {
 export const deleteUnit = async (req, res) => {
   const unitId = req.params.id;
   try {
+    const supplierProduct = await SupplierProduct.find({ unit: unitId });
+    if(supplierProduct.length > 0){
+      return res.status(403).json({
+        status: 'fail',
+        message: 'Cannot delete unit as it is referenced by supplier products.',
+      })
+    }
     if (!mongoose.Types.ObjectId.isValid(unitId)) {
       throw new Error('Invalid unit ID.');
     }
@@ -358,6 +366,13 @@ export const updateSubUnit = async (req, res) => {
 export const deleteSubUnit = async (req, res) => {
   const subUnitId = req.params.id;
   try {
+    const supplierProduct = await SupplierProduct.find({ subUnit: subUnitId });
+    if(supplierProduct.length > 0){
+      return res.status(403).json({
+        status: 'fail',
+        message: 'Cannot delete subUnit as it is referenced by supplier products.',
+      })
+    }
     if (!mongoose.Types.ObjectId.isValid(subUnitId)) {
       throw new Error('Invalid subUnit ID.');
     }
