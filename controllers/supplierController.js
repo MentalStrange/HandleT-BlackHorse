@@ -214,13 +214,14 @@ export const createProductSupplier = async (req, res) => {
     //   })
     // }
     const newSupplierProduct = await SupplierProduct.create({
+      productWeight: unitWeight,
       supplierId,
       productId,
-      ...productData
+      ...productData,
     })
     res.status(200).json({
       status: "success",
-      data: await transformationSupplierProduct(newSupplierProduct, unitWeight),
+      data: await transformationSupplierProduct(newSupplierProduct),
     });
   } catch (error) {
     res.status(500).json({

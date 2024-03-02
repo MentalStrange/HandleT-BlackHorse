@@ -37,6 +37,9 @@ const supplierProductSchema = mongoose.Schema({
       ref:"SubUnit",
       required:[true, 'Product should have a subUnit'],
     },
+    productWeight:{
+      type:Number,
+    }
 })
 const SupplierProduct = mongoose.model('SupplierProduct', supplierProductSchema);
 

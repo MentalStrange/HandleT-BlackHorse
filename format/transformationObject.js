@@ -58,7 +58,7 @@ export const transformationSupplierProduct = async (supplierProduct, quantity=1)
     title: product.title,
     price: supplierProduct.price,
     afterSale: supplierProduct.afterSale ?? null,
-    weight: product.weight,
+    weight: supplierProduct.productWeight,
     images: product.images ?? [],
     maxLimit: supplierProduct.maxLimit ?? null,
     supplierId: supplier._id,
