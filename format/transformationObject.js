@@ -100,7 +100,8 @@ export const transformationOffer = async (offer, quantity=1) => {
     unit: offer.unit,
     stock: offer.stock,
     products: offer.products, // transformedProducts.filter((product) => product !== null),
-    quantity: quantity
+    quantity: quantity,
+    desc: offer.desc,
   };
 }
 export const transformationOrder= async (order) => {  

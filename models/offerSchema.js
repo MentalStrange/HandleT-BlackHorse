@@ -47,6 +47,7 @@ const offerSchema = new mongoose.Schema({
   },
   desc:{
     type: String,
+    required: [true, 'Offer should have a description'],
   }
 },
 {

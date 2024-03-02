@@ -26,11 +26,14 @@ export const getProductBySupplier = async (req, res) => {
     const supplierProductsCount = await SupplierProduct.countDocuments({
       supplierId,
     });
-    const supplierProducts = await SupplierProduct.find({ supplierId })
-    // if (!supplierProducts || supplierProducts.length === 0) {
-    //   throw new Error("No products found for this supplier");
-    // }
-    // Transform each supplierProduct using the transformation function
+    const supplierProducts = await SupplierProduct.find({ supplierId }).sort({ price: sortDirection });
+    if (!supplierProducts || supplierProducts.length === 0) {
+      return res.status(404).json({
+        status: "fail",
+        data:[],
+        message: "No products found for this supplier",
+      })
+    }
     const products = await Promise.all(
       supplierProducts.map(async (supplierProduct) => {
         const transformedProduct = await transformationSupplierProduct(
@@ -68,7 +71,7 @@ export const getProductByCategory = async (req, res) => {
         return await transformationSupplierProduct(supplierProduct);
       })
     );
-    const searchedProducts = searchProducts(transformedProducts, req.query.search);
+    const searchedProducts = searchProducts(transformedProducts, search);
     await paginateResponse(res, req.query, searchedProducts?await searchedProducts:transformedProducts, productsWithSupplier.length);
   } catch (error) {
     res.status(500).json({
