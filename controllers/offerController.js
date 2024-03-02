@@ -4,6 +4,7 @@ import Order from "../models/orderSchema.js";
 import Product from "../models/productSchema.js";
 import SupplierProduct from "../models/supplierProductSchema.js";
 import Supplier from "../models/supplierSchema.js";
+import fs from "fs";
 
 export const getAllOffer = async (req, res) => {
   const page = parseInt(req.query.page) || 1; // Default page number is 1
@@ -177,7 +178,10 @@ export const createOffer = async (req, res) => {
         message: "An offer for the same products by the same supplier already exists",
       });
     }
-    const newOffer = new Offer(offerData);
+    const newOffer = new Offer({
+      ...offerData,
+      image: `${process.env.SERVER_URL}${req.file.path.replace(/\\/g, '/').replace(/^upload\//, '')}`
+    });
     await newOffer.save();
     res.status(201).json({
       status: "success",
@@ -190,6 +194,32 @@ export const createOffer = async (req, res) => {
     });
   }
 };
+export const changeImageOffer = async (req, res) => {
+  const offerId = req.params.id;
+  try{
+    const offer = await Offer.findById(offerId);
+    if(!offer){
+      return res.status(404).json({
+        status: "fail",
+        message: "Offer not found",
+      })
+    }
+    
+    const pathName = offer.image.split('/').slice(3).join('/');
+    fs.unlink('upload/' + pathName, (err) => {});
+    offer.image = `${process.env.SERVER_URL}${req.file.path.replace(/\\/g, '/').replace(/^upload\//, '')}`;
+    await offer.save();
+    res.status(201).json({
+      status: "success",
+      data: await transformationOffer(offer),
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: 'fail',
+      message: error.message
+    });
+  }
+}
 export const getOfferBySupplierId = async (req, res) => {
   const supplierId = req.params.id;
   try {

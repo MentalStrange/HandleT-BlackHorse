@@ -12,7 +12,7 @@ import {
     uploadPlaceImages,
     deletePlaceImages,
 } from '../controllers/supplierController.js';
-import { createOffer, deleteOffer, getAllOffer, getOffer, getOfferBySupplierId, updateOffer } from '../controllers/offerController.js';
+import { changeImageOffer, createOffer, deleteOffer, getAllOffer, getOffer, getOfferBySupplierId, updateOffer } from '../controllers/offerController.js';
 import { getAllOrder, getAllOrderBySupplierId, totalOrderBySupplierId } from '../controllers/orderController.js';
 import { createPromoCode } from '../controllers/promoCodeController.js';
 import { getAllProduct } from '../controllers/productsController.js';
@@ -21,6 +21,7 @@ import multer from 'multer';
 
 const uploadSupplier = multer({ storage: storage('supplier') });
 const uploadPlaceImage = multer({ storage: storage('placeimages') });
+const uploadOffer = multer({ storage: storage('offer') });
 
 const Router = express.Router();
 
@@ -35,7 +36,8 @@ Router.patch('/:id', updateSupplier);
 Router.get('/offer/all', getAllOffer);
 Router.get('/offer/:id', getOffer);
 Router.get('/offer/supplier/:id',getOfferBySupplierId)
-Router.post('/offer', createOffer);
+Router.post('/offer', uploadOffer.single("image"), createOffer);
+Router.patch('/offer/changeImage/:id', uploadOffer.single("image"), changeImageOffer);
 Router.patch('/offer/:id', updateOffer);
 Router.delete('/offer/:id', deleteOffer);
 
