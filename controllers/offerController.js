@@ -201,7 +201,7 @@ export const changeImageOffer = async (req, res) => {
         message: "Offer not found",
       })
     }
-    
+    offer.image = offer.image ?? "";
     const pathName = offer.image.split('/').slice(3).join('/');
     fs.unlink('upload/' + pathName, (err) => {});
     offer.image = `${process.env.SERVER_URL}${req.file.path.replace(/\\/g, '/').replace(/^upload\//, '')}`;
