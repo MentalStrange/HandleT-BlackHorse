@@ -93,7 +93,7 @@ export const transformationOffer = async (offer, quantity=1) => {
     _id: offer._id,
     supplierId: offer.supplierId,
     title: offer.title,
-    image: offer.image,
+    image: offer.image ?? null,
     price: offer.price,
     afterSale: offer.afterSale,
     maxLimit: offer.maxLimit,
