@@ -399,9 +399,9 @@ export const lastOrdersBySupplierId = async (req, res) => {
       );
       paginateResponse(res, req.query, formattedOrders, totalOrdersCount); // Apply pagination to transformed orders
     } else {
-      res.status(404).json({
-        status: "fail",
-        message: "No orders found for the specified supplier ID.",
+      res.status(200).json({
+        status: "success",
+        data: [],
       });
     }
   } catch (error) {
