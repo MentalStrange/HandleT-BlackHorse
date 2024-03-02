@@ -3,15 +3,7 @@ import Supplier from "../models/supplierSchema.js";
 
 export const createPromoCode = async (req, res) => {
   const promoCodeData = req.body;
-  const supplierId = req.body.supplierId;
   try {
-    const supplier = await Supplier.findById(supplierId);
-    if (!supplier) {
-      return res.status(404).json({
-        status: "fail",
-        message: "Supplier not found"
-      })
-    }
     const createdPromoCode = await PromoCode.create(promoCodeData);
     if (createdPromoCode) {
       res.status(201).json({
@@ -19,9 +11,7 @@ export const createPromoCode = async (req, res) => {
         data: createdPromoCode,
       });
     }
-  } catch (error) {
-    console.log('error',error.status);
-    
+  } catch (error) {    
     res.status(500).json({
       status: "fail",
       message: error.message,
@@ -55,14 +45,10 @@ export const applyPromoCode = async (req, res) => {
 export const getAllPromoCode = async (req, res) => {
   try {
     const promoCodes = await PromoCode.find();
-    if (promoCodes) {
-      res.status(200).json({
-        status: "success",
-        data: promoCodes,
-      });
-    } else {
-      throw new Error("Could not find promo codes");
-    }
+    res.status(200).json({
+      status: "success",
+      data: promoCodes,
+    });
   } catch (error) {
     res.status(500).json({
       status: "fail",
@@ -76,7 +62,7 @@ export const deletePromoCode = async (req, res) => {
   try {
     if (promoCodeId) {
       await PromoCode.deleteOne({ _id: promoCodeId });
-      res.status(404).json({
+      res.status(204).json({
         status: "success",
         data: null,
       });
@@ -96,10 +82,10 @@ export const updatePromoCode = async (req, res) => {
   const promoCodeData = req.body;
   try {
     if (promoCodeId) {
-      await PromoCode.updateOne({ _id: promoCodeId }, promoCodeData);
+      const promocode = await PromoCode.findOneAndUpdate({ _id: promoCodeId }, promoCodeData, { new: true } );
       res.status(200).json({
         status: "success",
-        data: null,
+        data: promocode,
       });
     } else {
       throw new Error(`Promo code can not be founded`);
