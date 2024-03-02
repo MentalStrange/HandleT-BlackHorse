@@ -28,8 +28,8 @@ export const getProductBySupplier = async (req, res) => {
     });
     const supplierProducts = await SupplierProduct.find({ supplierId }).sort({ price: sortDirection });
     if (!supplierProducts || supplierProducts.length === 0) {
-      return res.status(404).json({
-        status: "fail",
+      return res.status(200).json({
+        status: "success",
         data:[],
         message: "No products found for this supplier",
       })
@@ -113,8 +113,8 @@ export const getAllProduct = async (req, res) => {
       const searchedProducts = searchProducts(formattedProducts, search);
       await paginateResponse(res, req.query, searchedProducts ? await searchedProducts : formattedProducts, totalProducts);
     } else {
-      return res.status(404).json({
-        status:"fail",
+      return res.status(200).json({
+        status:"success",
         data:[],
         message:"No products found"
       })
@@ -132,8 +132,8 @@ export const getProductsByOfferId = async (req, res) => {
   try {
     const offer = await Offer.findById(offerId);
     if (!offer) {
-      return res.status(404).json({
-        status: "fail",
+      return res.status(200).json({
+        status: "success",
         data:[],
         message: "Offer not found",
       })
@@ -159,8 +159,8 @@ export const getProductByOrderId = async (req, res) => {
   try {
     const order = await Order.findById(orderId);
     if (!order) {
-      return res.status(404).json({
-        status: "fail",
+      return res.status(200).json({
+        status: "success",
         data: [],
         message: "Order not found",
       })

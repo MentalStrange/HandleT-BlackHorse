@@ -12,10 +12,12 @@ import path from 'path';
 import SupplierProduct from "../models/supplierProductSchema.js";
 import Offer from "../models/offerSchema.js";
 import paginateResponse from "../utils/paginationResponse.js";
+import { searchProducts } from '../utils/search.js';
 
 export const getProducts = async (req, res) => {
   const page = parseInt(req.query.page) || 1;
   const pageSize = parseInt(req.query.pageSize) || 10;
+  const search = req.query.search;
 
   const productsCount = await Product.countDocuments();
   const products = await Product.find()
@@ -25,8 +27,10 @@ export const getProducts = async (req, res) => {
         return transformationProduct(product);
       })
   );
-  await paginateResponse(res, req.query, adminProducts, productsCount);
+  const searchedProducts = searchProducts(adminProducts, search);    
+  await paginateResponse(res, req.query,  searchedProducts ? await searchedProducts : adminProducts, productsCount);
 }
+
 export const createProduct = async (req, res) => {
   const productData = req.body;
   const productTitle = req.body.title;
