@@ -36,7 +36,7 @@ Router.patch('/:id', updateSupplier);
 Router.get('/offer/all', getAllOffer);
 Router.get('/offer/:id', getOffer);
 Router.get('/offer/supplier/:id',getOfferBySupplierId)
-Router.post('/offer', uploadOffer.single("image"), createOffer);
+Router.post('/offer', createOffer);
 Router.post('/offer/changeImage/:id', uploadOffer.single("image"), changeImageOffer);
 Router.patch('/offer/:id', updateOffer);
 Router.delete('/offer/:id', deleteOffer);
