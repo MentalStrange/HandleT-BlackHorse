@@ -19,7 +19,7 @@ const supplierSchema = mongoose.Schema({
   nationalId: {
     type: Number,
     required: [true, "Supplier Should have a National Id"],
-    unique: true,
+    // unique: true,
   },
   wallet: {
     type: Number,
