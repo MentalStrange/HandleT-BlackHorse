@@ -13,7 +13,6 @@ export const createSupplier = async (req, res) => {
   const supplierData = req.body;
   const supplierEmail = req.body.email;
   const regionsId = req.body.deliveryRegion;
-
   try {
     // Check for existing supplier using findOne
     const existingSupplier = await Supplier.findOne({ email: supplierEmail });
@@ -22,11 +21,9 @@ export const createSupplier = async (req, res) => {
         status: "fail",
         message: "Supplier already exists",
       });
-    }
-    
+    }  
     // Initialize deliveryRegion
     let deliveryRegion = [];
-    
     // Validate all regions first
     if (regionsId && regionsId.length > 0) {
       const regionPromises = regionsId.map(async (region) => {
@@ -38,7 +35,6 @@ export const createSupplier = async (req, res) => {
       });
       deliveryRegion = await Promise.all(regionPromises);
     }
-
     // All regions are valid, proceed with supplier creation
     const password = req.body.password;
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -59,7 +55,6 @@ export const createSupplier = async (req, res) => {
       wallet: supplierData.wallet,
       placeImage: supplierData.placeImage,
     });
-
     // Determine supplier status
     let status = "active";
     Object.entries(newSupplier.toObject()).forEach(([key, value]) => {
@@ -71,11 +66,9 @@ export const createSupplier = async (req, res) => {
         status = "inactive";
       }
     });
-
     // Update supplier status
     newSupplier.status = status;
     await newSupplier.save();
-
     return res.status(201).json({
       status: "success",
       data: await transformationSupplier(newSupplier),

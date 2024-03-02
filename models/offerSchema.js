@@ -7,6 +7,7 @@ const offerProduct = new mongoose.Schema({
   quantity: {
     type: Number,
   },
+  
 })
 const offerSchema = new mongoose.Schema({
   supplierId: {
@@ -28,7 +29,6 @@ const offerSchema = new mongoose.Schema({
   },
   afterSale: {
     type: Number,
-    required: [true, 'Offer should have a discount'],
   },
   maxLimit: {
     type: Number,
@@ -43,17 +43,11 @@ const offerSchema = new mongoose.Schema({
   },
   image: {
     type: String,
-    required: [true, 'Offer should have a image'],
+    // required: [true, 'Offer should have a image'],
   },
-  startDate: {
-    type: Date,
-    required: [true, 'Offer should have a starting date'],
-    default: Date.now,
-  },
-  endDate: {
-    type: Date,
-    required: [true, 'Offer should have an ending date'],
-  },
+  desc:{
+    type: String,
+  }
 },
 {
   timestamps: true,

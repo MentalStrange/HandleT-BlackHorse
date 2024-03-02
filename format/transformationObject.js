@@ -23,14 +23,15 @@ export const transformationCustomer = (customer) => {
     status: customer.status ?? "",
   };
 };
-export const transformationProduct = (product) => {
+export const transformationProduct = async (product) => {
+  const category = await Category.findOne({ _id: product.category });
   return {
     _id: product._id,
     title: product.title,
     desc: product.desc,
     weight: product.weight,
     subUnit: product.subUnit,
-    category: product.category,
+    category: category.name,
     images: product.images ?? [],
   };
 };

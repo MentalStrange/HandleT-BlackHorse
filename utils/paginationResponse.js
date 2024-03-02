@@ -1,4 +1,5 @@
 const paginateResponse = async (res, query, data, totalRecords) => {
+  
   const page = parseInt(query.page) || 1; // Default to page 1 if not provided
   const limit = parseInt(query.limit) || 10; // Default to 10 items per page if not provided
   const skip = (page - 1) * limit;

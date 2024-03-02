@@ -15,6 +15,7 @@ import { getAllSupplier } from '../controllers/supplierController.js';
 import { createGroup, getAllGroupForCustomer } from '../controllers/groupController.js';
 import { storage } from '../controllers/sharedFunction.js';
 import multer from 'multer';
+import { getOfferByOrderId } from '../controllers/offerController.js';
 
 const uploadCustomer = multer({ storage: storage('customer') });
 
@@ -44,4 +45,6 @@ Router.get('/supplier',authenticate, getAllSupplier)
 
 Router.get('/group',getAllGroupForCustomer);
 Router.post('/group',createGroup);
+
+Router.get('/offer/order/:id', getOfferByOrderId)
 export default Router;

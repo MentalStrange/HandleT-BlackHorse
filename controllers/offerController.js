@@ -181,7 +181,7 @@ export const createOffer = async (req, res) => {
     await newOffer.save();
     res.status(201).json({
       status: "success",
-      data: newOffer,
+      data: await transformationOffer(newOffer),
     });
   } catch (error) {
     res.status(500).json({
@@ -197,13 +197,14 @@ export const getOfferBySupplierId = async (req, res) => {
     if(!supplier || supplier.status === 'inactive'){
       return res.status(404).json({
         status: "fail",
+        data:[],
         message: "Supplier not found",
       })
     }
     const offers = await Offer.find({ supplierId });
-    if (offers && offers.length > 0) { // Check if offers array is not empty
+    if (offers && offers.length > 0) {
       const transformedOffers = await Promise.all(offers.map(async (offer) => {
-        return await transformationOffer(offer); // Transform each offer
+        return await transformationOffer(offer);
       }));
       res.status(200).json({
         status: "success",
@@ -212,6 +213,7 @@ export const getOfferBySupplierId = async (req, res) => {
     } else {
       return res.status(404).json({
         status: "fail",
+        data:[],
         message: "No offers found"
       })
     }
@@ -225,17 +227,22 @@ export const getOfferBySupplierId = async (req, res) => {
 export const getOfferByOrderId = async (req, res) => {
   const orderId = req.params.id;
   try {
-    const orders = await Order.findOne({ _id: orderId }).populate('offers');
+    const orders = await Order.findOne({ _id: orderId });
     if (orders && orders.offers && orders.offers.length > 0) { // Check if offers array is not empty
-      const transformedOffers = await Promise.all(orders.offers.map(async (offer) => {
-        return await transformationOffer(offer); // Transform each offer
+      const transformedOffers = await Promise.all(orders.offers.map(async (offerId) => {
+        const offer = await Offer.findById(offerId.offer);
+        return await transformationOffer(offer);
       }));
       res.status(200).json({
         status: "success",
         data: transformedOffers
       });
     } else {
-      throw new Error('Could not find offers');
+      return res.status(404).json({
+        status: "fail",
+        data:[],
+        message: "No offers found"
+      })
     }
   } catch (error) {
     res.status(500).json({
