@@ -221,7 +221,7 @@ export const createProductSupplier = async (req, res) => {
     })
     res.status(200).json({
       status: "success",
-      data: await transformationSupplierProduct(newSupplierProduct),
+      data: await transformationSupplierProduct(newSupplierProduct, unitWeight),
     });
   } catch (error) {
     res.status(500).json({
