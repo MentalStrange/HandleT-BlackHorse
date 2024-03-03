@@ -22,25 +22,21 @@ const deliveryBoySchema = mongoose.Schema({
   },
   image:{
     type:String,
-    required:[true,'Delivery Boy Should have an image'],
+    // required:[true,'Delivery Boy Should have an image'],
   },
   phone:{
     type:String,
+    required:[true,'Delivery Boy Should have a Phone']
   },
   region:{
     type:mongoose.Schema.Types.ObjectId,
     ref:"Region",
     required:[true,'Delivery Boy Should have a region']
   },
-  address: [{
-    city: String,
-    state: String,
-    streetNumber: String,
-    country: String,
-  }],
   car:{
     type:mongoose.Schema.Types.ObjectId,
     ref:"Car",
+    required:[true,'Delivery Boy Should have a car']
   },
 })
 

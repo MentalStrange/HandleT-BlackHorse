@@ -159,19 +159,18 @@ export const transformationOrder= async (order) => {
 };
 export const transformationDeliveryBoy = async (deliverBoy) => {
   const car = await Car.findById(deliverBoy.car);
+  const region = await Region.findById(deliverBoy.region);
   return{
     _id: deliverBoy._id,
     name: deliverBoy.name,
     email: deliverBoy.email,
-    password: deliverBoy.password ?? "",
-    image: deliverBoy.image ?? "",
-    phoneNumber: deliverBoy.phone,
-    deliveryDistrict: deliverBoy.region ?? "",
+    nationalId: deliverBoy.nationalId,
+    image: deliverBoy.image ?? null,
+    phone: deliverBoy.phone,
+    region: region ?? {},
     access_token: deliverBoy.access_token,
-    address: deliverBoy.address ?? '',
-    car:transformationCar(car) ?? ""
+    car: transformationCar(car) ?? {}
   }
-  
 }
 export const transformationSupplier = async (supplier) => {
   let deliveryRegionName = [];

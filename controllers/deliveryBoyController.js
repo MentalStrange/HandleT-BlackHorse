@@ -24,7 +24,6 @@ export const createDeliveryBoy = async (req, res) => {
   const deliveryBoyEmail = req.body.email;
   const deliveryRegion = req.body.region;
   const carId = req.body.car;
-  console.log('region', deliveryRegion);
   
   try {
     const region = await Region.findById(deliveryRegion);

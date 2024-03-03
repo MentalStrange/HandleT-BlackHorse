@@ -107,7 +107,7 @@ export const deliveryBoyLogin = async (req, res) => {
     const deliveryBoyData = { ...rest, access_token: jwt.sign({_id: rest._id, role: "deliveryBoy"}, process.env.JWT_SECRET, {})};
     res.status(200).json({
       status: "success",
-      data: await transformationDeliveryBoy({...deliveryBoyData,password}),
+      data: await transformationDeliveryBoy(deliveryBoyData),
     });
   } catch (error) {
     res.status(500).json({
