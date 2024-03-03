@@ -153,7 +153,7 @@ export const getOrderByDelivery = async (deliveryId) => {  // use socketIO
   }
 };
 
-export const getOrderByDeliveryRoute = async (req, res) => {
+export const getOrderByDeliveryRoute = async (req, res) => { // use http
   const deliveryId = req.params.deliveryId;
   try {
     const orderCount = await Order.find({ deliveryBoy: deliveryId }).countDocuments();

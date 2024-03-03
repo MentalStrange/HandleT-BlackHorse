@@ -87,7 +87,7 @@ export const deliveryBoyLogin = async (req, res) => {
   try {
     const deliveryBoy = await DeliveryBoy.findOne({ email: deliveryBoyEmail });
     if (!deliveryBoy) {
-      return res.status(404).json({
+      return res.status(207).json({
         status: "fail",
         message: "Delivery Boy Not Found",
       });
@@ -98,7 +98,7 @@ export const deliveryBoyLogin = async (req, res) => {
       deliveryBoy.password
     );
     if (!isPasswordMatch) {
-      return res.status(400).json({
+      return res.status(207).json({
         status: "fail",
         message: "Incorrect Password",
       });
