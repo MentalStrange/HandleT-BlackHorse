@@ -114,7 +114,7 @@ export const updateOffer = async (req, res) => {
 
     res.status(200).json({
       status: 'success',
-      data: offer,
+      data: await transformationOffer(offer),
     });
   } catch (error) {
     res.status(500).json({
