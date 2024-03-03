@@ -80,6 +80,7 @@ IO.on("connection", (socket) => {
     let orderId = data.orderId;
     let status = data.status;
     let deliveryId = data.deliveryId;
+    console.log("status: ", status);
     if(deliveryId){
       IO.to(userSocketIdMap[deliveryId]).emit("order", await getOrderByDelivery(deliveryId));
     }

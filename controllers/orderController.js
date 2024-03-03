@@ -73,8 +73,8 @@ export const updateOrder = async (req, res, next) => {
         message: "Supplier not found",
       });
     }
-    if (req.body.status === "complete") {
-      const fee = await Fee.findOne(); // Assuming there is only one fee entry
+    if (req.body.status === "complete") { // not blackhorse
+      const fee = await Fee.findOne();
       console.log('fee', fee);
       console.log('fee.amount', fee.amount/100);
       const blackHorseCommotion = order.totalPrice * (fee.amount / 100);
