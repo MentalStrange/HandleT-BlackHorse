@@ -137,7 +137,7 @@ export const getOrderByDelivery = async (deliveryId, page) => {  // use socketIO
     const orders = await Order.find({ deliveryBoy: deliveryId });
     return await Promise.all(
       orders.map(async (order) => {
-        return await transformationOrder(order); // Transform each order
+        return await transformationOrder(order);
       })
     );
     // res.status(200).json({

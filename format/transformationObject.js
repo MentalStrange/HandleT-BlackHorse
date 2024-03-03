@@ -105,7 +105,7 @@ export const transformationOffer = async (offer, quantity=1) => {
     desc: offer.desc,
   };
 }
-export const transformationOrder= async (order) => {  
+export const transformationOrder = async (order) => {  
   const supplier = await Supplier.findById(order.supplierId);
   if(!supplier) throw new Error('supplier Not Found');
 
@@ -121,7 +121,7 @@ export const transformationOrder= async (order) => {
     order.offers.map(async (offerId)=>{
       const offer = await Offer.findById(offerId.offer);
       if (!offer) return null;
-      return transformationOffer(offer, offer.quantity);
+      return transformationOffer(offer, offerId.quantity);
     })
   );
 
@@ -158,7 +158,7 @@ export const transformationOrder= async (order) => {
     promoCode: order.promoCode,
     supplierRating: order.supplierRating,
     deliveryBoy: order.deliveryBoy ?? "",
-    car:car ??{},
+    car: car ?? {},
   };
 };
 export const transformationDeliveryBoy = async (deliverBoy) => {
