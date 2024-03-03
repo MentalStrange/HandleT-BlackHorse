@@ -108,6 +108,7 @@ export const transformationOffer = async (offer, quantity=1) => {
 export const transformationOrder= async (order) => {  
   const supplier = await Supplier.findById(order.supplierId);
   if(!supplier) throw new Error('supplier Not Found');
+
   const products = await Promise.all(
     order.products.map(async (product) => {
       const supplierProduct = await SupplierProduct.findOne({ productId:product.product });
@@ -151,7 +152,7 @@ export const transformationOrder= async (order) => {
     orderWeight: order.orderWeight,
     maxOrderWeight: order.maxOrderWeight,
     minOrderPrice: order.minOrderPrice,
-    offers: offers.filter((product) => product !== null),
+    offers: offers.filter((offer) => offer !== null),
     latitude: order.latitude,
     longitude: order.longitude,
     promoCode: order.promoCode,

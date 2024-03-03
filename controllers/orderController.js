@@ -131,7 +131,7 @@ export const updateOrder = async (req, res, next) => {
   }
 };
 
-export const getOrderByDelivery = async (deliveryId) => {  // use socketIO
+export const getOrderByDelivery = async (deliveryId, page) => {  // use socketIO
   // const deliveryId = req.params.deliveryId;
   try {
     const orders = await Order.find({ deliveryBoy: deliveryId });
