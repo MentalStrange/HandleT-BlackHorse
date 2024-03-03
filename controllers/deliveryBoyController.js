@@ -19,6 +19,29 @@ export const getAllDeliveryBoy = async (req, res) => {
   });
 }
 
+export const getDeliveryById = async (req, res) => {
+  const deliveryBoyId = req.params.id;
+  try{
+    const delivery = await DeliveryBoy.findById(deliveryBoyId);
+    if (!delivery) {
+      return res.status(207).json({
+        status: "fail",
+        message: "DeliveryBoy not found"
+      });
+    }
+
+    res.status(200).json({
+      status: "success",
+      data: {...(await transformationDeliveryBoy(delivery)), access_token: jwt.sign({_id: delivery._id, role: "deliveryBoy"}, process.env.JWT_SECRET, {})},
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "fail",
+      message: error.message,
+    });
+  }
+};
+
 export const createDeliveryBoy = async (req, res) => {
   const deliverBoyData = req.body;
   const deliveryBoyEmail = req.body.email;

@@ -35,7 +35,7 @@ export const transformationProduct = async (product) => {
     images: product.images ?? [],
   };
 };
-export const transformationSupplierProduct = async (supplierProduct, quantity=1, unitWeight) => {
+export const transformationSupplierProduct = async (supplierProduct, quantity=1) => {
   const product = await Product.findById(supplierProduct.productId);
   const supplier = await Supplier.findById(supplierProduct.supplierId);
   const category = await Category.findOne({ _id: product.category });
