@@ -127,7 +127,10 @@ export const deleteOffer = async (req, res) => {
   const offerId = req.params.id;
   try {
     if(offerId){
-      await Offer.findByIdAndDelete(offerId);
+      const offer = await Offer.findByIdAndDelete(offerId)
+      offer.image = offer.image ?? "";
+      const pathName = offer.image.split('/').slice(3).join('/');
+      fs.unlink('upload/' + pathName, (err) => {});
       res.status(200).json({
         status:"success",
         data:null
@@ -178,10 +181,7 @@ export const createOffer = async (req, res) => {
         message: "An offer for the same products by the same supplier already exists",
       });
     }
-    const newOffer = new Offer({
-      ...offerData,
-      image: `${process.env.SERVER_URL}${req.file.path.replace(/\\/g, '/').replace(/^upload\//, '')}`
-    });
+    const newOffer = new Offer(offerData);
     await newOffer.save();
     res.status(201).json({
       status: "success",
@@ -204,7 +204,7 @@ export const changeImageOffer = async (req, res) => {
         message: "Offer not found",
       })
     }
-    
+    offer.image = offer.image ?? "";
     const pathName = offer.image.split('/').slice(3).join('/');
     fs.unlink('upload/' + pathName, (err) => {});
     offer.image = `${process.env.SERVER_URL}${req.file.path.replace(/\\/g, '/').replace(/^upload\//, '')}`;

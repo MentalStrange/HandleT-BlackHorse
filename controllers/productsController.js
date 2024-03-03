@@ -4,6 +4,8 @@ import Category from "../models/categorySchema.js";
 import Offer from "../models/offerSchema.js";
 import Order from "../models/orderSchema.js";
 import SupplierProduct from "../models/supplierProductSchema.js";
+import fs from "fs";
+
 import {
   transformationProduct,
   transformationSupplierProduct,
@@ -29,7 +31,7 @@ export const getProductBySupplier = async (req, res) => {
     const supplierProducts = await SupplierProduct.find({ supplierId }).sort({ price: sortDirection });
     if (!supplierProducts || supplierProducts.length === 0) {
       return res.status(200).json({
-        status: "fail",
+        status: "success",
         data:[],
         message: "No products found for this supplier",
       })
@@ -113,8 +115,8 @@ export const getAllProduct = async (req, res) => {
       const searchedProducts = searchProducts(formattedProducts, search);
       await paginateResponse(res, req.query, searchedProducts ? await searchedProducts : formattedProducts, totalProducts);
     } else {
-      return res.status(404).json({
-        status:"fail",
+      return res.status(200).json({
+        status:"success",
         data:[],
         message:"No products found"
       })
@@ -132,8 +134,8 @@ export const getProductsByOfferId = async (req, res) => {
   try {
     const offer = await Offer.findById(offerId);
     if (!offer) {
-      return res.status(404).json({
-        status: "fail",
+      return res.status(200).json({
+        status: "success",
         data:[],
         message: "Offer not found",
       })
@@ -159,8 +161,8 @@ export const getProductByOrderId = async (req, res) => {
   try {
     const order = await Order.findById(orderId);
     if (!order) {
-      return res.status(404).json({
-        status: "fail",
+      return res.status(200).json({
+        status: "success",
         data: [],
         message: "Order not found",
       })
@@ -181,6 +183,60 @@ export const getProductByOrderId = async (req, res) => {
     res.status(500).json({
       status: "fail",
       message: error.message,
+    });
+  }
+};
+export const uploadProductImages = async (req, res) => {
+  const productId = req.params.id;
+  try{
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(207).json({
+        status: "fail",
+        message: "product not found"
+      });
+    }
+
+    const imagePaths = req.files.map(file => `${process.env.SERVER_URL}${file.path.replace(/\\/g, '/').replace(/^upload\//, '')}`);
+    product.images = product.images.concat(imagePaths);
+    await product.save();
+    res.status(200).json({
+      status: "success",
+      data: await transformationProduct(product),
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      status: "error",
+      message: "Internal server error"
+    });
+  }
+};
+export const deleteProductImage = async (req, res) => {
+  const productId = req.params.id;
+  const productImage = req.body.image;
+  try{
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(207).json({
+        status: "fail",
+        message: "product not found"
+      });
+    }
+
+    const pathName = productImage.split('/').slice(3).join('/');
+    fs.unlink('upload/' + pathName, (err) => {});
+    product.images = product.images.filter(image => image !== productImage);
+    await product.save();
+    res.status(200).json({
+      status: "success",
+      data: await transformationProduct(product),
+    });
+   } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      status: "error",
+      message: "Internal server error"
     });
   }
 };

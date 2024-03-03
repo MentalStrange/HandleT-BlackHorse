@@ -182,9 +182,9 @@ export const createProductSupplier = async (req, res) => {
       });
     }
     const unit = await Unit.findById(unitId);
-    let unitWeight = 0;
+    let unitWeight = product.weight;
     if(unit){
-      unitWeight = product.weight*unit.maxNumber;
+      unitWeight *= unit.maxNumber;
     }
     const supplier = await Supplier.findById(supplierId);
     if(supplier.status === "inactive"){
@@ -399,9 +399,9 @@ export const lastOrdersBySupplierId = async (req, res) => {
       );
       paginateResponse(res, req.query, formattedOrders, totalOrdersCount); // Apply pagination to transformed orders
     } else {
-      res.status(404).json({
-        status: "fail",
-        message: "No orders found for the specified supplier ID.",
+      res.status(200).json({
+        status: "success",
+        data: [],
       });
     }
   } catch (error) {

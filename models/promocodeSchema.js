@@ -3,16 +3,19 @@ import mongoose from "mongoose";
 const promoCodeSchema = new mongoose.Schema({
   code: {
     type: String,
-    required: true,
+    required:[true, 'promoCode must have Number'],
   },
   discount: {
     type: Number,
-    required: true,
+    required:[true, 'promoCode must have Number'],
   },
-  supplierId:{
-    type:mongoose.Schema.Types.ObjectId,
-    ref:"Supplier",
-    required:[true, 'promoCode must have supplier']
+  expiryDate: {
+    type: Date,
+    required:[true, 'promoCode must have expiryDate']
+  },
+  numOfUsage: {
+    type: Number,
+    required:[true, 'promoCode must have numOfUsage']
   },
   customerId:[{
     type:mongoose.Schema.Types.ObjectId,
