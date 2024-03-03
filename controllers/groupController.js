@@ -54,10 +54,11 @@ export const getAllGroup = async (req, res) => {
 }
 export const getAllGroupForCustomer = async (req,res) => {  
   const customerId = req.body.customerId;
+  const region = req.body.region;
   try {
     const customer = await Customer.findById(customerId);
     if(customer) {
-      const groups = await Group.find({region:customer.region, status:"pending"});
+      const groups = await Group.find({region:region, status:"pending"});
       res.status(200).json({
         status: "success",
         data: groups
@@ -107,11 +108,12 @@ export const joinGroup = async (req,res) => {
       {group:groupId}
       );
     await order.save();
-    const updatedGroup = group.customer.push(req.body.customerId);
-    await updatedGroup.save();
+    group.customer.push(req.body.customerId);
+    await group.save();
+    // const updateGroup = await transformationGroup(group);
     res.status(200).json({
       status:"success",
-      data:transformationGroup(updateGroup)
+      data:group
     })
   } catch (error) {
     res.status(500).json({
