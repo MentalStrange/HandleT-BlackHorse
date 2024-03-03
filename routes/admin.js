@@ -47,6 +47,7 @@ import {
 import {
   getAllOrder,
   getOrderByDelivery,
+  getOrderByDeliveryRoute,
   mostFrequentDistricts,
   updateOrder,
 } from "../controllers/orderController.js";
@@ -116,7 +117,7 @@ Router.get("/homeSlideShow", getAllHomeSlideShow);
 Router.delete("/homeSlideShow/:id", deleteHomeSlideShow);
 
 Router.patch("/order/:id", updateOrder);
-Router.get("/getOrderByDelivery/:deliveryId", getOrderByDelivery);
+Router.get("/getOrderByDelivery/:deliveryId", getOrderByDeliveryRoute);
 
 Router.get("/order", getAllOrder);
 Router.get("/order/mostDistrict", mostFrequentDistricts);

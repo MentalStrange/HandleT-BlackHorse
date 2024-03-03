@@ -181,6 +181,7 @@ export const createOffer = async (req, res) => {
         message: "An offer for the same products by the same supplier already exists",
       });
     }
+    
     const newOffer = new Offer(offerData);
     await newOffer.save();
     res.status(201).json({

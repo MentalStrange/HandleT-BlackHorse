@@ -7,6 +7,7 @@ import SubUnit from "../models/subUnitSchema.js";
 import Car from "../models/carSchema.js";
 import Unit from "../models/unitSchema.js";
 import Region from "../models/regionSchema.js";
+import Customer from "../models/customerSchema.js";
 
 export const transformationCustomer = (customer) => {
   return {
@@ -122,6 +123,8 @@ export const transformationOrder= async (order) => {
       return transformationOffer(offer, offer.quantity);
     })
   );
+
+  const customer = await Customer.findById(order.customerId);
   const car = await Car.findById(order.car);
   if(!car) throw new Error('car Not Found');
   return {
@@ -135,9 +138,9 @@ export const transformationOrder= async (order) => {
     address: order.address,
     governorate: order.governorate,
     district: order.district,
-    customerId: order.customerId,
-    customerName: order.customerName,
-    customerPhoneNumber: order.customerPhoneNumber,
+    customerId: customer._id,
+    customerName: customer.name,
+    customerPhoneNumber: customer.phone,
     deliveryFees: order.deliveryFees,
     discount: order.discount,
     products: products.filter((product) => product !== null),

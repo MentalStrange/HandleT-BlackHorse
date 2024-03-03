@@ -131,7 +131,7 @@ export const updateOrder = async (req, res, next) => {
   }
 };
 
-export const getOrderByDelivery = async (deliveryId) => {
+export const getOrderByDelivery = async (deliveryId) => {  // use socketIO
   // const deliveryId = req.params.deliveryId;
   try {
     const orders = await Order.find({ deliveryBoy: deliveryId });
@@ -150,6 +150,27 @@ export const getOrderByDelivery = async (deliveryId) => {
     //   status: "fail",
     //   message: error.message,
     // });
+  }
+};
+
+export const getOrderByDeliveryRoute = async (req, res) => {
+  const deliveryId = req.params.deliveryId;
+  try {
+    const orders = await Order.find({ deliveryBoy: deliveryId });
+    const orderByDelivery = await Promise.all(
+      orders.map(async (order) => {
+        return await transformationOrder(order);
+      })
+    );
+    return res.status(200).json({
+      status: "success",
+      data: orderByDelivery
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "fail",
+      message: error.message,
+    });
   }
 };
 
