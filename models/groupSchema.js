@@ -19,9 +19,9 @@ const groupSchema = mongoose.Schema({
       ref:"Customer",
     }
   ],
-  maximumCustomer:{
-    type:Number,
-  },
+  // maximumCustomer:{
+  //   type:Number,
+  // },
   numberOfCustomer:{
     type:Number,
   },
@@ -30,12 +30,12 @@ const groupSchema = mongoose.Schema({
     enum:["pending","complete","expired","cancelled","delivery"],
     default:"pending",
   },
-  order:[
-    {type:mongoose.Schema.Types.ObjectId,
-    ref:"Order",}
-  ],
-  daysOfExpire:{
-    type:Number,
+  // order:[
+  //   {type:mongoose.Schema.Types.ObjectId,
+  //   ref:"Order",}
+  // ],
+  expireDate:{
+    type:Date,
   },
   createdAt:{
     type:Date,
@@ -54,20 +54,20 @@ groupSchema.pre("save", async function(next){
     next(error);
   }
 })
-groupSchema.pre("findOneAndUpdate", async function(next) {
-  try {
-    if (this.isNew) {
-      const totalPrice = this.orders.reduce((acc, order) => acc + order.price, 0);
-      const supplier = await Supplier.findById(this.supplierId);
-      const minPrice = supplier.minOrderPrice;
-      if (totalPrice >= minPrice) {
-        this.status = "complete";
-      }
-    }
-    next();
-  } catch (error) {
-    next(error);
-  }
-});
+// groupSchema.pre("findOneAndUpdate", async function(next) {
+//   try {
+//     if (this.isNew) {
+//       const totalPrice = this.orders.reduce((acc, order) => acc + order.price, 0);
+//       const supplier = await Supplier.findById(this.supplierId);
+//       const minPrice = supplier.minOrderPrice;
+//       if (totalPrice >= minPrice) {
+//         this.status = "complete";
+//       }
+//     }
+//     next();
+//   } catch (error) {
+//     next(error);
+//   }
+// });
 const Group = mongoose.model('Group',groupSchema);
 export default Group;

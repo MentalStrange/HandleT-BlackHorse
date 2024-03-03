@@ -227,3 +227,10 @@ export const transformationPromoCode = (promoCode)=>{
     discountPercentage: promoCode.discount,
   }
 }
+export const transformationGroup = async (group)=>{
+  const supplier = await supplier.findById(group.supplierId);
+  if(!supplier){
+    return []
+  }
+  const transformSupplier = transformationSupplier(supplier);
+}

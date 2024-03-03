@@ -28,7 +28,7 @@ export const getProductBySupplier = async (req, res) => {
     });
     const supplierProducts = await SupplierProduct.find({ supplierId }).sort({ price: sortDirection });
     if (!supplierProducts || supplierProducts.length === 0) {
-      return res.status(404).json({
+      return res.status(200).json({
         status: "fail",
         data:[],
         message: "No products found for this supplier",

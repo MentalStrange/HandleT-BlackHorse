@@ -25,7 +25,7 @@ const customerSchema =  mongoose.Schema({
   region:{
     type:mongoose.Schema.Types.ObjectId,
     ref:"Region",
-    // required:[true,'Customer Should have a region']
+    required:[true,'Customer Should have a region']
   },
   address:{
     type:String,

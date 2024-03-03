@@ -115,6 +115,10 @@ const orderSchema = mongoose.Schema({
   deliveryBoy:{
     type:mongoose.Schema.Types.ObjectId,
     ref:"DeliveryBoy",
+  },
+  group:{
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"Group",
   }
 }, {
   timestamps: true,
