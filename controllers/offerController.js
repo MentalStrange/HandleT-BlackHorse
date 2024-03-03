@@ -225,7 +225,7 @@ export const getOfferBySupplierId = async (req, res) => {
   try {
     const supplier = await Supplier.findById(supplierId);
     if(!supplier || supplier.status === 'inactive'){
-      return res.status(404).json({
+      return res.status(200).json({
         status: "fail",
         data:[],
         message: "Supplier not found",

@@ -12,7 +12,7 @@ import { applyPromoCode } from '../controllers/promoCodeController.js';
 import { createRating } from '../controllers/ratingController.js';
 import { authenticate } from "../middlewares/authorizationMiddleware.js";
 import { getAllSupplier } from '../controllers/supplierController.js';
-import { createGroup, getAllGroupForCustomer } from '../controllers/groupController.js';
+import { createGroup, getAllGroupForCustomer, joinGroup } from '../controllers/groupController.js';
 import { storage } from '../controllers/sharedFunction.js';
 import multer from 'multer';
 import { getOfferByOrderId } from '../controllers/offerController.js';
@@ -45,6 +45,7 @@ Router.get('/supplier',authenticate, getAllSupplier)
 
 Router.get('/group',getAllGroupForCustomer);
 Router.post('/group',createGroup);
+Router.patch('/group/:id', joinGroup);
 
 Router.get('/offer/order/:id', getOfferByOrderId)
 export default Router;
