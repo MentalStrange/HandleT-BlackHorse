@@ -53,6 +53,9 @@ const customerSchema =  mongoose.Schema({
     type:String,
     enum:["active","inactive"],
     default:"active"
+  },
+  deviceToken:{
+    type:String,
   }
 }, {
   timestamps: true,

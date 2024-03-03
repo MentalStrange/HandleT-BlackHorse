@@ -38,7 +38,10 @@ const deliveryBoySchema = mongoose.Schema({
     ref:"Car",
     required:[true,'Delivery Boy Should have a car']
   },
+  deviceToken:{
+    type:String,
+  }
 })
 
-const DeliveryBoy = mongoose.model('Delivery Boy',deliveryBoySchema);
+const DeliveryBoy = mongoose.model('Delivery Boy', deliveryBoySchema);
 export default DeliveryBoy;
