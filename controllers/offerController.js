@@ -181,7 +181,12 @@ export const createOffer = async (req, res) => {
         message: "An offer for the same products by the same supplier already exists",
       });
     }
-    
+
+    // let offerWeight = 0;
+    // for(const productOffer of productIds){
+    //   const supplierProduct = await SupplierProduct.findOne({productId: productOffer.productId, supplierId: supplierId});
+    //   offerWeight += supplierProduct.productWeight * productOffer.quantity;
+    // }
     const newOffer = new Offer(offerData);
     await newOffer.save();
     res.status(201).json({
