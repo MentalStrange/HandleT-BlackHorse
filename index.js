@@ -83,7 +83,7 @@ IO.on("connection", (socket) => {
     let page = data.page ?? 1;
     console.log("status:", status);
     if(deliveryId){
-      IO.to(userSocketIdMap[deliveryId]).emit("order", await getOrderByDelivery(deliveryId, page));
+      IO.to(userSocketIdMap[deliveryId]).emit("order", await getOrderByDelivery(deliveryId));
     }
     else if(orderId && status){
       const order = await Order.findById(orderId);

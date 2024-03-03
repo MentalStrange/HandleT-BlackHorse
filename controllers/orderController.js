@@ -131,7 +131,7 @@ export const updateOrder = async (req, res, next) => {
   }
 };
 
-export const getOrderByDelivery = async (deliveryId, page) => {  // use socketIO
+export const getOrderByDelivery = async (deliveryId) => {  // use socketIO
   // const deliveryId = req.params.deliveryId;
   try {
     const orders = await Order.find({ deliveryBoy: deliveryId });
@@ -156,6 +156,8 @@ export const getOrderByDelivery = async (deliveryId, page) => {  // use socketIO
 export const getOrderByDeliveryRoute = async (req, res) => {
   const deliveryId = req.params.deliveryId;
   try {
+    const orderCount = await Order.find({ deliveryBoy: deliveryId }).countDocuments();
+    console.log(orderCount);
     const orders = await Order.find({ deliveryBoy: deliveryId });
     const orderByDelivery = await Promise.all(
       orders.map(async (order) => {
