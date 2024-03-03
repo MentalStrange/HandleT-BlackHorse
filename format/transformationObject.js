@@ -167,7 +167,7 @@ export const transformationDeliveryBoy = async (deliverBoy) => {
     nationalId: deliverBoy.nationalId,
     image: deliverBoy.image ?? null,
     phone: deliverBoy.phone,
-    region: region ?? {},
+    region: region.name ?? "",
     access_token: deliverBoy.access_token,
     car: transformationCar(car) ?? {}
   }

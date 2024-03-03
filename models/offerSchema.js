@@ -56,23 +56,33 @@ const offerSchema = new mongoose.Schema({
   timestamps: true,
 });
 
-offerSchema.pre('save', async function (next) {
-  try {
-    const Product = mongoose.model('Product');
-    // const SupplierProduct = mongoose.model('SupplierProduct');
-    const products = await Promise.all(this.products.map(async (offerProduct) => {
-      const adminProduct = await Product.findById(offerProduct.productId);
-      if (!adminProduct) throw new Error('Product not found');
-      const supplierproduct = await SupplierProduct.findOne({productId: offerProduct.productId});
-      if (!supplierproduct) throw new Error('Product not found for supplier');
-      return { ...supplierproduct.toObject(), quantity: offerProduct.quantity };
-    }));
-    this.weight = products.reduce((sum, product) => sum + (product.productWeight * product.quantity), 0);
-    next();
-  } catch (error) {
-    next(error);
-  }
-});
+// offerSchema.pre('save', async function (next) {
+//   try {
+//     const Product = mongoose.model('Product');
+//     const SupplierProduct = mongoose.model('SupplierProduct');
+    
+//     // Fetching products and calculating individual weights
+//     const products = await Promise.all(this.products.map(async (offerProduct) => {
+//       const adminProduct = await Product.findById(offerProduct.productId);
+//       if (!adminProduct) throw new Error('Product not found');
+//       const supplierProduct = await SupplierProduct.findOne({productId: adminProduct._id, supplierId: this.supplierId});
+//       console.log("offerProduct:", supplierProduct);
+//       if (!supplierProduct) throw new Error('Product not found for supplier');
+//       return { ...supplierProduct.toObject(), quantity: offerProduct.quantity };
+//     }));
+
+//     // Calculating total weight of the offer
+//     const totalWeight = products.reduce((sum, product) => sum + (product.productWeight * product.quantity), 0);
+
+//     // Setting the total weight to the offer
+//     this.weight = totalWeight;
+
+//     next();
+//   } catch (error) {
+//     next(error);
+//   }
+// });
+
 
 // offerSchema.pre('findOneAndUpdate', async function (next) {
 //   try {
