@@ -18,7 +18,6 @@ export const transformationCustomer = (customer) => {
     address: customer.address ?? "",
     district: customer.district ?? "",
     governorate: customer.governorate ?? "",
-    // totalRating: customer.totalRating ?? 0,
     averageRating: customer.averageRating ?? 0,
     status: customer.status ?? "",
   };
@@ -59,7 +58,7 @@ export const transformationSupplierProduct = async (supplierProduct, quantity=1,
     title: product.title,
     price: supplierProduct.price,
     afterSale: supplierProduct.afterSale ?? null,
-    weight: supplierProduct.productWeight, // ? unitWeight : product.weight,
+    weight: supplierProduct.productWeight,
     images: product.images ?? [],
     maxLimit: supplierProduct.maxLimit ?? null,
     supplierId: supplier._id,
@@ -220,11 +219,13 @@ export const transformationUnit = (unit)=>{
     number: unit.maxNumber,
   }
 }
-export const transformationPromoCode = (promoCode)=>{
+export const transformationPromoCode = async (promoCode)=>{
   return {
     _id: promoCode._id,
     code: promoCode.code,
-    discountPercentage: promoCode.discount,
+    discount: promoCode.discount,
+    expiryDate: promoCode.expiryDate,
+    numOfUsage: promoCode.numOfUsage
   }
 }
 export const transformationGroup = async (group)=>{

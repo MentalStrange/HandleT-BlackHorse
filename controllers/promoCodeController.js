@@ -1,5 +1,5 @@
+import { transformationPromoCode } from "../format/transformationObject.js";
 import PromoCode from "../models/promocodeSchema.js";
-import Supplier from "../models/supplierSchema.js";
 
 export const createPromoCode = async (req, res) => {
   const promoCodeData = req.body;
@@ -8,7 +8,7 @@ export const createPromoCode = async (req, res) => {
     if (createdPromoCode) {
       res.status(201).json({
         status: "success",
-        data: createdPromoCode,
+        data: await transformationPromoCode(createdPromoCode),
       });
     }
   } catch (error) {    
@@ -26,7 +26,7 @@ export const applyPromoCode = async (req, res) => {
     if (appliedPromoCode) {
       res.status(200).json({
         status: "success",
-        data: appliedPromoCode,
+        data: await transformationPromoCode(appliedPromoCode),
       });
     } else {
       res.status(404).json({
@@ -45,9 +45,14 @@ export const applyPromoCode = async (req, res) => {
 export const getAllPromoCode = async (req, res) => {
   try {
     const promoCodes = await PromoCode.find();
+    const allPromoCode = await Promise.all(
+      promoCodes.map(async (promocode) => {
+        return await transformationPromoCode(promocode);
+      })
+    );
     res.status(200).json({
       status: "success",
-      data: promoCodes,
+      data: allPromoCode,
     });
   } catch (error) {
     res.status(500).json({
@@ -85,7 +90,7 @@ export const updatePromoCode = async (req, res) => {
       const promocode = await PromoCode.findOneAndUpdate({ _id: promoCodeId }, promoCodeData, { new: true } );
       res.status(200).json({
         status: "success",
-        data: promocode,
+        data: await transformationPromoCode(promocode),
       });
     } else {
       throw new Error(`Promo code can not be founded`);
