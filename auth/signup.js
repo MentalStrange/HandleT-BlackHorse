@@ -104,12 +104,7 @@ export const createCustomer = async (req, res) => {
     await newCustomer.save();
     res.status(201).json({
       status: "success",
-      data: transformationCustomer(newCustomer),
-      access_token: jwt.sign(
-        { _id: newCustomer._id, role: "customer" },
-        process.env.JWT_SECRET,
-        {}
-      ),
+      data: {...transformationCustomer(newCustomer), access_token: jwt.sign({_id: newCustomer._id, role: "customer"}, process.env.JWT_SECRET, {})},
     });
   } catch (error) {
     console.error(error);

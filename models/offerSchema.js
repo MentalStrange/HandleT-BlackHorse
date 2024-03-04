@@ -1,4 +1,6 @@
 import mongoose from 'mongoose';
+import SupplierProduct from './supplierProductSchema.js';
+
 const offerProduct = new mongoose.Schema({
   productId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -57,13 +59,17 @@ const offerSchema = new mongoose.Schema({
 offerSchema.pre('save', async function (next) {
   try {
     const Product = mongoose.model('Product');
-    const products = await Promise.all(this.products.map(async (offerProduct) => {
-      const product = await Product.findById(offerProduct.productId);
-      if (!product) throw new Error('Product not found');
-      return { ...product.toObject(), quantity: offerProduct.quantity }; // Include quantity for weight calculation
-    }));
-    const totalWeight = products.reduce((sum, product) => sum + (product.weight * product.quantity), 0);
-    this.weight = totalWeight;
+    const SupplierProduct = mongoose.model('SupplierProduct');
+
+    let offerWeight = 0;
+    for(const productOffer of this.products){
+      const adminProduct = await Product.findById(productOffer.productId);
+      if (!adminProduct) throw new Error('Product not found');
+      const supplierProduct = await SupplierProduct.findOne({productId: adminProduct._id, supplierId: this.supplierId});
+      if (!supplierProduct) throw new Error('Product not found for supplier');
+      offerWeight += supplierProduct.productWeight * productOffer.quantity;
+    }
+    this.weight = offerWeight;
     next();
   } catch (error) {
     next(error);

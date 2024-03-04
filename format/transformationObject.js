@@ -7,6 +7,7 @@ import SubUnit from "../models/subUnitSchema.js";
 import Car from "../models/carSchema.js";
 import Unit from "../models/unitSchema.js";
 import Region from "../models/regionSchema.js";
+import Customer from "../models/customerSchema.js";
 
 export const transformationCustomer = (customer) => {
   return {
@@ -34,7 +35,7 @@ export const transformationProduct = async (product) => {
     images: product.images ?? [],
   };
 };
-export const transformationSupplierProduct = async (supplierProduct, quantity=1, unitWeight) => {
+export const transformationSupplierProduct = async (supplierProduct, quantity=1) => {
   const product = await Product.findById(supplierProduct.productId);
   const supplier = await Supplier.findById(supplierProduct.supplierId);
   const category = await Category.findOne({ _id: product.category });
@@ -104,9 +105,10 @@ export const transformationOffer = async (offer, quantity=1) => {
     desc: offer.desc,
   };
 }
-export const transformationOrder= async (order) => {  
+export const transformationOrder = async (order) => {  
   const supplier = await Supplier.findById(order.supplierId);
   if(!supplier) throw new Error('supplier Not Found');
+
   const products = await Promise.all(
     order.products.map(async (product) => {
       const supplierProduct = await SupplierProduct.findOne({ productId:product.product });
@@ -119,9 +121,11 @@ export const transformationOrder= async (order) => {
     order.offers.map(async (offerId)=>{
       const offer = await Offer.findById(offerId.offer);
       if (!offer) return null;
-      return transformationOffer(offer, offer.quantity);
+      return transformationOffer(offer, offerId.quantity);
     })
   );
+
+  const customer = await Customer.findById(order.customerId);
   const car = await Car.findById(order.car);
   if(!car) throw new Error('car Not Found');
   return {
@@ -135,9 +139,9 @@ export const transformationOrder= async (order) => {
     address: order.address,
     governorate: order.governorate,
     district: order.district,
-    customerId: order.customerId,
-    customerName: order.customerName,
-    customerPhoneNumber: order.customerPhoneNumber,
+    customerId: customer._id,
+    customerName: customer.name,
+    customerPhoneNumber: customer.phone,
     deliveryFees: order.deliveryFees,
     discount: order.discount,
     products: products.filter((product) => product !== null),
@@ -148,30 +152,29 @@ export const transformationOrder= async (order) => {
     orderWeight: order.orderWeight,
     maxOrderWeight: order.maxOrderWeight,
     minOrderPrice: order.minOrderPrice,
-    offers: offers.filter((product) => product !== null),
+    offers: offers.filter((offer) => offer !== null),
     latitude: order.latitude,
     longitude: order.longitude,
     promoCode: order.promoCode,
     supplierRating: order.supplierRating,
     deliveryBoy: order.deliveryBoy ?? "",
-    car:car ??{},
+    car: car ?? {},
   };
 };
 export const transformationDeliveryBoy = async (deliverBoy) => {
   const car = await Car.findById(deliverBoy.car);
+  const region = await Region.findById(deliverBoy.region);
   return{
     _id: deliverBoy._id,
     name: deliverBoy.name,
     email: deliverBoy.email,
-    password: deliverBoy.password ?? "",
-    image: deliverBoy.image ?? "",
-    phoneNumber: deliverBoy.phone,
-    deliveryDistrict: deliverBoy.region ?? "",
+    nationalId: deliverBoy.nationalId,
+    image: deliverBoy.image ?? null,
+    phone: deliverBoy.phone,
+    region: region.name ?? "",
     access_token: deliverBoy.access_token,
-    address: deliverBoy.address ?? '',
-    car:transformationCar(car) ?? ""
+    car: transformationCar(car) ?? {}
   }
-  
 }
 export const transformationSupplier = async (supplier) => {
   let deliveryRegionName = [];
@@ -184,6 +187,7 @@ export const transformationSupplier = async (supplier) => {
     );
   }
   return{
+    _id: supplier._id,
     name: supplier.name,
     email: supplier.email,
     wallet: supplier.wallet,
@@ -200,7 +204,6 @@ export const transformationSupplier = async (supplier) => {
     placeImage: supplier.placeImage,
     rating: supplier.averageRating ?? 0,
     desc: supplier.desc ?? "",
-    _id: supplier._id
   }
 }
 export const transformationCar = (car)=>{

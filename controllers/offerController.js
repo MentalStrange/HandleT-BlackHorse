@@ -103,14 +103,14 @@ export const updateOffer = async (req, res) => {
         message: 'Could not find offer',
       });
     }
-
-    let updateWeight = 0.0;
-    for(const iterOffer of offer.products) {
-      const iterProduct = await Product.findById(iterOffer.productId);
-      updateWeight += iterProduct.weight * iterOffer.quantity;
+    
+    let offerWeight = 0;
+    for(const productOffer of offer.products) {
+      const supplierProduct = await SupplierProduct.findOne({productId: productOffer.productId, supplierId: offer.supplierId});
+      offerWeight += supplierProduct.productWeight * productOffer.quantity;
     }
-    offer.weight = updateWeight;
-    await offer.save();  // update offer weight
+    offer.weight = offerWeight;
+    await offer.save();
 
     res.status(200).json({
       status: 'success',
@@ -123,6 +123,7 @@ export const updateOffer = async (req, res) => {
     });
   }
 };
+
 export const deleteOffer = async (req, res) => {
   const offerId = req.params.id;
   try {
@@ -145,6 +146,7 @@ export const deleteOffer = async (req, res) => {
     })
   }
 }
+
 export const createOffer = async (req, res) => {
   const offerData = req.body;
   const supplierId = req.body.supplierId;
@@ -181,6 +183,7 @@ export const createOffer = async (req, res) => {
         message: "An offer for the same products by the same supplier already exists",
       });
     }
+
     const newOffer = new Offer(offerData);
     await newOffer.save();
     res.status(201).json({
@@ -194,6 +197,7 @@ export const createOffer = async (req, res) => {
     });
   }
 };
+
 export const changeImageOffer = async (req, res) => {
   const offerId = req.params.id;
   try{
@@ -220,6 +224,7 @@ export const changeImageOffer = async (req, res) => {
     });
   }
 }
+
 export const getOfferBySupplierId = async (req, res) => {
   const supplierId = req.params.id;
   try {
@@ -254,6 +259,7 @@ export const getOfferBySupplierId = async (req, res) => {
     });
   }
 };
+
 export const getOfferByOrderId = async (req, res) => {
   const orderId = req.params.id;
   try {
@@ -281,6 +287,3 @@ export const getOfferByOrderId = async (req, res) => {
     });
   }
 };
-
-
-

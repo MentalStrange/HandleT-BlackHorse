@@ -73,8 +73,8 @@ export const updateOrder = async (req, res, next) => {
         message: "Supplier not found",
       });
     }
-    if (req.body.status === "complete") {
-      const fee = await Fee.findOne(); // Assuming there is only one fee entry
+    if (req.body.status === "complete") { // not blackhorse
+      const fee = await Fee.findOne();
       console.log('fee', fee);
       console.log('fee.amount', fee.amount/100);
       const blackHorseCommotion = order.totalPrice * (fee.amount / 100);
@@ -131,25 +131,42 @@ export const updateOrder = async (req, res, next) => {
   }
 };
 
-export const getOrderByDelivery = async (deliveryId) => {
-  // const deliveryId = req.params.deliveryId;
+export const getOrderByDelivery = async (deliveryId) => {  // use socketIO
   try {
-    const orders = await Order.find({ deliveryBoy: deliveryId });
+    const orders = await Order.find({ deliveryBoy: deliveryId, status: { $in: ['delivery', 'willBeDelivered'] } });
     return await Promise.all(
       orders.map(async (order) => {
-        return await transformationOrder(order); // Transform each order
+        return await transformationOrder(order);
       })
     );
-    // res.status(200).json({
-    //   status: "success",
-    //   data:
-    // });
   } catch (error) {
     return [];
-    // res.status(500).json({
-    //   status: "fail",
-    //   message: error.message,
-    // });
+  }
+};
+
+export const getOrderByDeliveryRoute = async (req, res) => { // use http
+  const deliveryId = req.params.deliveryId;
+  // const page = parseInt(req.query.page) || 1; // Extract page parameter from query string
+  // const limit = parseInt(req.query.limit) || 10; // Extract limit parameter from query string
+
+  try {
+    // const totalOffers = await Order.countDocuments({ deliveryBoy: deliveryId, status: 'complete' });
+    const orders = await Order.find({ deliveryBoy: deliveryId, status: 'complete' }); //.skip((page - 1) * limit).limit(limit);
+    const orderByDelivery = await Promise.all(
+      orders.map(async (order) => {
+        return await transformationOrder(order);
+      })
+    );
+    res.status(200).json({
+      status: "success",
+      data: orderByDelivery,
+    })
+    // paginateResponse(res, req.query, orderByDelivery, totalOffers);
+  } catch (error) {
+    res.status(500).json({
+      status: "fail",
+      message: error.message,
+    });
   }
 };
 

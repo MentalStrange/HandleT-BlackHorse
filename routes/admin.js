@@ -47,6 +47,7 @@ import {
 import {
   getAllOrder,
   getOrderByDelivery,
+  getOrderByDeliveryRoute,
   mostFrequentDistricts,
   updateOrder,
 } from "../controllers/orderController.js";
@@ -65,7 +66,7 @@ import {
   updateCar,
   changeImageCar,
 } from "../controllers/carController.js";
-import { createDeliveryBoy, updateDeliveryBoy, changeImageDeliveryBoy , getAllDeliveryBoy } from "../controllers/deliveryBoyController.js";
+import { createDeliveryBoy, updateDeliveryBoy, changeImageDeliveryBoy , getAllDeliveryBoy, getDeliveryById } from "../controllers/deliveryBoyController.js";
 import validateField from "../middlewares/fieldMiddleware.js";
 import { createPromoCode, deletePromoCode, getAllPromoCode, updatePromoCode } from "../controllers/promoCodeController.js";
 import { checkAllFieldsFilled } from "../middlewares/isActive.js";
@@ -103,6 +104,7 @@ Router.delete('/category/:id', deleteCategory);
 Router.patch("/category/changeImage/:id", uploadCategory.single("image"), changeImageCategory);
 
 Router.get("/deliveryBoys", getAllDeliveryBoy);
+Router.get("/deliveryBoy/:id", getDeliveryById);
 Router.post("/deliveryBoy", createDeliveryBoy);
 Router.patch("/deliverBoy/:id", updateDeliveryBoy);
 Router.patch("/deliverBoy/changeImage/:id", uploadDeliveryBoy.single("image"), changeImageDeliveryBoy);
@@ -116,7 +118,7 @@ Router.get("/homeSlideShow", getAllHomeSlideShow);
 Router.delete("/homeSlideShow/:id", deleteHomeSlideShow);
 
 Router.patch("/order/:id", updateOrder);
-Router.get("/getOrderByDelivery/:deliveryId", getOrderByDelivery);
+Router.get("/getOrderByDelivery/:deliveryId", getOrderByDeliveryRoute);
 
 Router.get("/order", getAllOrder);
 Router.get("/order/mostDistrict", mostFrequentDistricts);

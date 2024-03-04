@@ -95,6 +95,9 @@ const supplierSchema = mongoose.Schema({
     type: Number,
     default: 0,
   },
+  deviceToken:{
+    type:String,
+  }
 });
 supplierSchema.pre("remove", async function (next) {
   try {

@@ -9,8 +9,10 @@ const salt = 10 ;
 export const customerLogin = async (req, res) => {
   const customerEmail = req.body.email;
   const customerPassword = req.body.password;
+  const deviceToken = req.body.deviceToken;
+
   try {
-    const customer = await Customer.find({ email: customerEmail.toLowerCase() });
+    const customer = await Customer.findOne({ email: customerEmail.toLowerCase() });
     if (customer.length === 0) {
       return res.status(203).json({ // email not found
         status: "fail",
@@ -19,7 +21,7 @@ export const customerLogin = async (req, res) => {
     }
     const isPasswordMatch = await bcrypt.compare(
         customerPassword,
-        customer[0]._doc.password
+        customer.password
     );
     if (!isPasswordMatch) {
       return res.status(203).json({ // password incorrect
@@ -27,10 +29,11 @@ export const customerLogin = async (req, res) => {
         message: req.headers['language'] === 'en' ? "Verify your email or password" : "قم من التحقق من البريد الإلكتروني أو كلمة المرور",
       });
     }
-    const cust = customer[0]._doc;
+    customer.deviceToken = deviceToken;
+    await customer.save();
     res.status(200).json({
       status: "success",
-      data: {...transformationCustomer(cust), access_token: jwt.sign({_id: cust._id, role: "customer"}, process.env.JWT_SECRET, {})},
+      data: {...transformationCustomer(customer), access_token: jwt.sign({_id: customer._id, role: "customer"}, process.env.JWT_SECRET, {})},
     });
   } catch (error) {
     res.status(500).json({
@@ -43,8 +46,10 @@ export const customerLogin = async (req, res) => {
 export const supplierLogin = async (req, res) => {
   const supplierEmail = req.body.email;
   const supplierPassword = req.body.password;
+  const deviceToken = req.body.deviceToken;
+
   try {
-    const supplier = await Supplier.find({ email: supplierEmail.toLowerCase() });
+    const supplier = await Supplier.findOne({ email: supplierEmail.toLowerCase() });
     if (supplier.length === 0) {
       return res.status(207).json({
         status: "fail",
@@ -53,7 +58,7 @@ export const supplierLogin = async (req, res) => {
     }
     const isPasswordMatch = await bcrypt.compare(
       supplierPassword,
-      supplier[0].password
+      supplier.password
     );
     if (!isPasswordMatch) {
       return res.status(207).json({
@@ -61,17 +66,19 @@ export const supplierLogin = async (req, res) => {
         message: "Password Not Correct",
       });
     }
-    const { password, ...rest } = supplier[0]._doc ;
+    const { password, ...rest } = supplier ;
+    supplier.deviceToken = deviceToken;
+    await supplier.save();
     if(rest.type === "blackHorse"){
       res.status(200).json({
         status: "success",
-        data: {...(await transformationSupplier(supplier[0]._doc)), access_token: jwt.sign({_id: rest._id, role: "blackHorse"}, process.env.JWT_SECRET, {})},
+        data: {...(await transformationSupplier(supplier)), access_token: jwt.sign({_id: rest._id, role: "blackHorse"}, process.env.JWT_SECRET, {})},
       });
     }
     else{
       res.status(200).json({
         status: "success",
-        data:  {...(await transformationSupplier(supplier[0]._doc)), access_token: jwt.sign({_id: rest._id, role: req.role}, process.env.JWT_SECRET, {})},
+        data:  {...(await transformationSupplier(supplier)), access_token: jwt.sign({_id: rest._id, role: req.role}, process.env.JWT_SECRET, {})},
       });
     }
   } catch (error) {
@@ -81,13 +88,16 @@ export const supplierLogin = async (req, res) => {
     });
   }
 };
+
 export const deliveryBoyLogin = async (req, res) => {
   const deliveryBoyEmail = req.body.email;
   const deliveryBoyPassword = req.body.password;
+  const deviceToken = req.body.deviceToken;
+
   try {
     const deliveryBoy = await DeliveryBoy.findOne({ email: deliveryBoyEmail });
     if (!deliveryBoy) {
-      return res.status(404).json({
+      return res.status(207).json({
         status: "fail",
         message: "Delivery Boy Not Found",
       });
@@ -98,16 +108,18 @@ export const deliveryBoyLogin = async (req, res) => {
       deliveryBoy.password
     );
     if (!isPasswordMatch) {
-      return res.status(400).json({
+      return res.status(207).json({
         status: "fail",
         message: "Incorrect Password",
       });
     }
     const { password, ...rest } = deliveryBoy._doc;
     const deliveryBoyData = { ...rest, access_token: jwt.sign({_id: rest._id, role: "deliveryBoy"}, process.env.JWT_SECRET, {})};
+    deliveryBoy.deviceToken = deviceToken;
+    await deliveryBoy.save();
     res.status(200).json({
       status: "success",
-      data: await transformationDeliveryBoy({...deliveryBoyData,password}),
+      data: await transformationDeliveryBoy(deliveryBoyData),
     });
   } catch (error) {
     res.status(500).json({

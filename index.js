@@ -14,8 +14,7 @@ import customerRoute from './routes/customer.js';
 import productRoute from './routes/product.js';
 import adminRoute from './routes/admin.js';
 import { getOrderByDelivery } from './controllers/orderController.js';
-import {CronJob} from "cron"
-import { checkStatus } from './utils/checkGroupStatus.js';
+import Order from './models/orderSchema.js';
 
 dotenv.config();
 const port = process.env.PORT || 3000;
@@ -80,15 +79,22 @@ IO.on("connection", (socket) => {
 
   socket.on('disconnect', () => {
     delete userSocketIdMap[socket.socketUser];
-    console.log("deleted: ", userSocketIdMap);
+    console.log("deleted:", userSocketIdMap);
   });
 
   socket.on("order", async (data) => {
-    // let orderId = data.orderId;
-    // let status = data.status;
-    // let supplierId = data.supplierId;
+    let orderId = data.orderId;
+    let status = data.status;
     let deliveryId = data.deliveryId;
-    IO.to(userSocketIdMap[deliveryId]).emit("order", await getOrderByDelivery(deliveryId));
+    if(deliveryId){
+      IO.to(userSocketIdMap[deliveryId]).emit("order", await getOrderByDelivery(deliveryId));
+    }
+    else if(orderId && status){
+      const order = await Order.findById(orderId);
+      order.status = status;
+      await order.save();
+      // IO.to(userSocketIdMap[order.deliveryBoy]).emit("order", await getOrderByDelivery(order.deliveryBoy));
+    }
   });
 });
 
