@@ -7,7 +7,6 @@ import fs from "fs";
 // Create a new car
 const createCar = async (req, res) => {
   const carData = req.body;
-
   try {
     const newCar = new Car({
       type: carData.type,
@@ -28,8 +27,6 @@ const createCar = async (req, res) => {
     }
   }
 };
-
-
 // Read cars
 const getCars = async (req,res) => {
   try {
