@@ -48,7 +48,7 @@ export const createProduct = async (req, res) => {
       weight: req.body.weight,
       subUnit: req.body.subUnit,
       category: req.body.category,
-      images: req.files.map(file => `${process.env.SERVER_URL}${file.path.replace(/\\/g, '/').replace(/^upload\//, '')}`)
+      // images: req.files.map(file => `${process.env.SERVER_URL}${file.path.replace(/\\/g, '/').replace(/^upload\//, '')}`)
     });
     await newProduct.save();
     res.status(201).json({

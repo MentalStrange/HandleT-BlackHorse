@@ -186,7 +186,7 @@ export const getProductByOrderId = async (req, res) => {
     });
   }
 };
-export const uploadProductImages = async (req, res) => {
+export const uploadProductImage = async (req, res) => {
   const productId = req.params.id;
   try{
     const product = await Product.findById(productId);
@@ -196,9 +196,8 @@ export const uploadProductImages = async (req, res) => {
         message: "product not found"
       });
     }
-
-    const imagePaths = req.files.map(file => `${process.env.SERVER_URL}${file.path.replace(/\\/g, '/').replace(/^upload\//, '')}`);
-    product.images = product.images.concat(imagePaths);
+    const imagePath = `${process.env.SERVER_URL}${req.file.path.replace(/\\/g, '/').replace(/^upload\//, '')}`
+    product.images = product.images.concat([imagePath]);
     await product.save();
     res.status(200).json({
       status: "success",

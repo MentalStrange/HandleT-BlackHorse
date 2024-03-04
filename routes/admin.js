@@ -57,7 +57,7 @@ import {
   getAllHomeSlideShow,
 } from "../controllers/homeSlideShowController.js";
 import { authenticate } from "../middlewares/authorizationMiddleware.js";
-import { deleteProductImage, getAllProduct, uploadProductImages } from "../controllers/productsController.js";
+import { deleteProductImage, getAllProduct, uploadProductImage } from "../controllers/productsController.js";
 import { restrict } from "../middlewares/restrictionMiddleware.js";
 import {
   createCar,
@@ -90,8 +90,8 @@ Router.patch("/supplier/:id", updateSupplier);
 Router.get("/customer", createCustomer);
 // Router.delete('/customer/:id',deleteCustomer);
 Router.get("/product", authenticate, restrict(["blackHorse", "company"]), getAllProduct);
-Router.post("/product", uploadProducts.array("images"), createProduct);
-Router.patch("/product/uploadImages/:id", uploadProducts.array("images"), uploadProductImages);
+Router.post("/product", createProduct); // uploadProducts.array("images"),
+Router.post("/product/uploadImage/:id", uploadProducts.single("image"), uploadProductImage);
 Router.delete("/product/deleteImage/:id", deleteProductImage);
 Router.get("/products", getProducts);
 Router.patch("/product/:id", updateProduct);
