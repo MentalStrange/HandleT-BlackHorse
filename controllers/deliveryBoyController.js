@@ -147,3 +147,15 @@ export const changeImageDeliveryBoy = async (req, res) => {
     });
   }
 }
+export const getDeliveryBoyByRegion = async (req,res) => {
+  const regionId = req.params.id;
+  const allDeliveryBoys = await Promise.all(
+    (await DeliveryBoy.find({region: regionId})).map(async (delivery) => {
+      return transformationDeliveryBoy(delivery);
+    })
+  );
+  res.status(200).json({
+    status: "success",
+    data: allDeliveryBoys,
+  });
+}

@@ -18,6 +18,7 @@ import { createPromoCode } from '../controllers/promoCodeController.js';
 import { getAllProduct } from '../controllers/productsController.js';
 import { storage } from '../controllers/sharedFunction.js';
 import multer from 'multer';
+import { getDeliveryBoyByRegion } from '../controllers/deliveryBoyController.js';
 
 const uploadSupplier = multer({ storage: storage('supplier') });
 const uploadPlaceImage = multer({ storage: storage('placeimages') });
@@ -54,6 +55,8 @@ Router.get('/order/last/:id',lastOrdersBySupplierId)
 Router.get('/totalSales/:id', totalSalesBySupplierId);
 
 Router.post('/promoCode', createPromoCode);
+
+Router.get('/deliveryBoy/region/:id', getDeliveryBoyByRegion)
 
 
 export default Router;
