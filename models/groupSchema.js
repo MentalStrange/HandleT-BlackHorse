@@ -1,5 +1,4 @@
 import mongoose from 'mongoose';
-import Supplier from './supplierSchema.js';
 import GroupExpireDate from './groupExpireDate.js';
 
 const groupSchema = mongoose.Schema({
@@ -27,7 +26,7 @@ const groupSchema = mongoose.Schema({
   },
   status:{
     type:String,
-    enum:["pending","complete","expired","cancelled","delivery"],
+    enum:["pending","complete","expired","cancelled","delivery","accepted"],
     default:"pending",
   },
   // order:[
@@ -40,6 +39,14 @@ const groupSchema = mongoose.Schema({
   createdAt:{
     type:Date,
     default: Date.now,
+  },
+  deliveryBoy:{
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"DeliveryBoy"
+  },
+  totalPrice:{
+    type:Number,
+    default:0,
   }
 },{
   timestamps:true,

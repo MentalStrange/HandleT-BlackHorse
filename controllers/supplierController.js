@@ -373,9 +373,6 @@ export const getOrdersForSupplierInCurrentMonth = async (req, res) => {
 export const lastOrdersBySupplierId = async (req, res) => {
   try {
     const supplierId = req.params.id;
-    const page = parseInt(req.query.page) || 1; // Extract page parameter from query string
-    const limit = parseInt(req.query.limit) || 10; // Extract limit parameter from query string
-
     const supplier = await Supplier.findById(supplierId);
     if (!supplier) {
       return res.status(404).json({
@@ -383,14 +380,9 @@ export const lastOrdersBySupplierId = async (req, res) => {
         message: "Supplier Not Found",
       });
     }
-    
     const totalOrdersCount = await Order.countDocuments({ supplierId });
     const lastOrders = await Order.find({ supplierId })
       .sort({ createdAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(limit)
-      .populate("customerId");
-
     if (lastOrders && lastOrders.length > 0) {
       const formattedOrders = await Promise.all(
         lastOrders.map(async (order) => {
@@ -400,8 +392,9 @@ export const lastOrdersBySupplierId = async (req, res) => {
       paginateResponse(res, req.query, formattedOrders, totalOrdersCount); // Apply pagination to transformed orders
     } else {
       res.status(200).json({
-        status: "success",
+        status: "fail",
         data: [],
+        message:"No Orders Found"
       });
     }
   } catch (error) {

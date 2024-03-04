@@ -162,7 +162,7 @@ export const createOrder = async (req, res) => {
   const offers = req.body.offers ?? []; // Array of offers with { offerId, quantity }
   const carId = req.body.car;
   const totalPrice = req.body.totalPrice;
-  try {    
+  try {
     const car = await Car.findById(carId);
     if (!car) {
       return res.status(404).json({

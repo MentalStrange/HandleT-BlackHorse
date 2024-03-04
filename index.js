@@ -14,6 +14,8 @@ import customerRoute from './routes/customer.js';
 import productRoute from './routes/product.js';
 import adminRoute from './routes/admin.js';
 import { getOrderByDelivery } from './controllers/orderController.js';
+import {CronJob} from "cron"
+import { checkStatus } from './utils/checkGroupStatus.js';
 
 dotenv.config();
 const port = process.env.PORT || 3000;
@@ -42,6 +44,12 @@ const connectDB = async () => {
     console.log('Mongoose connection error: ' + error);
   }
 };
+
+// check the status of the group
+
+// const cronJob = new CronJob('* * * * *', checkStatus);
+// cronJob.start();
+
 
 app.use(express.static(path.join(__dirname, 'upload')));
 app.use(cors(corsOption));
