@@ -97,6 +97,7 @@ IO.on("connection", (socket) => {
       order.status = status;
       order.deliveryBoy = deliveryId;
       await order.save();
+      console.log(delivery.deviceToken);
       if(order.status === 'willBeDelivered'){
         await pushNotification("لديك طلب جديد", `لديك اوردر جديد بوزن ${order.orderWeight/1000} كيلو ينتظر موافقتك`, null, null, null, deliveryId, delivery.deviceToken);
       }
