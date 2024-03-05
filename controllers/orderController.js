@@ -78,7 +78,7 @@ export const updateOrder = async (req, res, next) => {
     if (req.body.status === "complete") { // not blackhorse
       const fee = await Fee.findOne();
       const blackHorseCommotion = order.totalPrice * (fee.amount / 100);
-      console.log('blackHorseCommotion', blackHorseCommotion);
+      // console.log('blackHorseCommotion', blackHorseCommotion);
       supplier.wallet += blackHorseCommotion;
       await supplier.save();
     } else if (req.body.status === "cancelled") {
@@ -519,7 +519,7 @@ export const getBestSeller = async (req, res) => {
     const products = await SupplierProduct.find({
       productId: { $in: productIds },
     });
-    console.log('products', products);
+    // console.log('products', products);
     
     const formattedProducts = await Promise.all(
       products.map(async (product) => {
