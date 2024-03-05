@@ -16,6 +16,8 @@ import adminRoute from './routes/admin.js';
 import { getOrderByDelivery } from './controllers/orderController.js';
 import Order from './models/orderSchema.js';
 import { pushNotification } from './utils/pushNotification.js';
+import { checkExpireGroup } from './utils/checkExpireGroup.js';
+import {CronJob} from 'cron';
 
 dotenv.config();
 const port = process.env.PORT || 3000;
@@ -47,8 +49,8 @@ const connectDB = async () => {
 
 // check the status of the group
 
-// const cronJob = new CronJob('* * * * *', checkStatus);
-// cronJob.start();
+const cronJobStart = new CronJob('0 0 * * *', checkExpireGroup);
+// cronJobStart.start();
 
 
 app.use(express.static(path.join(__dirname, 'upload')));

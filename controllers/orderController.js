@@ -76,8 +76,6 @@ export const updateOrder = async (req, res, next) => {
     }
     if (req.body.status === "complete") { // not blackhorse
       const fee = await Fee.findOne();
-      console.log('fee', fee);
-      console.log('fee.amount', fee.amount/100);
       const blackHorseCommotion = order.totalPrice * (fee.amount / 100);
       console.log('blackHorseCommotion', blackHorseCommotion);
       supplier.wallet += blackHorseCommotion;
