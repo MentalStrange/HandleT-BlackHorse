@@ -56,7 +56,7 @@ Router.get('/totalSales/:id', totalSalesBySupplierId);
 
 Router.post('/promoCode', createPromoCode);
 
-Router.get('/deliveryBoy/region/:id', getDeliveryBoyByRegion)
+Router.get('/deliveryBoy/region/:regionName', getDeliveryBoyByRegion)
 
 
 export default Router;

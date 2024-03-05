@@ -59,12 +59,11 @@ const orderSchema = mongoose.Schema({
   },
   address:{
     type: String,
+    required: [true, 'Order should have an address']
   },
   district:{
     type: String,
-  },
-  governorate:{
-    type: String,
+    required: [true, 'Order should have a district']
   },
   customerPhoneNumber: {
     type: String,

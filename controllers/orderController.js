@@ -11,6 +11,7 @@ import {
 } from "../format/transformationObject.js";
 import paginateResponse from "./../utils/paginationResponse.js";
 import Car from "../models/carSchema.js";
+import { pushNotification } from "../utils/pushNotification.js";
 
 export const getAllOrder = async (req, res) => {
   try {
@@ -331,6 +332,7 @@ export const createOrder = async (req, res) => {
       existingPromoCode.customerId.push(customerId);
       await existingPromoCode.save();
     }
+    // await pushNotification("لديك طلب", )
     res.status(201).json({
       status: "success",
       data: await transformationOrder(newOrder),
