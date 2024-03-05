@@ -12,6 +12,7 @@ import {
 import paginateResponse from "./../utils/paginationResponse.js";
 import Car from "../models/carSchema.js";
 import { pushNotification } from "../utils/pushNotification.js";
+import Region from "../models/regionSchema.js";
 
 export const getAllOrder = async (req, res) => {
   try {
@@ -178,12 +179,21 @@ export const createOrder = async (req, res) => {
   const offers = req.body.offers ?? []; // Array of offers with { offerId, quantity }
   const carId = req.body.car;
   const totalPrice = req.body.totalPrice;
+  const district = req.body.district;
   try {
     const car = await Car.findById(carId);
     if (!car) {
       return res.status(205).json({
         status: "fail",
         message: "Car not found",
+      });
+    }
+
+    const region = await Region.findOne({ name: district });
+    if(!region) {
+      return res.status(218).json({
+        status: "fail",
+        message: "Region not found",
       });
     }
 
@@ -330,7 +340,7 @@ export const createOrder = async (req, res) => {
       existingPromoCode.customerId.push(customerId);
       await existingPromoCode.save();
     }
-    // await pushNotification("لديك طلب", )
+    await pushNotification("لديك طلب جديد", "قام احد العملاء بطلب اوردر جديد ينتظر موافقتك", null, null, supplierId, null, supplier.deviceToken);
     res.status(201).json({
       status: "success",
       data: await transformationOrder(newOrder),
