@@ -18,6 +18,7 @@ import Order from './models/orderSchema.js';
 import { pushNotification } from './utils/pushNotification.js';
 import { checkExpireGroup } from './utils/checkExpireGroup.js';
 import {CronJob} from 'cron';
+import DeliveryBoy from './models/deliveryBoySchema.js';
 
 dotenv.config();
 const port = process.env.PORT || 3000;
@@ -89,14 +90,28 @@ IO.on("connection", (socket) => {
     let orderId = data.orderId;
     let status = data.status;
     let deliveryId = data.deliveryId;
-    if(deliveryId){
+    if(deliveryId && orderId && status){
+      console.log("one");
+      const delivery = await DeliveryBoy.findById(deliveryId);
+      const order = await Order.findById(orderId);
+      order.status = status;
+      order.deliveryBoy = deliveryId;
+      await order.save();
+      if(order.status === 'willBeDelivered'){
+        await pushNotification("لديك طلب جديد", `لديك اوردر جديد بوزن ${order.orderWeight/1000} كيلو ينتظر موافقتك`, null, null, null, deliveryId, delivery.deviceToken);
+      }
       IO.to(userSocketIdMap[deliveryId]).emit("order", await getOrderByDelivery(deliveryId));
     }
     else if(orderId && status){
+      console.log("two");
       const order = await Order.findById(orderId);
       order.status = status;
       await order.save();
       // IO.to(userSocketIdMap[order.deliveryBoy]).emit("order", await getOrderByDelivery(order.deliveryBoy));
+    }
+    else if(deliveryId){
+      console.log("three");
+      IO.to(userSocketIdMap[deliveryId]).emit("order", await getOrderByDelivery(deliveryId));
     }
   });
 });
