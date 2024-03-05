@@ -46,7 +46,7 @@ export const createProduct = async (req, res) => {
       title: productTitle,
       desc: req.body.desc,
       weight: req.body.weight,
-      subUnit: req.body.subUnit,
+      // subUnit: req.body.subUnit,
       category: req.body.category,
       // images: req.files.map(file => `${process.env.SERVER_URL}${file.path.replace(/\\/g, '/').replace(/^upload\//, '')}`)
     });
@@ -68,11 +68,7 @@ export const updateProduct = async (req, res) => {
   const productData = req.body;
 
   try {
-    const updatedProduct = await Product.findByIdAndUpdate(
-      productId,
-      productData,
-      { new: true }
-    );
+    const updatedProduct = await Product.findByIdAndUpdate(productId, productData, { new: true });
     if (updatedProduct) {
       res.status(200).json({
         status: "success",

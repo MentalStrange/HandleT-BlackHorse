@@ -182,128 +182,155 @@ export const createOrder = async (req, res) => {
   try {
     const car = await Car.findById(carId);
     if (!car) {
-      return res.status(404).json({
+      return res.status(205).json({
         status: "fail",
         message: "Car not found",
       });
     }
+
     const supplier = await Supplier.findById(supplierId);
     if (!supplier) {
-      return res.status(400).json({
+      return res.status(206).json({
         status: "fail",
         message: "Supplier not found",
       });
     }
-    if(!req.body.totalPrice >= supplier.minOrderPrice){
-      return res.status(400).json({
+
+    if(totalPrice < supplier.minOrderPrice){
+      return res.status(207).json({
         status: "fail",
         message: "Total price should be greater than min order price",
       })
     }
-    // Check if the promo code is valid and associated with the supplier
+
     if (promoCode) {
-      const existingPromoCode = await PromoCode.findOne({
-        code: promoCode,
-        supplierId,
-      });
-      if (!existingPromoCode) {
-        return res.status(400).json({
+      const existingPromoCode = await PromoCode.findOne({ code: promoCode });
+      if (!existingPromoCode) {  // check promo code exists
+        return res.status(208).json({
           status: "fail",
-          message: "Promo code not found or not associated with the supplier",
+          message: "Promo code not found",
         });
       }
-      // Check if the promo code has already been used by the customer
-      if (existingPromoCode.customerId.includes(customerId)) {
-        return res.status(400).json({
+      
+      if (existingPromoCode.customerId.includes(customerId)) {  // Check customer used promocode
+        return res.status(209).json({
           status: "fail",
           message: "Promo code already used",
         });
       }
-      // Add the customer ID to the list of customers who used the promo code
-      existingPromoCode.customerId.push(customerId);
-      await existingPromoCode.save();
+
+      if (existingPromoCode.numOfUsage <= 0) { // check number of usage
+        return res.status(210).json({
+          status: "fail",
+          message: "The Promo code has reached its maximum usage limit.",
+        });
+      }
+
+      const currentDate = new Date();     // check expiry date
+      const newDate = new Date(currentDate.getTime() + (2 * 60 * 60 * 1000)); // Adding 2 hours [Egypt]
+      if (existingPromoCode.expiryDate < newDate) {
+        return res.status(211).json({
+          status: "fail",
+          message: "The Promo code has expired.",
+        });
+      }
     }
 
+    const productsMap = new Map();
     for (const product of products) {
-      const supplierProduct = await SupplierProduct.findOne({
-        supplierId,
-        productId: product.product,
-      });
-      if (!supplierProduct || supplierProduct.stock < product.quantity) {
+      const supplierProduct = await SupplierProduct.findOne({ supplierId, productId: product.product });
+      if (!supplierProduct || supplierProduct.stock < product.quantity) { // check quantity of products
         const prod = await Product.findById(product.product);
-        return res.status(400).json({
+        return res.status(212).json({
           status: "fail",
           message: `Product with title ${prod.title} is not available or out of stock`,
         });
       }
-      if (!supplierProduct || supplierProduct.maxLimit < product.quantity) {
-        const prod = await Product.findById(product.product);
-        return res.status(400).json({
+
+      if ((!supplierProduct || supplierProduct.maxLimit < product.quantity) && supplierProduct.maxLimit !== null) {
+        const prod = await Product.findById(product.product);   // check products max limit
+        return res.status(213).json({
           status: "fail",
           message: `The maximum quantity allowed for purchasing ${prod.title} is ${supplierProduct.maxLimit}`,
         });
       }
+      if (productsMap.has(product.product.toString())) {
+        productsMap.set(product.product.toString(), productsMap.get(product.product.toString()) + product.quantity);
+      } else {
+        productsMap.set(product.product.toString(), product.quantity);
+      }
     }
+
     for (const offer of offers) {
-      const offerData = await Offer.findById(offer.offer);
+      const offerData = await Offer.findById(offer.offer); // offer quantity available in stock
       if (!offerData || offerData.stock < offer.quantity) {
-        return res.status(400).json({
+        return res.status(214).json({
           status: "fail",
           message: `Offer with title ${offerData.title} is not available or out of stock`,
         });
       }
-      if (!offerData || offerData.maxLimit < offer.quantity) {
-        return res.status(400).json({
+
+      if ((!offerData || offerData.maxLimit < offer.quantity) && offerData.maxLimit !== null) { // check offer max limit
+        return res.status(215).json({
           status: "fail",
           message: `The maximum quantity allowed for purchasing ${offerData.title} is ${offerData.maxLimit}`,
         });
       }
 
-      for (const iterProduct of offerData.products) {
-        const sp = await SupplierProduct.findOne({
-          supplierId,
-          productId: iterProduct.productId,
-        });
+      for (const iterProduct of offerData.products) {  // check products in offer available in stock
+        const sp = await SupplierProduct.findOne({ supplierId, productId: iterProduct.productId });
         if (!sp || sp.stock < iterProduct.quantity) {
           const prod = await Product.findById(iterProduct.productId);
-          return res.status(400).json({
+          return res.status(216).json({
             status: "fail",
             message: `Product with title ${prod.title} in offer ${offerData.title} is not available or out of stock`,
           });
         }
+        if (productsMap.has(iterProduct.productId.toString())) {
+          productsMap.set(iterProduct.productId.toString(), productsMap.get(iterProduct.productId.toString()) + iterProduct.quantity * offer.quantity);
+        } else {
+          productsMap.set(iterProduct.productId.toString(), iterProduct.quantity * offer.quantity);
+        }
       }
     }
 
-    // Calculate the total price of the order including products and offers
-    // let totalPrice = 0;
-    for (const product of products) {
-      const supplierProduct = await SupplierProduct.findOne({
-        supplierId,
-        productId: product.product,
-      });
-      // totalPrice += supplierProduct.price * product.quantity;
+    for (const [key, value] of productsMap.entries()) {  // check total quantity of products available in supplier stock
+      const supplierProduct = await SupplierProduct.findOne({ supplierId, productId: key });
+      if(supplierProduct.stock < value) {
+        const prod = await Product.findById(key);
+        return res.status(217).json({
+          status: "fail",
+          message: `Product with title ${prod.title} is not available or out of stock`,
+        });
+      }
+    }
+
+    for (const product of products) {   // decrement products
+      const supplierProduct = await SupplierProduct.findOne({ supplierId, productId: product.product });
       supplierProduct.stock -= product.quantity;
       await supplierProduct.save();
     }
-    for (const offer of offers) {
+
+    for (const offer of offers) {      // decrement offers
       const offerData = await Offer.findById(offer.offer);
-      // totalPrice += offerData.price * offer.quantity;
       offerData.stock -= offer.quantity;
       await offerData.save();
 
-      for (const iterProduct of offerData.products) {
-        // decrement offer's product
-        const sp = await SupplierProduct.findOne({
-          supplierId,
-          productId: iterProduct.productId,
-        });
+      for (const iterProduct of offerData.products) {      // decrement offer's product
+        const sp = await SupplierProduct.findOne({ supplierId, productId: iterProduct.productId });
         sp.stock -= iterProduct.quantity * offer.quantity;
         await sp.save();
       }
     }
 
-    // Create the order
+    // console.log("productsMap:", productsMap);
     const newOrder = await Order.create(orderData);
+    if (promoCode) {
+      const existingPromoCode = await PromoCode.findOne({ code: promoCode });
+      existingPromoCode.numOfUsage--;
+      existingPromoCode.customerId.push(customerId);
+      await existingPromoCode.save();
+    }
     res.status(201).json({
       status: "success",
       data: await transformationOrder(newOrder),
@@ -315,6 +342,7 @@ export const createOrder = async (req, res) => {
     });
   }
 };
+
 export const getAllOrderByCustomerId = async (req, res) => {
   const customerId = req.params.id;
   try {

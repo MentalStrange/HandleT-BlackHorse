@@ -15,6 +15,7 @@ import productRoute from './routes/product.js';
 import adminRoute from './routes/admin.js';
 import { getOrderByDelivery } from './controllers/orderController.js';
 import Order from './models/orderSchema.js';
+import { pushNotification } from './utils/pushNotification.js';
 
 dotenv.config();
 const port = process.env.PORT || 3000;
@@ -100,5 +101,6 @@ IO.on("connection", (socket) => {
 
 server.listen(port, async () => {
   await connectDB();
+  // await pushNotification("بودي الطااير", "المشطشط عم اعمام الطايرين كلها", "", "", "", "", ["d_zpBsrUTqmhP8J_a60-82:APA91bFMkm6_41ei0ovi76DPv9X7uVBjOoPfEzvWT86_8wmTsH_nh1DOKaQ1LYtsH1Nfysmwb2rZ8ZVE_jy6jYXsQjLSJZhj3bYw_WQVUtXTKHQzce1hFkXIPJQdS2Y70X5-YoauLTZR"]);
   console.log(`listening on http://localhost:${port}`);
 });
