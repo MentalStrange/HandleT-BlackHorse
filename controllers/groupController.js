@@ -3,6 +3,7 @@ import Customer from "../models/customerSchema.js";
 import Group from "../models/groupSchema.js";
 import Order from "../models/orderSchema.js";
 import Supplier from "../models/supplierSchema.js";
+import { updateOrderForGroup } from "../utils/updateOrderForGroup.js";
 
 export const createGroup = async (req, res) => {
   const regionId = req.body.region;
@@ -73,6 +74,7 @@ export const getAllGroupForCustomer = async (req, res) => {
     }
   } catch (error) {}
 };
+
 export const updateGroup = async (req, res) => {
   const groupId = req.params.id;
   const groupStatus = req.body.status;
@@ -90,21 +92,24 @@ export const updateGroup = async (req, res) => {
       group.status = "accepted";
       await Promise.all(
         orders.map(async (order) => {
-          order.status = "complete";
-          order.save();
+          await updateOrderForGroup(order._id, "complete" );
         })
       );
     }
     if (groupStatus === "canceled") {
       group.status = "canceled";
+      // Loop through each order in the group and update its status to "cancelled" using the updateOrder function
       await Promise.all(
         orders.map(async (order) => {
-          await Order.findByIdAndUpdate(order, { status: "canceled" });
-          order.save();
+          await updateOrderForGroup(order._id, "canceled" );
         })
       );
     }
     await group.save();
+    res.status(200).json({
+      status: "success",
+      message: "Group updated successfully",
+    });
   } catch (error) {
     res.status(500).json({
       status: "fail",
@@ -112,7 +117,6 @@ export const updateGroup = async (req, res) => {
     });
   }
 };
-
 export const joinGroup = async (req, res) => {
   const groupId = req.params.id;
   const orderId = req.body.order;
