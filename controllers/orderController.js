@@ -6,6 +6,8 @@ import Supplier from "../models/supplierSchema.js";
 import Offer from "../models/offerSchema.js";
 import Product from "../models/productSchema.js";
 import {
+  transformationCar,
+  transformationOffer,
   transformationOrder,
   transformationSupplierProduct,
 } from "../format/transformationObject.js";
@@ -335,7 +337,98 @@ export const createOrder = async (req, res) => {
     }
 
     // console.log("productsMap:", productsMap);
-    const newOrder = await Order.create(orderData);
+    const newOrder = await Order.create({
+      supplierId: orderData.supplierId,
+      supplierName: supplier.name,
+      supplierType: supplier.type,
+      promoCode: orderData.promoCode ?? null,
+      customerId: orderData.customerId,
+      customerName: orderData.customerName,
+      customerPhoneNumber: orderData.customerPhoneNumber,
+      totalPrice: orderData.totalPrice,
+      subTotalPrice: orderData.subTotalPrice,
+      deliveryFees: orderData.deliveryFees,
+      discount: orderData.discount,
+      type: orderData.type,
+      tax: orderData.tax,
+      address: orderData.address ?? null,
+      district: orderData.district ?? null,
+      deliveryDaysNumber: orderData.deliveryDaysNumber,
+      products: await Promise.all(orderData.products.map(async (product) => {
+        const supplierProduct = await SupplierProduct.findOne({ productId: product.product, supplierId: orderData.supplierId });
+        const productData = await transformationSupplierProduct(supplierProduct);
+        return {
+          product: product.product,
+          quantity: product.quantity,
+          productWeight: product.productWeight,
+
+          title: productData.title,
+          price: productData.price,
+          afterSale: productData.afterSale ?? null,
+          images: productData.images ?? [],
+          maxLimit: productData.maxLimit,
+          supplierId: productData.supplierId,
+          desc: productData.desc,
+          unit: productData.unit ?? null,
+          subUnit: productData.subUnit,
+          numberOfSubUnit: productData.numberOfSubUnit ?? null,
+          category: productData.category,
+          supplierType: productData.supplierType
+        };
+      })),
+      offers: await Promise.all(orderData.offers.map(async (offer) => {
+        const offerObject = await Offer.findById(offer.offer);
+        const offerData = await transformationOffer(offerObject, offer.quantity);
+        return {
+          offer: offer.offer,
+          quantity: offer.quantity,
+          offerWeight: offer.offerWeight,
+
+          supplierId: offerData.supplierId,
+          title: offerData.title,
+          image: offerData.image ?? null,
+          price: offerData.price,
+          afterSale: offerData.afterSale ?? null,
+          maxLimit: offerData.maxLimit ?? null,
+          stock: offerData.stock,
+          desc: offerData.desc,
+          products: await Promise.all(offerData.products.map(async (product) => {
+            const supplierProduct = await SupplierProduct.findOne({ productId: product.productId, supplierId: orderData.supplierId });
+            const productData = await transformationSupplierProduct(supplierProduct, product.quantity);
+            return {
+              product: productData._id,       
+              title: productData.title,
+              price: productData.price,
+              afterSale: productData.afterSale ?? null,
+              images: productData.images ?? [],
+              maxLimit: productData.maxLimit,
+              supplierId: productData.supplierId,
+              desc: productData.desc,
+              unit: productData.unit ?? null,
+              subUnit: productData.subUnit,
+              numberOfSubUnit: productData.numberOfSubUnit ?? null,
+              category: productData.category,
+              supplierType: productData.supplierType,
+              quantity: productData.quantity,
+              weight: productData.weight
+            };
+          })),
+        };
+      })),
+      latitude: orderData.latitude ?? null,
+      longitude: orderData.longitude ?? null,
+      car: await (async () => {
+        const carObject = await Car.findById(orderData.car);
+        const carData = await transformationCar(carObject);
+        return {
+          car: carData._id,
+          type: carData.type,
+          maxWeight: carData.maxWeight,
+          image: carData.image ?? null,
+          number: carData.number
+        };
+      })() 
+    });
     if (promoCode) {
       const existingPromoCode = await PromoCode.findOne({ code: promoCode });
       existingPromoCode.numOfUsage--;
