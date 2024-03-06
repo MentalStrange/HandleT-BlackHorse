@@ -99,7 +99,6 @@ export const updateGroup = async (req, res) => {
     }
     if (groupStatus === "canceled") {
       group.status = "canceled";
-      // Loop through each order in the group and update its status to "cancelled" using the updateOrder function
       await Promise.all(
         orders.map(async (order) => {
           await updateOrderForGroup(order._id, "canceled" );
