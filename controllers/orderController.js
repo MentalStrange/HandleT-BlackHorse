@@ -354,6 +354,7 @@ export const createOrder = async (req, res) => {
       address: orderData.address ?? null,
       district: orderData.district ?? null,
       deliveryDaysNumber: orderData.deliveryDaysNumber,
+      orderWeight: orderData.orderWeight,
       products: await Promise.all(orderData.products.map(async (product) => {
         const supplierProduct = await SupplierProduct.findOne({ productId: product.product, supplierId: orderData.supplierId });
         const productData = await transformationSupplierProduct(supplierProduct);
