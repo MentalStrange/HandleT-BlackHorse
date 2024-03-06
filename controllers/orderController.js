@@ -189,14 +189,16 @@ export const createOrder = async (req, res) => {
       });
     }
 
-    const region = await Region.findOne({ name: district });
-    if(!region) {
-      return res.status(218).json({
-        status: "fail",
-        message: "Region not found",
-      });
+    if(district){
+      const region = await Region.findOne({ name: district });
+      if(!region) {
+        return res.status(218).json({
+          status: "fail",
+          message: "Region not found",
+        });
+      }
     }
-
+   
     const supplier = await Supplier.findById(supplierId);
     if (!supplier) {
       return res.status(206).json({
