@@ -18,15 +18,15 @@ admin.initializeApp({
 const messaging = admin.messaging();
 
 export const pushNotification = async (title, body, type, customerId, supplierId, deliveryBoyId, deviceToken) => {
-    const newNotification = new Notification({
-        title: title,
-        body: body,
-        type: type,
-        customerId: customerId,
-        supplierId: supplierId,
-        deliveryBoyId: deliveryBoyId
-    });
-    await newNotification.save();
+    // const newNotification = new Notification({
+    //     title: title,
+    //     body: body,
+    //     type: type,
+    //     customerId: customerId,
+    //     supplierId: supplierId,
+    //     deliveryBoyId: deliveryBoyId
+    // });
+    // await newNotification.save();
 
     if (typeof deviceToken === 'string') {  // push single notification
         const message = {

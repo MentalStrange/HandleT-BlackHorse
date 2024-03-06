@@ -247,7 +247,7 @@ export const transformationSupplier = async (supplier) => {
 export const transformationCar = async (car)=>{
   return {
     _id: car._id,
-    image: car.image,
+    image: car.image ?? '',
     type: car.type,
     number: car.number ?? '',
     maxWeight: car.maxWeight
