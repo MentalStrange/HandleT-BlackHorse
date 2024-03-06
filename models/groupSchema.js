@@ -52,15 +52,21 @@ const groupSchema = mongoose.Schema({
   timestamps:true,
 })
 
-groupSchema.pre("save", async function(next){
+groupSchema.pre("save", async function(next) {
   try {
-    const expireDate = await GroupExpireDate.findOne();
-    this.daysOfExpire = expireDate.date;
-    next();
+    const expireDateConfig = await GroupExpireDate.findOne();    
+    if (!expireDateConfig) {
+      throw new Error("Expiration date configuration not found");
+    }
+    const daysToAdd = expireDateConfig.date;
+    const expirationDate = new Date();
+    expirationDate.setDate(expirationDate.getDate() + daysToAdd);
+    this.expireDate = expirationDate;
+    next(); 
   } catch (error) {
     next(error);
   }
-})
+});
 // groupSchema.pre("findOneAndUpdate", async function(next) {
 //   try {
 //     if (this.isNew) {

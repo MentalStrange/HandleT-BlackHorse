@@ -9,7 +9,8 @@ import Unit from "../models/unitSchema.js";
 import Region from "../models/regionSchema.js";
 import Customer from "../models/customerSchema.js";
 
-export const transformationCustomer = (customer) => {
+export const transformationCustomer = async (customer) => {
+const region = await Region.findById(customer.region);
   return {
     _id: customer._id,
     name: customer.name,
@@ -17,7 +18,7 @@ export const transformationCustomer = (customer) => {
     image: customer.image ?? "",
     phone: customer.phone ?? "",
     address: customer.address ?? "",
-    district: customer.district ?? "",
+    district: region.name ?? "",
     governorate: customer.governorate ?? "",
     averageRating: customer.averageRating ?? 0,
     status: customer.status ?? "",

@@ -198,7 +198,7 @@ export const createOrder = async (req, res) => {
         });
       }
     }
-   
+
     const supplier = await Supplier.findById(supplierId);
     if (!supplier) {
       return res.status(206).json({
