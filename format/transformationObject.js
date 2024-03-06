@@ -154,7 +154,7 @@ export const transformationOrder = async (order) => {
     longitude: order.longitude ?? null,
     promoCode: order.promoCode,
     supplierRating: order.supplierRating,
-    deliveryBoy: order.deliveryBoy ?? "",
+    deliveryBoy: order.deliveryBoy ?? null,
     car: car ?? {},
   };
 };
