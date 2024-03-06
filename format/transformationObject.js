@@ -210,7 +210,7 @@ export const transformationDeliveryBoy = async (deliverBoy) => {
     phone: deliverBoy.phone,
     region: region.name ?? "",
     access_token: deliverBoy.access_token,
-    car: transformationCar(car) ?? {}
+    car: await transformationCar(car) ?? {}
   }
 }
 export const transformationSupplier = async (supplier) => {
