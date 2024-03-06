@@ -175,7 +175,7 @@ export const transformationOrder = async (order) => {
             numberOfSubUnit: product.numberOfSubUnit,
             category: product.category,
             supplierType: product.supplierType,
-            stock: product.stock,
+            stock: product.stock ?? 0,
             quantity: product.quantity
           }
         }),
@@ -226,7 +226,7 @@ export const transformationOrderOffer = async (order) => {
           numberOfSubUnit: product.numberOfSubUnit,
           category: product.category,
           supplierType: product.supplierType,
-          stock: product.stock,
+          stock: product.stock ?? 0,
           quantity: product.quantity
         }
       }),
