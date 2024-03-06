@@ -152,12 +152,12 @@ export const transformationOrder = async (order) => {
       return {
         _id: offer.offer,
         title: offer.title,
+        supplierId: offer.supplierId,
         image: offer.image ?? null,
         price: offer.price,
-        afterSale: offer.afterSale,
+        afterSale: offer.afterSale ?? null,
         maxLimit: offer.maxLimit,
-        weight: offer.weight,
-        unit: offer.unit,
+        weight: offer.offerWeight,
         stock: offer.stock,
         products: offer.products.map((product) => {
           return {
@@ -203,22 +203,22 @@ export const transformationOrderOffer = async (order) => {
     return {
       _id: offer.offer,
       title: offer.title,
+      supplierId: offer.supplierId,
       image: offer.image ?? null,
       price: offer.price,
-      afterSale: offer.afterSale,
+      afterSale: offer.afterSale ?? null,
       maxLimit: offer.maxLimit,
       weight: offer.offerWeight,
-      unit: offer.unit,
       stock: offer.stock,
       products: offer.products.map((product) => {
         return {
           productId: product.product,
           title: product.title,
           price: product.price,
-          afterSale: product.afterSale,
+          afterSale: product.afterSale ?? null,
           weight: product.weight,
           images: product.images?? [],
-          maxLimit: product.maxLimit?? null,
+          maxLimit: product.maxLimit ?? null,
           supplierId: product.supplierId,
           desc: product.desc,
           unit: product.unit,
