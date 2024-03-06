@@ -145,7 +145,7 @@ export const transformationOrder = async (order) => {
     deliveryDaysNumber: order.deliveryDaysNumber,
     status: order.status,
     supplierType: order.supplierType,
-    weight: order.orderWeight,
+    orderWeight: order.orderWeight,
     maxOrderWeight: order.maxOrderWeight,
     minOrderPrice: order.minOrderPrice,
     offers: order.offers.map((offer) => {
