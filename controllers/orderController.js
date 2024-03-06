@@ -9,6 +9,7 @@ import {
   transformationCar,
   transformationOffer,
   transformationOrder,
+  transformationOrderOffer,
   transformationSupplierProduct,
 } from "../format/transformationObject.js";
 import paginateResponse from "./../utils/paginationResponse.js";
@@ -668,3 +669,18 @@ export const mostFrequentDistricts = async (req, res) => {
     });
   }
 };
+export const getOffersByOrderId = async (req, res) => {
+  const orderId = req.params.id;
+  try{
+    const order = await Order.findById(orderId);
+    res.status(200).json({
+      status: "success",
+      data: await transformationOrderOffer(order),
+    })
+  } catch (error) {
+    res.status(500).json({
+      status: "fail",
+      message: error.message,
+    });
+  }
+}

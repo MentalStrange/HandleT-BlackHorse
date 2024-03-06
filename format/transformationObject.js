@@ -197,6 +197,45 @@ export const transformationOrder = async (order) => {
     },
   };
 };
+
+export const transformationOrderOffer = async (order) => {
+  return order.offers.map((offer) => {
+    return {
+      _id: offer.offer,
+      title: offer.title,
+      image: offer.image ?? null,
+      price: offer.price,
+      afterSale: offer.afterSale,
+      maxLimit: offer.maxLimit,
+      weight: offer.weight,
+      unit: offer.unit,
+      stock: offer.stock,
+      products: offer.products.map((product) => {
+        return {
+          productId: product.product,
+          title: product.title,
+          price: product.price,
+          afterSale: product.afterSale,
+          weight: product.weight,
+          images: product.images?? [],
+          maxLimit: product.maxLimit?? null,
+          supplierId: product.supplierId,
+          desc: product.desc,
+          unit: product.unit,
+          subUnit: product.subUnit,
+          numberOfSubUnit: product.numberOfSubUnit,
+          category: product.category,
+          supplierType: product.supplierType,
+          stock: product.stock,
+          quantity: product.quantity
+        }
+      }),
+      quantity: offer.quantity,
+      desc: offer.desc,
+    }
+  });
+}
+
 export const transformationDeliveryBoy = async (deliverBoy) => {
   const car = await Car.findById(deliverBoy.car);
   const region = await Region.findById(deliverBoy.region);

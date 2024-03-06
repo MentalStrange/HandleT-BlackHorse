@@ -7,7 +7,7 @@ import {
 } from '../controllers/customerController.js';
 import {  getAllProductAssignedToSupplier, getProductByCategory } from '../controllers/productsController.js';
 import {  getAllHomeSlideShow } from '../controllers/adminController.js';
-import {createOrder, getAllOrderByCustomerId, getBestSeller, updateOrder} from '../controllers/orderController.js';
+import {createOrder, getAllOrderByCustomerId, getBestSeller, getOffersByOrderId, updateOrder} from '../controllers/orderController.js';
 import { applyPromoCode } from '../controllers/promoCodeController.js';
 import { createRating } from '../controllers/ratingController.js';
 import { authenticate } from "../middlewares/authorizationMiddleware.js";
@@ -36,6 +36,7 @@ Router.post("/order", createOrder);
 Router.patch("/order/:id", updateOrder);
 Router.get('/order/bestSeller',getBestSeller);
 Router.get("/order/:id", getAllOrderByCustomerId);
+Router.get("/order/getOffersByOrderId/:id", getOffersByOrderId);
 
 Router.patch("/uploadPhoto/:id", uploadCustomer.single("image"), uploadPhoto);
 
