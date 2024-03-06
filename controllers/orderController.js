@@ -374,6 +374,7 @@ export const createOrder = async (req, res) => {
           weight: productData.weight,
           unit: productData.unit ?? null,
           subUnit: productData.subUnit,
+          stock: productData.stock,
           numberOfSubUnit: productData.numberOfSubUnit ?? null,
           category: productData.category,
           supplierType: productData.supplierType
@@ -409,6 +410,7 @@ export const createOrder = async (req, res) => {
               desc: productData.desc,
               unit: productData.unit ?? null,
               subUnit: productData.subUnit,
+              stock: productData.stock,
               numberOfSubUnit: productData.numberOfSubUnit ?? null,
               category: productData.category,
               supplierType: productData.supplierType,

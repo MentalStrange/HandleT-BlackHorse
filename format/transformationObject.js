@@ -175,8 +175,9 @@ export const transformationOrder = async (order) => {
             numberOfSubUnit: product.numberOfSubUnit,
             category: product.category,
             supplierType: product.supplierType,
-            stock: product.stock ?? 0,
-            quantity: product.quantity
+            stock: product.stock,
+            quantity: product.quantity,
+            weight: product.weight
           }
         }),
         quantity: offer.quantity,
@@ -216,7 +217,7 @@ export const transformationOrderOffer = async (order) => {
           title: product.title,
           price: product.price,
           afterSale: product.afterSale ?? null,
-          weight: product.weight ?? 0,
+          weight: product.weight,
           images: product.images ?? [],
           maxLimit: product.maxLimit ?? null,
           supplierId: product.supplierId,
@@ -226,7 +227,7 @@ export const transformationOrderOffer = async (order) => {
           numberOfSubUnit: product.numberOfSubUnit,
           category: product.category,
           supplierType: product.supplierType,
-          stock: product.stock ?? 0,
+          stock: product.stock,
           quantity: product.quantity
         }
       }),
