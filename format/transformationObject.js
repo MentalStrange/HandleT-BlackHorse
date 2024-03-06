@@ -106,56 +106,96 @@ export const transformationOffer = async (offer, quantity=1) => {
   };
 }
 export const transformationOrder = async (order) => {  
-  const supplier = await Supplier.findById(order.supplierId);
-  if(!supplier) throw new Error('supplier Not Found');
-  const products = await Promise.all(
-    order.products.map(async (product) => {
-      const supplierProduct = await SupplierProduct.findOne({ productId:product.product });
-      if (!supplierProduct)  throw new Error('supplierProduct Not Found');
-      return transformationSupplierProduct(supplierProduct, product.quantity);
-    })
-  );
-  const offers = await Promise.all(
-    order.offers.map(async (offerId)=>{
-      const offer = await Offer.findById(offerId.offer);
-      if (!offer) return null;
-      return transformationOffer(offer, offerId.quantity);
-    })
-  );
-  const customer = await Customer.findById(order.customerId);
-  const car = await Car.findById(order.car);
-  if(!car) throw new Error('car Not Found');
   return {
     _id: order._id,
     orderNumber: order.orderNumber,
     supplierId: order.supplierId,
-    supplierName: supplier.name,
+    supplierName: order.supplierName,
     subTotalPrice: order.subTotalPrice,
     totalPrice: order.totalPrice,
     tax: order.tax,
     address: order.address ?? null,
     district: order.district ?? null,
     type: order.type,
-    customerId: customer._id,
-    customerName: customer.name,
-    customerPhoneNumber: customer.phone,
+    customerId: order.customerId,
+    customerName: order.customerName,
+    customerPhoneNumber: order.customerPhoneNumber,
     deliveryFees: order.deliveryFees,
     discount: order.discount,
-    products: products.filter((product) => product !== null),
+    products: order.products.map((product) => {
+      return {
+        _id: product.product,
+        title: product.title,
+        price: product.price,
+        afterSale: product.afterSale,
+        weight: product.weight,
+        images: product.images?? [],
+        maxLimit: product.maxLimit?? null,
+        supplierId: product.supplierId,
+        desc: product.desc,
+        unit: product.unit,
+        subUnit: product.subUnit,
+        numberOfSubUnit: product.numberOfSubUnit,
+        category: product.category,
+        supplierType: product.supplierType,
+        stock: product.stock,
+        quantity: product.quantity
+      }
+    }),
     orderDate: order.orderDate,
     deliveryDaysNumber: order.deliveryDaysNumber,
     status: order.status,
-    supplierType: supplier.type,
+    supplierType: order.supplierType,
     orderWeight: order.orderWeight,
     maxOrderWeight: order.maxOrderWeight,
     minOrderPrice: order.minOrderPrice,
-    offers: offers.filter((offer) => offer !== null),
+    offers: order.offers.map((offer) => {
+      return {
+        _id: offer.offer,
+        title: offer.title,
+        image: offer.image ?? null,
+        price: offer.price,
+        afterSale: offer.afterSale,
+        maxLimit: offer.maxLimit,
+        weight: offer.weight,
+        unit: offer.unit,
+        stock: offer.stock,
+        products: offer.products.map((product) => {
+          return {
+            productId: product.product,
+            title: product.title,
+            price: product.price,
+            afterSale: product.afterSale,
+            weight: product.weight,
+            images: product.images?? [],
+            maxLimit: product.maxLimit?? null,
+            supplierId: product.supplierId,
+            desc: product.desc,
+            unit: product.unit,
+            subUnit: product.subUnit,
+            numberOfSubUnit: product.numberOfSubUnit,
+            category: product.category,
+            supplierType: product.supplierType,
+            stock: product.stock,
+            quantity: product.quantity
+          }
+        }),
+        quantity: offer.quantity,
+        desc: offer.desc,
+      }
+    }),
     latitude: order.latitude ?? null,
     longitude: order.longitude ?? null,
     promoCode: order.promoCode,
     supplierRating: order.supplierRating,
     deliveryBoy: order.deliveryBoy ?? null,
-    car: car ?? {},
+    car: {
+      car: order.car._id,
+      type: order.car.type,
+      maxWeight: order.car.maxWeight,
+      image: order.car.image ?? null,
+      number: order.car.number
+    },
   };
 };
 export const transformationDeliveryBoy = async (deliverBoy) => {
@@ -203,7 +243,7 @@ export const transformationSupplier = async (supplier) => {
     desc: supplier.desc ?? "",
   }
 }
-export const transformationCar = (car)=>{
+export const transformationCar = async (car)=>{
   return {
     _id: car._id,
     image: car.image,

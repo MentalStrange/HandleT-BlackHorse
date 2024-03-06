@@ -9,6 +9,7 @@ import Unit from "../models/unitSchema.js";
 import fs from "fs";
 import jwt from "jsonwebtoken";
 import Region from "../models/regionSchema.js";
+import Offer from "../models/offerSchema.js";
 
 export const getAllSupplier = async (req, res) => {
   try {
@@ -247,6 +248,17 @@ export const updateProductSupplier = async (req, res) => {
   const productData = req.body;
 
   try {
+    const ordersPending = await Order.find({ supplierId: supplierId, status: 'pending' });
+    const productIncluded = ordersPending.some(order => {
+      return order.products.some(orderProduct => orderProduct.product.equals(productId));
+    });
+    if (productIncluded) {
+      return res.status(207).json({
+        status: 'fail',
+        message: 'This product is already included in order',
+      });
+    }
+    
     const supplierProductId = await SupplierProduct.findOne({productId: productId, supplierId: supplierId});
     if (supplierProductId) {
       const updatedSupplierProduct = await SupplierProduct.findByIdAndUpdate(
@@ -272,7 +284,29 @@ export const deleteProductSupplier = async (req, res) => {
   const supplierId = req.params.id;
   const productId = req.body.productId;
   try {
-    const supplierProductId = await SupplierProduct.update({productId: productId, supplierId: supplierId});
+    const ordersPending = await Order.find({ supplierId: supplierId, status: 'pending' });
+    const productIncluded1 = ordersPending.some(order => {
+      return order.products.some(orderProduct => orderProduct.product.equals(productId));
+    });
+    if (productIncluded1) {
+      return res.status(207).json({
+        status: 'fail',
+        message: 'This product is already included in order',
+      });
+    }
+
+    const offers = await Offer.find({ supplierId: supplierId });
+    const productIncluded2 = offers.some(offer => {
+      return offer.products.some(productProduct => productProduct.productId.equals(productId));
+    });
+    if (productIncluded2) {
+      return res.status(208).json({
+        status: 'fail',
+        message: 'This product is already included in offer',
+      });
+    }
+
+    const supplierProductId = await SupplierProduct.findOne({productId: productId, supplierId: supplierId});
     if (supplierProductId) {
       await SupplierProduct.deleteOne({ _id: supplierProductId._id });
       res.status(200).json({

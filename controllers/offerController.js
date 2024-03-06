@@ -103,7 +103,18 @@ export const updateOffer = async (req, res) => {
         message: 'Could not find offer',
       });
     }
-    
+
+    const ordersPending = await Order.find({ supplierId: offer.supplierId, status: 'pending' });
+    const offerIncluded = ordersPending.some(order => {
+      return order.offers.some(orderOffer => orderOffer.offer.equals(offerId));
+    });
+    if (offerIncluded) {
+      return res.status(207).json({
+        status: 'fail',
+        message: 'This offer is already included in order',
+      });
+    }
+
     let offerWeight = 0;
     for(const productOffer of offer.products) {
       const supplierProduct = await SupplierProduct.findOne({productId: productOffer.productId, supplierId: offer.supplierId});
@@ -128,10 +139,23 @@ export const deleteOffer = async (req, res) => {
   const offerId = req.params.id;
   try {
     if(offerId){
-      const offer = await Offer.findByIdAndDelete(offerId)
+      const offer = await Offer.findById(offerId);
+      const ordersPending = await Order.find({ supplierId: offer.supplierId, status: 'pending' });
+      const offerIncluded = ordersPending.some(order => {
+        return order.offers.some(orderOffer => orderOffer.offer.equals(offerId));
+      });
+      if (offerIncluded) {
+        return res.status(207).json({
+          status: 'fail',
+          message: 'This offer is already included in order',
+        });
+      }
+
+      // const offer = await Offer.findByIdAndDelete(offerId)
       offer.image = offer.image ?? "";
       const pathName = offer.image.split('/').slice(3).join('/');
       fs.unlink('upload/' + pathName, (err) => {});
+      await Offer.findByIdAndDelete(offerId);
       res.status(200).json({
         status:"success",
         data:null

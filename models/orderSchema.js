@@ -14,6 +14,47 @@ const orderProductSet = mongoose.Schema({
   productWeight: {
     type: Number,
   },
+
+  title:{
+    type: String,
+  },
+  price:{
+    type: Number,
+  },
+  afterSale:{
+    type: Number,
+  },
+  images:[{
+    type:String,
+  }],
+  maxLimit:{
+    type: Number,
+  },
+  supplierId:{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Supplier',
+  },
+  desc:{
+    type: String,
+  },
+  unit:{
+    type: String,
+  },
+  subUnit:{
+    type: String,
+  },
+  numberOfSubUnit:{
+    type: Number,
+  },
+  category:{
+    type: String,
+  },
+  supplierType:{
+    type: String,
+  },
+  stock:{
+    type: Number,
+  }
 });
 
 const orderOfferSet = mongoose.Schema({
@@ -27,6 +68,50 @@ const orderOfferSet = mongoose.Schema({
   },
   offerWeight: {
     type: Number,
+  },
+
+  supplierId:{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Supplier',
+  },
+  title:{
+    type: String,
+  },
+  image:{
+    type: String,
+  },
+  price:{
+    type: Number,
+  },
+  afterSale:{
+    type: Number,
+  },
+  maxLimit:{
+    type: Number,
+  },
+  stock:{
+    type: Number,
+  },
+  products:{
+    type: [orderProductSet]
+  },
+  desc:{
+    type: String,
+  }
+});
+
+const carSchema = mongoose.Schema({
+  type: {
+    type: String,
+  },
+  maxWeight: {
+    type: Number,
+  },
+  image: {
+    type: String,
+  },
+  number: {
+    type: String,
   },
 });
 
@@ -108,8 +193,7 @@ const orderSchema = mongoose.Schema({
     type:Number,
   },
   car:{
-    type:mongoose.Schema.Types.ObjectId,
-    ref:"Car",
+    type: carSchema
   },
   supplierRating:{
     type: String,
@@ -119,6 +203,12 @@ const orderSchema = mongoose.Schema({
   deliveryBoy:{
     type:mongoose.Schema.Types.ObjectId,
     ref:"DeliveryBoy",
+  },
+  supplierName:{
+    type: String,
+  },
+  supplierType:{
+    type: String,
   },
   group:{
     type:mongoose.Schema.Types.ObjectId,
