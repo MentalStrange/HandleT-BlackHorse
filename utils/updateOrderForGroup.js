@@ -6,7 +6,7 @@ import SupplierProduct from "../models/supplierProductSchema.js";
 import Supplier from "../models/supplierSchema.js";
 
 export const updateOrderForGroup = async (orderId, updateData) => {
-  try {
+  try {    
     const order = await Order.findById(orderId);
     if (!order) {
       throw new Error("Order not found");
@@ -15,12 +15,16 @@ export const updateOrderForGroup = async (orderId, updateData) => {
     if (!supplier) {
       throw new Error("Supplier not found");
     }
-    if (updateData.status === "complete") {
+    if (updateData === "complete") {
       const fee = await Fee.findOne();
+      order.status = "complete";
       const blackHorseCommotion = order.totalPrice * (fee.amount / 100);
       supplier.wallet += blackHorseCommotion;
       await supplier.save();
-    } else if (updateData.status === "cancelled") {
+      await order.save();
+    } else if (updateData === "canceled") {
+      order.status = "canceled";
+      await order.save();
       if (req.headers["user_type"] === "supplier") {
         supplier.wallet += 5;
         await supplier.save();
@@ -48,7 +52,9 @@ export const updateOrderForGroup = async (orderId, updateData) => {
       }
     }
     // Update the order with the provided data
-    const updatedOrder = await Order.findByIdAndUpdate(orderId, updateData, { new: true });
+    const updatedOrder = await Order.findByIdAndUpdate(orderId, updateData, {
+      new: true,
+    });
     return updatedOrder;
   } catch (error) {
     // If an error occurs, throw it to the calling function

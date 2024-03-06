@@ -11,12 +11,12 @@ import jwt from "jsonwebtoken";
 
 export const getAllSupplier = async (req, res) => {
   try {
-    const userRole = req.role;
+    const userRole = req.role;    
     let query = { status: "active" };
     const { type } = req.query;
     if (
       type &&
-      ["gomla", "gomlaGomla", "blackHorse", "company"].includes(type)
+      ["gomla", "gomlaGomla", "blackHorse", "company","nosGomla"].includes(type)
     ) {
       query.type = type;
     } else if (!type) {
@@ -29,8 +29,8 @@ export const getAllSupplier = async (req, res) => {
     }
     let totalSuppliers;
     let suppliers;
-    if (userRole === "customer" || userRole === "supplier") {
-      totalSuppliers = await Supplier.countDocuments(query);
+    if (userRole == "customer" || userRole == "supplier") {
+      totalSuppliers = await Supplier.countDocuments();
       suppliers = await Supplier.find(query)
     } else if (userRole === "blackHorse") {
       totalSuppliers = await Supplier.countDocuments(query);
@@ -42,11 +42,12 @@ export const getAllSupplier = async (req, res) => {
       });
     }
     if (suppliers.length > 0) {
-      paginateResponse(res, req.query, transformationSupplier(suppliers), totalSuppliers);
+      await paginateResponse(res, req.query, await transformationSupplier(suppliers[0]), totalSuppliers);
     } else {
       res.status(200).json({
-        status: "success",
+        status: "fail",
         data: [],
+        message:"Supplier Not Found"
       });
     }
   } catch (error) {

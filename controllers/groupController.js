@@ -74,7 +74,6 @@ export const getAllGroupForCustomer = async (req, res) => {
     }
   } catch (error) {}
 };
-
 export const updateGroup = async (req, res) => {
   const groupId = req.params.id;
   const groupStatus = req.body.status;
@@ -88,7 +87,9 @@ export const updateGroup = async (req, res) => {
       });
     }
     const orders = await Order.find({ group: groupId });
-    if (groupStatus === "accepted") {
+    console.log('orders', orders);
+    
+    if (groupStatus === "accepted") {      
       group.status = "accepted";
       await Promise.all(
         orders.map(async (order) => {

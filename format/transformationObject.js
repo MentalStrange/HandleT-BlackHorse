@@ -108,7 +108,6 @@ export const transformationOffer = async (offer, quantity=1) => {
 export const transformationOrder = async (order) => {  
   const supplier = await Supplier.findById(order.supplierId);
   if(!supplier) throw new Error('supplier Not Found');
-
   const products = await Promise.all(
     order.products.map(async (product) => {
       const supplierProduct = await SupplierProduct.findOne({ productId:product.product });
@@ -116,7 +115,6 @@ export const transformationOrder = async (order) => {
       return transformationSupplierProduct(supplierProduct, product.quantity);
     })
   );
-  
   const offers = await Promise.all(
     order.offers.map(async (offerId)=>{
       const offer = await Offer.findById(offerId.offer);
@@ -124,7 +122,6 @@ export const transformationOrder = async (order) => {
       return transformationOffer(offer, offerId.quantity);
     })
   );
-
   const customer = await Customer.findById(order.customerId);
   const car = await Car.findById(order.car);
   if(!car) throw new Error('car Not Found');
