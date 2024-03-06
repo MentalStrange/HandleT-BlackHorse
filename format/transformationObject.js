@@ -10,18 +10,16 @@ import Region from "../models/regionSchema.js";
 import Customer from "../models/customerSchema.js";
 
 export const transformationCustomer = async (customer) => {
-const region = await Region.findById(customer.region);
   return {
     _id: customer._id,
     name: customer.name,
     email: customer.email,
-    image: customer.image ?? "",
-    phone: customer.phone ?? "",
-    address: customer.address ?? "",
-    district: region.name ?? "",
-    governorate: customer.governorate ?? "",
+    image: customer.image ?? null,
+    phone: customer.phone ?? null,
+    address: customer.address ?? null,
+    district: customer.region ?? null,
     averageRating: customer.averageRating ?? 0,
-    status: customer.status ?? "",
+    status: customer.status ?? null,
   };
 };
 export const transformationProduct = async (product) => {
