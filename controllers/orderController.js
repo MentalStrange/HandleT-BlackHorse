@@ -11,6 +11,8 @@ import {
 } from "../format/transformationObject.js";
 import paginateResponse from "./../utils/paginationResponse.js";
 import Car from "../models/carSchema.js";
+import { pushNotification } from "../utils/pushNotification.js";
+import Region from "../models/regionSchema.js";
 
 export const getAllOrder = async (req, res) => {
   try {
@@ -76,7 +78,7 @@ export const updateOrder = async (req, res, next) => {
     if (req.body.status === "complete") { // not blackhorse
       const fee = await Fee.findOne();
       const blackHorseCommotion = order.totalPrice * (fee.amount / 100);
-      console.log('blackHorseCommotion', blackHorseCommotion);
+      // console.log('blackHorseCommotion', blackHorseCommotion);
       supplier.wallet += blackHorseCommotion;
       await supplier.save();
     } else if (req.body.status === "cancelled") {
@@ -177,6 +179,7 @@ export const createOrder = async (req, res) => {
   const offers = req.body.offers ?? []; // Array of offers with { offerId, quantity }
   const carId = req.body.car;
   const totalPrice = req.body.totalPrice;
+  const district = req.body.district;
   try {
     const car = await Car.findById(carId);
     if (!car) {
@@ -186,6 +189,16 @@ export const createOrder = async (req, res) => {
       });
     }
 
+    if(district){
+      const region = await Region.findOne({ name: district });
+      if(!region) {
+        return res.status(218).json({
+          status: "fail",
+          message: "Region not found",
+        });
+      }
+    }
+   
     const supplier = await Supplier.findById(supplierId);
     if (!supplier) {
       return res.status(206).json({
@@ -329,6 +342,7 @@ export const createOrder = async (req, res) => {
       existingPromoCode.customerId.push(customerId);
       await existingPromoCode.save();
     }
+    await pushNotification("لديك طلب جديد", "قام احد العملاء بطلب اوردر جديد ينتظر موافقتك", null, null, supplierId, null, supplier.deviceToken);
     res.status(201).json({
       status: "success",
       data: await transformationOrder(newOrder),
@@ -507,7 +521,7 @@ export const getBestSeller = async (req, res) => {
     const products = await SupplierProduct.find({
       productId: { $in: productIds },
     });
-    console.log('products', products);
+    // console.log('products', products);
     
     const formattedProducts = await Promise.all(
       products.map(async (product) => {

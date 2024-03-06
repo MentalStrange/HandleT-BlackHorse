@@ -3,11 +3,12 @@ import Supplier from "./../models/supplierSchema.js";
 import Order from "./../models/orderSchema.js";
 import Product from "../models/productSchema.js";
 import SupplierProduct from "../models/supplierProductSchema.js";
-import {transformationOrder, transformationSupplier, transformationSupplierProduct} from "../format/transformationObject.js";
+import {transformationOrder, transformationRegion, transformationSupplier, transformationSupplierProduct} from "../format/transformationObject.js";
 import paginateResponse from "../utils/paginationResponse.js";
 import Unit from "../models/unitSchema.js";
 import fs from "fs";
 import jwt from "jsonwebtoken";
+import Region from "../models/regionSchema.js";
 
 export const getAllSupplier = async (req, res) => {
   try {
@@ -486,4 +487,33 @@ export const deletePlaceImages = async (req, res) => {
     });
   }
  
+};
+
+export const getRegionBySupplierId = async (req, res) => {
+  const supplierId = req.params.id;
+  try {
+    const supplier = await Supplier.findById(supplierId);
+    if (!supplier) {
+      return res.status(207).json({
+        status: "fail",
+        message: "Supplier not found"
+      });
+    }
+    const regions = await Promise.all(
+      supplier.deliveryRegion.map(async (supplierRegion) => {
+        const region = await Region.findById(supplierRegion);
+        return await transformationRegion(region);
+      })
+    );
+    res.status(200).json({
+      status: "success",
+      data: regions,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      status: "error",
+      message: "Internal server error"
+    });
+  }
 };

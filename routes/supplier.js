@@ -11,6 +11,7 @@ import {
     uploadPhoto,
     uploadPlaceImages,
     deletePlaceImages,
+    getRegionBySupplierId,
 } from '../controllers/supplierController.js';
 import { changeImageOffer, createOffer, deleteOffer, getAllOffer, getOffer, getOfferBySupplierId, updateOffer } from '../controllers/offerController.js';
 import { getAllOrder, getAllOrderBySupplierId, totalOrderBySupplierId } from '../controllers/orderController.js';
@@ -57,7 +58,8 @@ Router.get('/totalSales/:id', totalSalesBySupplierId);
 
 Router.post('/promoCode', createPromoCode);
 
-Router.get('/deliveryBoy/region/:id', getDeliveryBoyByRegion)
+Router.get('/deliveryBoy/region/:regionName', getDeliveryBoyByRegion);
+Router.get('/getRegionBySupplierId/:id', getRegionBySupplierId);
 
 Router.patch('/group/:id', updateGroup);
 

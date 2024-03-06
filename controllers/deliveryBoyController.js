@@ -148,14 +148,22 @@ export const changeImageDeliveryBoy = async (req, res) => {
   }
 }
 export const getDeliveryBoyByRegion = async (req,res) => {
-  const regionId = req.params.id;
-  const allDeliveryBoys = await Promise.all(
-    (await DeliveryBoy.find({region: regionId})).map(async (delivery) => {
-      return transformationDeliveryBoy(delivery);
-    })
-  );
-  res.status(200).json({
-    status: "success",
-    data: allDeliveryBoys,
-  });
+  const regionName = req.params.regionName;
+  try{
+    const region = await Region.findOne({name: regionName});
+    const allDeliveryBoys = await Promise.all(
+      (await DeliveryBoy.find({region: region._id})).map(async (delivery) => {
+        return transformationDeliveryBoy(delivery);
+      })
+    );
+    res.status(200).json({
+      status: "success",
+      data: allDeliveryBoys,
+    });
+   } catch (error) {
+    res.status(500).json({
+      status: "fail",
+      message: "region not found",
+    });
+  }
 }

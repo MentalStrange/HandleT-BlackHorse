@@ -6,7 +6,7 @@ const notificationSchema = mongoose.Schema({
     required:[true, "Notification should have a title"],
   },
   body:{
-    type: Number,
+    type: String,
     required:[true, "Notification should have a body"],
   },
   dateTime:{

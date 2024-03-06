@@ -133,9 +133,9 @@ export const transformationOrder = async (order) => {
     subTotalPrice: order.subTotalPrice,
     totalPrice: order.totalPrice,
     tax: order.tax,
-    address: order.address,
-    governorate: order.governorate,
-    district: order.district,
+    address: order.address ?? null,
+    district: order.district ?? null,
+    type: order.type,
     customerId: customer._id,
     customerName: customer.name,
     customerPhoneNumber: customer.phone,
@@ -150,8 +150,8 @@ export const transformationOrder = async (order) => {
     maxOrderWeight: order.maxOrderWeight,
     minOrderPrice: order.minOrderPrice,
     offers: offers.filter((offer) => offer !== null),
-    latitude: order.latitude,
-    longitude: order.longitude,
+    latitude: order.latitude ?? null,
+    longitude: order.longitude ?? null,
     promoCode: order.promoCode,
     supplierRating: order.supplierRating,
     deliveryBoy: order.deliveryBoy ?? "",
@@ -226,6 +226,12 @@ export const transformationPromoCode = async (promoCode)=>{
     discount: promoCode.discount,
     expiryDate: promoCode.expiryDate,
     numOfUsage: promoCode.numOfUsage
+  }
+}
+export const transformationRegion = async (region)=>{
+  return {
+    _id: region._id,
+    name: region.name
   }
 }
 export const transformationGroup = async (group)=>{
