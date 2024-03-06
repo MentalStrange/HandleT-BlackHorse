@@ -19,6 +19,8 @@ import { pushNotification } from './utils/pushNotification.js';
 import { checkExpireGroup } from './utils/checkExpireGroup.js';
 import {CronJob} from 'cron';
 import DeliveryBoy from './models/deliveryBoySchema.js';
+import Supplier from './models/supplierSchema.js';
+import Customer from './models/customerSchema.js';
 
 dotenv.config();
 const port = process.env.PORT || 3000;
@@ -91,28 +93,31 @@ IO.on("connection", (socket) => {
     let status = data.status;
     let deliveryId = data.deliveryId;
     if(deliveryId && orderId && status){
-      console.log("one");
       const delivery = await DeliveryBoy.findById(deliveryId);
       const order = await Order.findById(orderId);
       order.status = status;
       order.deliveryBoy = deliveryId;
       await order.save();
-      console.log(deliveryId);
-      console.log(delivery.deviceToken);
       if(order.status === 'willBeDelivered'){
+        const customer = Customer.findById(order.customerId);
         await pushNotification("لديك طلب جديد", `لديك اوردر جديد بوزن ${order.orderWeight/1000} كيلو ينتظر موافقتك`, null, null, null, deliveryId, delivery.deviceToken);
+        await pushNotification("تم الموافقة ع الطلب", `تم اسناد الاوردر الخاص بك برقم ${order.orderNumber} الي عامل التوصيل`, null, order.customerId, null, null, customer.deviceToken);
       }
       IO.to(userSocketIdMap[deliveryId]).emit("order", await getOrderByDelivery(deliveryId));
     }
     else if(orderId && status){
-      console.log("two");
       const order = await Order.findById(orderId);
       order.status = status;
       await order.save();
+      if(order.status === 'delivery'){
+        const supplier = await Supplier.findById(order.supplierId);
+        const customer = Customer.findById(order.customerId);
+        await pushNotification("تم الموافقة!", `قام عامل التوصيل بالموافقة ع توصيل الاوردر رقم ${order.orderNumber}`, null, null, order.supplierId, null, supplier.deviceToken);
+        await pushNotification("وافق عامل التوصيل", `تم الموافقة ع توصيل الاوردر برقم ${order.orderNumber}`, null, order.customerId, null, null, customer.deviceToken);
+      }
       // IO.to(userSocketIdMap[order.deliveryBoy]).emit("order", await getOrderByDelivery(order.deliveryBoy));
     }
     else if(deliveryId){
-      console.log("three");
       IO.to(userSocketIdMap[deliveryId]).emit("order", await getOrderByDelivery(deliveryId));
     }
   });
@@ -120,6 +125,6 @@ IO.on("connection", (socket) => {
 
 server.listen(port, async () => {
   await connectDB();
-  // await pushNotification("بودي الطااير", "المشطشط عم اعمام الطايرين كلها", "", "", "", "", ["d_zpBsrUTqmhP8J_a60-82:APA91bFMkm6_41ei0ovi76DPv9X7uVBjOoPfEzvWT86_8wmTsH_nh1DOKaQ1LYtsH1Nfysmwb2rZ8ZVE_jy6jYXsQjLSJZhj3bYw_WQVUtXTKHQzce1hFkXIPJQdS2Y70X5-YoauLTZR"]);
+  // await pushNotification("بودي الطااير", "المشطشط عم اعمام الطايرين كلها", "", "", "", "", ["fP5VOVdXSaGWhxTLj2e9_C:APA91bFLA12rFAh1WxZhoGW2-qPhHDKNCTDH-hSCdtJ7mAnu0uwndqbHFQZTwOVXiudC6CMOj_ovEOXll6aWW2WvRtVq-jOBe9MOmTM0Q7dcv6RZmoQzATyeyel_8DxX2eIgIzgF3ZVu", "ehnli0Z0R1G5bn6Osf7Vsw:APA91bELuaIGFgEw1XpkkSx705WPssFoY-Zk-aLi9gxEtVYWPhvXKlCLQyNKcaFgOCngHC448yefIbhwQbP0xVd45b6WHs7rygTNYy2wi1SfdgV00TBXjz0E5YNoQ7qKzMfeJoT0RLJ4"]);
   console.log(`listening on http://localhost:${port}`);
 });
