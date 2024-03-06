@@ -43,7 +43,8 @@ const corsOption = {
 // connect to mongodb server
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URL_DEVZAKI);
+    // await mongoose.connect(process.env.MONGODB_URL_DEVZAKI);
+    await mongoose.connect(process.env.MONGODB_URL_LOCAL)
     console.log("Mongoose connection successfully established");
   } catch (error) {
     console.log('Mongoose connection error: ' + error);
