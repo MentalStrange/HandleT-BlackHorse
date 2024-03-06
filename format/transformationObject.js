@@ -212,12 +212,12 @@ export const transformationOrderOffer = async (order) => {
       stock: offer.stock,
       products: offer.products.map((product) => {
         return {
-          productId: product.product,
+          _id: product.product,
           title: product.title,
           price: product.price,
           afterSale: product.afterSale ?? null,
-          weight: product.weight,
-          images: product.images?? [],
+          weight: product.weight ?? 0,
+          images: product.images ?? [],
           maxLimit: product.maxLimit ?? null,
           supplierId: product.supplierId,
           desc: product.desc,

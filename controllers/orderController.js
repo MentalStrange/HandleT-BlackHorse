@@ -371,6 +371,7 @@ export const createOrder = async (req, res) => {
           maxLimit: productData.maxLimit,
           supplierId: productData.supplierId,
           desc: productData.desc,
+          weight: productData.weight,
           unit: productData.unit ?? null,
           subUnit: productData.subUnit,
           numberOfSubUnit: productData.numberOfSubUnit ?? null,

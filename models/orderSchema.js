@@ -34,6 +34,9 @@ const orderProductSet = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Supplier',
   },
+  weight:{
+    type: Number,
+  },
   desc:{
     type: String,
   },
