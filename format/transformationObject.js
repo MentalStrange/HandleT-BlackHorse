@@ -145,7 +145,7 @@ export const transformationOrder = async (order) => {
     deliveryDaysNumber: order.deliveryDaysNumber,
     status: order.status,
     supplierType: order.supplierType,
-    orderWeight: order.orderWeight,
+    weight: order.orderWeight,
     maxOrderWeight: order.maxOrderWeight,
     minOrderPrice: order.minOrderPrice,
     offers: order.offers.map((offer) => {
@@ -165,7 +165,7 @@ export const transformationOrder = async (order) => {
             title: product.title,
             price: product.price,
             afterSale: product.afterSale,
-            weight: product.weight,
+            offerWeight: product.offerWeight,
             images: product.images?? [],
             maxLimit: product.maxLimit?? null,
             supplierId: product.supplierId,
@@ -207,7 +207,7 @@ export const transformationOrderOffer = async (order) => {
       price: offer.price,
       afterSale: offer.afterSale,
       maxLimit: offer.maxLimit,
-      weight: offer.weight,
+      weight: offer.offerWeight,
       unit: offer.unit,
       stock: offer.stock,
       products: offer.products.map((product) => {
