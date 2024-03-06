@@ -59,11 +59,11 @@ const orderSchema = mongoose.Schema({
   },
   address:{
     type: String,
-    required: [true, 'Order should have an address']
+    // required: [true, 'Order should have an address']
   },
   district:{
     type: String,
-    required: [true, 'Order should have a district']
+    // required: [true, 'Order should have a district']
   },
   customerPhoneNumber: {
     type: String,
@@ -74,6 +74,11 @@ const orderSchema = mongoose.Schema({
   },
   discount: {
     type: Number,
+  },
+  type:{
+    type: String,
+    required: [true, 'Order should have a type'],
+    enum: ['delivery', 'onSite']
   },
   products: {
     type: [orderProductSet],
