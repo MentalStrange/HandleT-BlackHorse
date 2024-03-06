@@ -231,6 +231,12 @@ export const transformationPromoCode = async (promoCode)=>{
     numOfUsage: promoCode.numOfUsage
   }
 }
+export const transformationRegion = async (region)=>{
+  return {
+    _id: region._id,
+    name: region.name
+  }
+}
 export const transformationGroup = async (group)=>{
   const supplier = await supplier.findById(group.supplierId);
   if(!supplier){

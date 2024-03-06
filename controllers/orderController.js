@@ -151,7 +151,7 @@ export const getOrderByDeliveryRoute = async (req, res) => { // use http
 
   try {
     // const totalOffers = await Order.countDocuments({ deliveryBoy: deliveryId, status: 'complete' });
-    const orders = await Order.find({ deliveryBoy: deliveryId, status: 'complete' }); //.skip((page - 1) * limit).limit(limit);
+    const orders = await Order.find({ deliveryBoy: deliveryId, status: 'willBeDelivered' }); //.skip((page - 1) * limit).limit(limit);
     const orderByDelivery = await Promise.all(
       orders.map(async (order) => {
         return await transformationOrder(order);
