@@ -91,10 +91,16 @@ const getCarByWeight = async (req,res) => {
       },
       { $limit: 1 } // Limit to the closest car
     ]);
-    if(!car){
-      res.status(207).json({ status: 'fail', message: 'Car not found' });
+    
+    // If no car found, find the car with the maximum weight
+    if (car.length === 0) {
+      const maxWeightCar = await Car.findOne().sort({ maxWeight: -1 });
+      if (!maxWeightCar) {
+        return res.status(207).json({ status: 'fail', message: 'Car not found' });
+      }
+      return res.status(200).json({ status: 'success', data: await transformationCar(maxWeightCar) });
     }
-    res.status(200).json({ status: 'success', data: transformationCar(car[0]) });
+    res.status(200).json({ status: 'success', data: await transformationCar(car[0]) });
   } catch (error) {
     res.status(500).json({ status: 'fail', message: error.message });
   }
