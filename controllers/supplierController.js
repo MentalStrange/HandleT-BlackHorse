@@ -43,7 +43,16 @@ export const getAllSupplier = async (req, res) => {
       });
     }
     if (suppliers.length > 0) {
-      await paginateResponse(res, req.query, await transformationSupplier(suppliers[0]), totalSuppliers);
+        suppliers = await Promise.all(
+        suppliers.map(async (supplier) => transformationSupplier(supplier))
+      );
+      paginateResponse(
+        res,
+        req.query,
+        suppliers,
+        totalSuppliers
+      )
+      // await paginateResponse(res, req.query, await transformationSupplier(suppliers[0]), totalSuppliers);
     } else {
       res.status(200).json({
         status: "fail",
