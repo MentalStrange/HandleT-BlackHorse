@@ -57,24 +57,24 @@ export const getProductByCategory = async (req, res) => {
   const categoryId = req.params.id;
   const search = req.query.search;
   try {
-    const category = await Category.findOne({_id: categoryId});
+    // Check if the category exists
+    const category = await Category.findOne({ _id: categoryId });
     if (!category) {
       return res.status(404).json({
         status: "fail",
         message: "Category not found",
       });
     }
-    const supplierProducts = await SupplierProduct.find()
-    const productsWithSupplier = supplierProducts.filter(
-      (supplierProduct) => supplierProduct.supplierId
-    );
+    const products = await Product.find({ category: categoryId });
+    const productIds = products.map(product => product._id);
+    const supplierProducts = await SupplierProduct.find({ productId: { $in: productIds } });
     const transformedProducts = await Promise.all(
-      productsWithSupplier.map(async (supplierProduct) => {
+      supplierProducts.map(async (supplierProduct) => {
         return await transformationSupplierProduct(supplierProduct);
       })
     );
     const searchedProducts = searchProducts(transformedProducts, search);
-    await paginateResponse(res, req.query, searchedProducts?await searchedProducts:transformedProducts, productsWithSupplier.length);
+    await paginateResponse(res, req.query, searchedProducts ? await searchedProducts : transformedProducts, supplierProducts.length);
   } catch (error) {
     res.status(500).json({
       status: "fail",
