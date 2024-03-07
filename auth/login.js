@@ -13,7 +13,7 @@ export const customerLogin = async (req, res) => {
 
   try {
     const customer = await Customer.findOne({ email: customerEmail.toLowerCase() });
-    if (customer.length === 0) {
+    if (!customer) {
       return res.status(203).json({ // email not found
         status: "fail",
         message: req.headers['language'] === 'en' ? "Verify your emil or password" : "قم من التحقق من البريد الإلكتروني أو كلمة المرور",
@@ -33,7 +33,7 @@ export const customerLogin = async (req, res) => {
     await customer.save();
     res.status(200).json({
       status: "success",
-      data: {...transformationCustomer(customer), access_token: jwt.sign({_id: customer._id, role: "customer"}, process.env.JWT_SECRET, {})},
+      data: {...(await transformationCustomer(customer)), access_token: jwt.sign({_id: customer._id, role: "customer"}, process.env.JWT_SECRET, {})},
     });
   } catch (error) {
     res.status(500).json({
