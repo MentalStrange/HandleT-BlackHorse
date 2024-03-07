@@ -17,7 +17,7 @@ export const createSupplier = async (req, res) => {
     // Check for existing supplier using findOne
     const existingSupplier = await Supplier.findOne({ email: supplierEmail });
     if (existingSupplier) {
-      return res.status(400).json({
+      return res.status(207).json({
         status: "fail",
         message: "Supplier already exists",
       });
@@ -29,7 +29,10 @@ export const createSupplier = async (req, res) => {
       const regionPromises = regionsId.map(async (region) => {
         const regionName = await Region.findById(region);
         if (!regionName) {
-          throw new Error(`Region with ID ${region} not found`);
+          return res.status(208).json({
+            status: "fail",
+            message: `Region with ID ${region} not found`,
+          });
         }
         return regionName._id;
       });
