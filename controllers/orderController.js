@@ -9,6 +9,7 @@ import {
   transformationCar,
   transformationOffer,
   transformationOrder,
+  transformationOrderOffer,
   transformationSupplierProduct,
 } from "../format/transformationObject.js";
 import paginateResponse from "./../utils/paginationResponse.js";
@@ -351,6 +352,7 @@ export const createOrder = async (req, res) => {
       address: orderData.address ?? null,
       district: orderData.district ?? null,
       deliveryDaysNumber: orderData.deliveryDaysNumber,
+      orderWeight: orderData.orderWeight,
       products: await Promise.all(orderData.products.map(async (product) => {
         const supplierProduct = await SupplierProduct.findOne({ productId: product.product, supplierId: orderData.supplierId });
         const productData = await transformationSupplierProduct(supplierProduct);
@@ -366,8 +368,10 @@ export const createOrder = async (req, res) => {
           maxLimit: productData.maxLimit,
           supplierId: productData.supplierId,
           desc: productData.desc,
+          weight: productData.weight,
           unit: productData.unit ?? null,
           subUnit: productData.subUnit,
+          stock: productData.stock,
           numberOfSubUnit: productData.numberOfSubUnit ?? null,
           category: productData.category,
           supplierType: productData.supplierType
@@ -403,6 +407,7 @@ export const createOrder = async (req, res) => {
               desc: productData.desc,
               unit: productData.unit ?? null,
               subUnit: productData.subUnit,
+              stock: productData.stock,
               numberOfSubUnit: productData.numberOfSubUnit ?? null,
               category: productData.category,
               supplierType: productData.supplierType,
@@ -662,3 +667,18 @@ export const mostFrequentDistricts = async (req, res) => {
     });
   }
 };
+export const getOffersByOrderId = async (req, res) => {
+  const orderId = req.params.id;
+  try{
+    const order = await Order.findById(orderId);
+    res.status(200).json({
+      status: "success",
+      data: await transformationOrderOffer(order),
+    })
+  } catch (error) {
+    res.status(500).json({
+      status: "fail",
+      message: error.message,
+    });
+  }
+}

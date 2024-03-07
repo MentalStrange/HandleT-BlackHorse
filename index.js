@@ -7,7 +7,6 @@ import http from 'http';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
-import { v2 as cloudinary } from 'cloudinary';
 import authRoute from './routes/auth.js';
 import supplierRoute from './routes/supplier.js';
 import customerRoute from './routes/customer.js';
@@ -17,7 +16,7 @@ import { getOrderByDelivery } from './controllers/orderController.js';
 import Order from './models/orderSchema.js';
 import { pushNotification } from './utils/pushNotification.js';
 import { checkExpireGroup } from './utils/checkExpireGroup.js';
-import {CronJob} from 'cron';
+import { CronJob } from 'cron';
 import DeliveryBoy from './models/deliveryBoySchema.js';
 import Supplier from './models/supplierSchema.js';
 import Customer from './models/customerSchema.js';
@@ -29,22 +28,11 @@ const server = http.createServer(app);
 const IO = new Server(server, { cors: { origin: "*" } });
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+const corsOption = { origin: true };
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_NAME,
-  api_key: process.env.CLOUDINARY_KEY,
-  api_secret: process.env.CLOUDINARY_SECRET,
-  secure: true,
-});
-const corsOption = {
-  origin: true,
-};
-
-// connect to mongodb server
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URL_DEVZAKI);
-    // await mongoose.connect(process.env.MONGODB_URL_LOCAL)
     console.log("Mongoose connection successfully established");
   } catch (error) {
     console.log('Mongoose connection error: ' + error);
@@ -52,18 +40,16 @@ const connectDB = async () => {
 };
 
 // check the status of the group
-
 const cronJobStart = new CronJob('0 0 * * *', checkExpireGroup);
 // cronJobStart.start();
 
-
-app.use(express.static(path.join(__dirname, 'upload')));
-app.use(cors(corsOption));
 app.use(express.json());
+app.use(cors(corsOption));
+app.use(express.static(path.join(__dirname, 'upload')));
 app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/supplier", supplierRoute);
 app.use("/api/v1/customer", customerRoute);
-app.use("/api/v1/product", productRoute);  // Include productRoute
+app.use("/api/v1/product", productRoute);
 app.use("/api/v1/admin", adminRoute);
 
 app.get('/', async (req, res) => {
@@ -126,6 +112,6 @@ IO.on("connection", (socket) => {
 
 server.listen(port, async () => {
   await connectDB();
-  // await pushNotification("بودي الطااير", "المشطشط عم اعمام الطايرين كلها", "", "", "", "", ["fQa6phIPTxK9bf1GrAnJHL:APA91bGnB71jOWb3F4qqF3I0xhIAyutZSXi2WRnrtGgITR9Cow_DWA7o9_OzcYT8r6CJJcBzCzajkBhBLnAfnPN_z96rK8BB18grBjtoYj8kE5nmoN6tAQ04KHnbpwssIGUV2Rvn7jfo"]) //,*/ "e2-Rwm4tQCOWQCxv3koLeY:APA91bGJJGuBFiMWF_JN51spBC_2mj9ZiM9XzQrnYGdQtEI47EmIbX1E0v1i4UvozE0T3Yojt3IL8A-U6KJmczrJUUx1gnY2ARbrw7nVDmWtKzGtfrrk-lFWKbt84I6OMvTbUKSS_swr"]);
+  // await pushNotification("بودي الطااير", "المشطشط عم اعمام الطايرين كلها", "", "", "", "", ["esV3hrGBSpKitM9xdl8ggy:APA91bEY005EUFrVzY-SrXU7NqYYDiUTWNY1237097H8Dt2nYo4KfrrMDubKV2o4hrg5qU3jqvQTiDP8FDuIWK3iO5IG2TX1HWJWF3WodJE4dNzD6iHfylnk4WwaQL6utckvVNMquWcz"/*"fQa6phIPTxK9bf1GrAnJHL:APA91bGnB71jOWb3F4qqF3I0xhIAyutZSXi2WRnrtGgITR9Cow_DWA7o9_OzcYT8r6CJJcBzCzajkBhBLnAfnPN_z96rK8BB18grBjtoYj8kE5nmoN6tAQ04KHnbpwssIGUV2Rvn7jfo"]) //,"e2-Rwm4tQCOWQCxv3koLeY:APA91bGJJGuBFiMWF_JN51spBC_2mj9ZiM9XzQrnYGdQtEI47EmIbX1E0v1i4UvozE0T3Yojt3IL8A-U6KJmczrJUUx1gnY2ARbrw7nVDmWtKzGtfrrk-lFWKbt84I6OMvTbUKSS_swr"*/]);
   console.log(`listening on http://localhost:${port}`);
 });

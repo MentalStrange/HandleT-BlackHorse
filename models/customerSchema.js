@@ -23,17 +23,9 @@ const customerSchema =  mongoose.Schema({
     // required:[true,'Customer Should have a Phone']
   },
   region:{
-    type:mongoose.Schema.Types.ObjectId,
-    ref:"Region",
-    required:[true,'Customer Should have a region']
+    type:String,
   },
   address:{
-    type:String,
-  },
-  district:{
-    type:String,
-  },
-  governorate:{
     type:String,
   },
   resetCode: {

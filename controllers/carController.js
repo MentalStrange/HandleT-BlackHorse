@@ -3,6 +3,7 @@
 import { transformationCar } from "../format/transformationObject.js";
 import Car from "../models/carSchema.js";
 import fs from "fs";
+import DeliveryBoy from "../models/deliveryBoySchema.js";
 
 // Create a new car
 const createCar = async (req, res) => {
@@ -56,6 +57,14 @@ const updateCar = async (req,res) => {
 const deleteCar = async (req,res) => {
   const carId = req.params.id;
   try {
+    const deliverBoy = await DeliveryBoy.find({ car: carId });
+    if (deliverBoy.length > 0) {
+      return res.status(207).json({
+        status: 'fail',
+        message: 'Cannot delete car as it is referenced by delivery boys.',
+      })
+    }
+
     const deletedCar = await Car.findByIdAndDelete(carId);
     if (deletedCar) {
       const pathName = deletedCar.image.split('/').slice(3).join('/');

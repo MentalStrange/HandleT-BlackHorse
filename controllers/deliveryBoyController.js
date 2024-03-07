@@ -65,7 +65,7 @@ export const createDeliveryBoy = async (req, res) => {
     }
     const oldDeliveryBoy = await DeliveryBoy.find({ email: deliveryBoyEmail });
     if (oldDeliveryBoy.length > 0) {
-      return res.status(400).json({
+      return res.status(207).json({
         status: "fail",
         message: "Delivery Boy already exists",
       });

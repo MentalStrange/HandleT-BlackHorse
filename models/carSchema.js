@@ -15,8 +15,7 @@ const carSchema = mongoose.Schema({
   number: {
     type: String,
     required: [true, 'Car should have a number'],
-    // Use a custom index to enforce uniqueness case-insensitively
-    index: { unique: true, collation: { locale: 'en', strength: 2 } },
+    // index: { unique: true, collation: { locale: 'en', strength: 2 } },
   },
 });
 

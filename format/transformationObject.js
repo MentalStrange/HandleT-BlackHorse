@@ -10,18 +10,16 @@ import Region from "../models/regionSchema.js";
 import Customer from "../models/customerSchema.js";
 
 export const transformationCustomer = async (customer) => {
-const region = await Region.findById(customer.region);
   return {
     _id: customer._id,
     name: customer.name,
     email: customer.email,
-    image: customer.image ?? "",
-    phone: customer.phone ?? "",
-    address: customer.address ?? "",
-    district: region.name ?? "",
-    governorate: customer.governorate ?? "",
+    image: customer.image ?? null,
+    phone: customer.phone ?? null,
+    address: customer.address ?? null,
+    district: customer.region ?? null,
     averageRating: customer.averageRating ?? 0,
-    status: customer.status ?? "",
+    status: customer.status ?? null,
   };
 };
 export const transformationProduct = async (product) => {
@@ -130,13 +128,13 @@ export const transformationOrder = async (order) => {
         price: product.price,
         afterSale: product.afterSale,
         weight: product.weight,
-        images: product.images?? [],
-        maxLimit: product.maxLimit?? null,
+        images: product.images ?? [],
+        maxLimit: product.maxLimit ?? null,
         supplierId: product.supplierId,
         desc: product.desc,
-        unit: product.unit,
+        unit: product.unit ?? null,
         subUnit: product.subUnit,
-        numberOfSubUnit: product.numberOfSubUnit,
+        numberOfSubUnit: product.numberOfSubUnit ?? null,
         category: product.category,
         supplierType: product.supplierType,
         stock: product.stock,
@@ -154,27 +152,27 @@ export const transformationOrder = async (order) => {
       return {
         _id: offer.offer,
         title: offer.title,
+        supplierId: offer.supplierId,
         image: offer.image ?? null,
         price: offer.price,
-        afterSale: offer.afterSale,
+        afterSale: offer.afterSale ?? null,
         maxLimit: offer.maxLimit,
-        weight: offer.weight,
-        unit: offer.unit,
+        weight: offer.offerWeight,
         stock: offer.stock,
         products: offer.products.map((product) => {
           return {
-            productId: product.product,
+            _id: product.product,
             title: product.title,
             price: product.price,
             afterSale: product.afterSale,
             weight: product.weight,
-            images: product.images?? [],
-            maxLimit: product.maxLimit?? null,
+            images: product.images ?? [],
+            maxLimit: product.maxLimit ?? null,
             supplierId: product.supplierId,
             desc: product.desc,
-            unit: product.unit,
+            unit: product.unit ?? null,
             subUnit: product.subUnit,
-            numberOfSubUnit: product.numberOfSubUnit,
+            numberOfSubUnit: product.numberOfSubUnit ?? null,
             category: product.category,
             supplierType: product.supplierType,
             stock: product.stock,
@@ -191,7 +189,7 @@ export const transformationOrder = async (order) => {
     supplierRating: order.supplierRating,
     deliveryBoy: order.deliveryBoy ?? null,
     car: {
-      car: order.car._id,
+      _id: order.car._id,
       type: order.car.type,
       maxWeight: order.car.maxWeight,
       image: order.car.image ?? null,
@@ -199,6 +197,68 @@ export const transformationOrder = async (order) => {
     },
   };
 };
+
+export const transformationOrderProduct = async (order) => {
+  return order.products.map((product) => {
+    return {
+      _id: product.product,
+      title: product.title,
+      price: product.price,
+      afterSale: product.afterSale,
+      weight: product.weight,
+      images: product.images ?? [],
+      maxLimit: product.maxLimit ?? null,
+      supplierId: product.supplierId,
+      desc: product.desc,
+      unit: product.unit ?? null,
+      subUnit: product.subUnit,
+      numberOfSubUnit: product.numberOfSubUnit ?? null,
+      category: product.category,
+      supplierType: product.supplierType,
+      stock: product.stock,
+      quantity: product.quantity
+    }
+  });
+};
+
+export const transformationOrderOffer = async (order) => {
+  return order.offers.map((offer) => {
+    return {
+      _id: offer.offer,
+      title: offer.title,
+      supplierId: offer.supplierId,
+      image: offer.image ?? null,
+      price: offer.price,
+      afterSale: offer.afterSale ?? null,
+      maxLimit: offer.maxLimit,
+      weight: offer.offerWeight,
+      stock: offer.stock,
+      products: offer.products.map((product) => {
+        return {
+          _id: product.product,
+          title: product.title,
+          price: product.price,
+          afterSale: product.afterSale,
+          weight: product.weight,
+          images: product.images ?? [],
+          maxLimit: product.maxLimit ?? null,
+          supplierId: product.supplierId,
+          desc: product.desc,
+          unit: product.unit ?? null,
+          subUnit: product.subUnit,
+          numberOfSubUnit: product.numberOfSubUnit ?? null,
+          category: product.category,
+          supplierType: product.supplierType,
+          stock: product.stock,
+          quantity: product.quantity
+        }
+      }),
+      quantity: offer.quantity,
+      desc: offer.desc,
+    }
+  });
+}
+
 export const transformationDeliveryBoy = async (deliverBoy) => {
   const car = await Car.findById(deliverBoy.car);
   const region = await Region.findById(deliverBoy.region);

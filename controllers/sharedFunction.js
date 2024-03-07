@@ -90,7 +90,7 @@ export const deleteProduct = async (req, res) => {
   try {
     const supplierProduct = await SupplierProduct.findOne({ productId });
     if(supplierProduct) {
-      return res.status(403).json({
+      return res.status(207).json({
         status: 'fail',
         message: 'Product is used in supplier products',
       })

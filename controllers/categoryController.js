@@ -9,7 +9,7 @@ export const createCategory = async (req, res) => {
   try {
     const oldCategory = await Category.find({ name: categoryName });
     if (oldCategory.length > 0) {
-      return res.status(400).json({
+      return res.status(207).json({
         status: 'fail',
         message: 'Category already exists',
       });
@@ -55,7 +55,7 @@ export const deleteCategory = async (req, res) => {
   try {
     const product = await Product.findOne({ category: categoryId });
     if(product){
-      return res.status(403).json({
+      return res.status(207).json({
         status: 'fail',
         message: 'Category is used in products',
       })

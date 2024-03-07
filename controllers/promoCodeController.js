@@ -4,13 +4,14 @@ import PromoCode from "../models/promocodeSchema.js";
 export const createPromoCode = async (req, res) => {
   const promoCodeData = req.body;
   try {
-    const oldPromoCode = PromoCode.findOne({ code: promoCodeData.code });
+    const oldPromoCode = await PromoCode.findOne({ code: promoCodeData.code });
     if (oldPromoCode) {
       return res.status(207).json({
         status: "fail",
         message: "Promo code already exists",
       });
     }
+
     const createdPromoCode = await PromoCode.create(promoCodeData);
     if (createdPromoCode) {
       return res.status(201).json({

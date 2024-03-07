@@ -5,6 +5,9 @@ import Product from "../models/productSchema.js";
 import SupplierProduct from "../models/supplierProductSchema.js";
 import Supplier from "../models/supplierSchema.js";
 import fs from "fs";
+import { pushNotification } from "../utils/pushNotification.js";
+import Customer from "../models/customerSchema.js";
+import Notification from "../models/notificationSchema.js";
 
 export const getAllOffer = async (req, res) => {
   const page = parseInt(req.query.page) || 1; // Default page number is 1
@@ -210,6 +213,10 @@ export const createOffer = async (req, res) => {
 
     const newOffer = new Offer(offerData);
     await newOffer.save();
+    const customersDeviceToken = await Customer.find({}, 'deviceToken');
+    const deviceTokens = customersDeviceToken.map(customer => customer.deviceToken);
+    await Notification.deleteMany({ type: 'addNewOffer' });
+    await pushNotification("عرض جديد متاح!", "استكشف أحدث عروضنا التي تمت إضافتها للتو. لا تفوت هذا العرض الخاص.", "addNewOffer", null, null, null, deviceTokens);
     res.status(201).json({
       status: "success",
       data: await transformationOffer(newOffer),

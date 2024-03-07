@@ -34,6 +34,9 @@ const orderProductSet = mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Supplier',
   },
+  weight:{
+    type: Number,
+  },
   desc:{
     type: String,
   },
@@ -149,6 +152,10 @@ const orderSchema = mongoose.Schema({
   district:{
     type: String,
     // required: [true, 'Order should have a district']
+  },
+  customerName:{
+    type: String,
+    // required: [true, 'Order should have a customerName']
   },
   customerPhoneNumber: {
     type: String,

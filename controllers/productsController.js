@@ -7,6 +7,7 @@ import SupplierProduct from "../models/supplierProductSchema.js";
 import fs from "fs";
 
 import {
+  transformationOrderProduct,
   transformationProduct,
   transformationSupplierProduct,
 } from "../format/transformationObject.js";
@@ -160,24 +161,24 @@ export const getProductByOrderId = async (req, res) => {
   const orderId = req.params.id;
   try {
     const order = await Order.findById(orderId);
-    if (!order) {
-      return res.status(200).json({
-        status: "success",
-        data: [],
-        message: "Order not found",
-      })
-    }
-    const supplierProducts = await SupplierProduct.find({
-      productId: { $in: order.products.map((p) => p.product) },
-    })
-    const transformedProducts = await Promise.all(
-      supplierProducts.map(async (supplierProduct) => {
-        return await transformationSupplierProduct(supplierProduct);
-      })
-    );
+    // if (!order) {
+    //   return res.status(200).json({
+    //     status: "success",
+    //     data: [],
+    //     message: "Order not found",
+    //   })
+    // }
+    // const supplierProducts = await SupplierProduct.find({
+    //   productId: { $in: order.products.map((p) => p.product) },
+    // })
+    // const transformedProducts = await Promise.all(
+    //   supplierProducts.map(async (supplierProduct) => {
+    //     return await transformationSupplierProduct(supplierProduct);
+    //   })
+    // );
     res.status(200).json({
       status: "success",
-      data: transformedProducts,
+      data: await transformationOrderProduct(order) //transformedProducts a,
     });
   } catch (error) {
     res.status(500).json({
@@ -186,6 +187,7 @@ export const getProductByOrderId = async (req, res) => {
     });
   }
 };
+
 export const uploadProductImage = async (req, res) => {
   const productId = req.params.id;
   try{
