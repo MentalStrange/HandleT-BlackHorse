@@ -121,7 +121,7 @@ export const createUnit = async (req,res) => {
   const unit = req.body;
   const existingUnit = await Unit.findOne({ name: unit.name });
   if (existingUnit) {
-    return res.status(400).json({
+    return res.status(207).json({
       status: "fail",
       message: `Unit ${unit.name} exists`,
     })
@@ -162,7 +162,7 @@ export const deleteUnit = async (req, res) => {
   try {
     const supplierProduct = await SupplierProduct.find({ unit: unitId });
     if(supplierProduct.length > 0){
-      return res.status(403).json({
+      return res.status(207).json({
         status: 'fail',
         message: 'Cannot delete unit as it is referenced by supplier products.',
       })
@@ -221,8 +221,8 @@ export const getFee = async (req, res) => {
 export const createFee = async (req, res) => {
   try {
     const amount = req.body.amount;
-    if(amount >= 100){
-      return res.status(400).json({
+    if(amount > 100){
+      return res.status(207).json({
         status: "fail",
         message: "Amount should be less than 100%"
       })
@@ -247,7 +247,7 @@ export const createRegion = async (req, res) => {
   const region = req.body;  
   const existingRegion = await Region.findOne({ name: region.name });
   try{if (existingRegion) {
-    return res.status(400).json({
+    return res.status(207).json({
       status: "fail",
       message: `Region ${region.name} exists`,
     }) 
@@ -293,7 +293,7 @@ export const deleteRegion = async (req, res) => {
     const deliveryBoys = await DeliveryBoy.find({ region: regionId });
     const customers = await Customer.find({ region: regionId });
     if(supplier.length > 0 || deliveryBoys.length > 0 || customers.length > 0){
-      return res.status(403).json({
+      return res.status(207).json({
         status: 'fail',
         message: 'Cannot delete region as it is referenced by suppliers, delivery boys, or customers.',
       })
@@ -337,7 +337,10 @@ export const createSubUnit = async (req, res) => {
   const subUnit = req.body;
   const existingSubUnit = await SubUnit.findOne({ name: subUnit.name });
   if (existingSubUnit) {
-    throw new Error(`Subunit '${subUnit.name}' already exists`);
+    res.status(207).json({
+      status: "success",
+      message: `Subunit '${subUnit.name}' already exists`,
+    });
   }
   const newSubUnit = new SubUnit(subUnit);
   await newSubUnit.save();
@@ -368,7 +371,7 @@ export const deleteSubUnit = async (req, res) => {
   try {
     const supplierProduct = await SupplierProduct.find({ subUnit: subUnitId });
     if(supplierProduct.length > 0){
-      return res.status(403).json({
+      return res.status(207).json({
         status: 'fail',
         message: 'Cannot delete subUnit as it is referenced by supplier products.',
       })
