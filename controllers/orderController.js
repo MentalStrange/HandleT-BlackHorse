@@ -132,7 +132,6 @@ export const updateOrder = async (req, res, next) => {
     });
   }
 };
-
 export const getOrderByDelivery = async (deliveryId) => {  // use socketIO
   try {
     const orders = await Order.find({ deliveryBoy: deliveryId, status: { $in: ['delivery', 'willBeDelivered'] } });
@@ -145,7 +144,6 @@ export const getOrderByDelivery = async (deliveryId) => {  // use socketIO
     return [];
   }
 };
-
 export const getOrderByDeliveryRoute = async (req, res) => { // use http
   const deliveryId = req.params.deliveryId;
   // const page = parseInt(req.query.page) || 1; // Extract page parameter from query string
@@ -171,7 +169,6 @@ export const getOrderByDeliveryRoute = async (req, res) => { // use http
     });
   }
 };
-
 export const createOrder = async (req, res) => {
   const orderData = req.body;
   const promoCode = req.body.promoCode;
@@ -447,7 +444,6 @@ export const createOrder = async (req, res) => {
     });
   }
 };
-
 export const getAllOrderByCustomerId = async (req, res) => {
   const customerId = req.params.id;
   try {
@@ -534,7 +530,6 @@ export const getAllOrderBySupplierId = async (req, res) => {
     });
   }
 };
-
 export const totalOrderBySupplierId = async (req, res) => {
   const supplierId = req.params.id;
   const month = req.query.month;
