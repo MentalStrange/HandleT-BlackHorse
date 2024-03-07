@@ -16,6 +16,7 @@ import { createGroup, getAllGroup, getAllGroupForCustomer, joinGroup } from '../
 import { storage } from '../controllers/sharedFunction.js';
 import multer from 'multer';
 import { getOfferByOrderId } from '../controllers/offerController.js';
+import { deleteNotification, getNotificationsByCustomerId, getNotificationsByDeliveryId, getNotificationsBySupplierId } from '../controllers/notificationController.js';
 
 const uploadCustomer = multer({ storage: storage('customer') });
 
@@ -49,4 +50,10 @@ Router.post('/group',createGroup);
 Router.patch('/group/:id', joinGroup);
 
 Router.get('/offer/order/:id', getOfferByOrderId)
+
+Router.get('/getNotificationsByCustomerId/:id', getNotificationsByCustomerId);
+Router.get('/getNotificationsBySupplierId/:id', getNotificationsBySupplierId);
+Router.get('/getNotificationsByDeliveryId/:id', getNotificationsByDeliveryId);
+Router.delete('/deleteNotification/:id', deleteNotification);
+
 export default Router;
