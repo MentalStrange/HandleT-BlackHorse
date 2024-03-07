@@ -98,7 +98,7 @@ IO.on("connection", (socket) => {
       await order.save();
       if(order.status === 'delivery'){
         const supplier = await Supplier.findById(order.supplierId);
-        const customer = Customer.findById(order.customerId);
+        const customer = await Customer.findById(order.customerId);
         await pushNotification("تم الموافقة!", `قام عامل التوصيل بالموافقة ع توصيل الاوردر رقم ${order.orderNumber}`, null, null, order.supplierId, null, supplier.deviceToken);
         await pushNotification("وافق عامل التوصيل", `تم الموافقة ع توصيل الاوردر برقم ${order.orderNumber}`, null, order.customerId, null, null, customer.deviceToken);
       }

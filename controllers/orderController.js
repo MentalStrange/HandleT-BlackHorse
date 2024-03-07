@@ -16,6 +16,7 @@ import paginateResponse from "./../utils/paginationResponse.js";
 import Car from "../models/carSchema.js";
 import { pushNotification } from "../utils/pushNotification.js";
 import Region from "../models/regionSchema.js";
+import Customer from "../models/customerSchema.js";
 
 export const getAllOrder = async (req, res) => {
   try {
@@ -78,50 +79,42 @@ export const updateOrder = async (req, res, next) => {
         message: "Supplier not found",
       });
     }
-    if (req.body.status === "complete") { // not blackhorse
+
+    if (req.body.status === "complete") {
+      const customer = await Customer.findById(order.customerId);
+      await pushNotification("تم موافقة الطلب", `تم الموافقة علي طلب اوردر رقم ${order.orderNumber} بنجاح`, null, order.customerId, null, null, customer.deviceToken);
+      // await pushNotification("طلب شراء مكتمل", `تم استلام اوردر رقم ${order.orderNumber} بنجاح`, null, order.customerId, null, null, customer.deviceToken);
       const fee = await Fee.findOne();
-      const blackHorseCommotion = order.totalPrice * (fee.amount / 100);
-      // console.log('blackHorseCommotion', blackHorseCommotion);
-      supplier.wallet += blackHorseCommotion;
+      supplier.wallet += order.totalPrice * (fee.amount / 100);
       await supplier.save();
-    } else if (req.body.status === "cancelled") {
+    } else if (req.body.status === "cancelled") { // not blackhorse
+      const customer = await Customer.findById(order.customerId);
+      await pushNotification("الغاء اوردر!", `تم الغاء اوردرك برقم ${order.orderNumber}`, null, order.customerId, null, null, customer.deviceToken);
       if (req.headers["user_type"] === "supplier") {
         supplier.wallet += 5;
         await supplier.save();
       }
 
       for (const product of order.products) {
-        const supplierProduct = await SupplierProduct.findOne({
-          supplierId: supplier._id,
-          productId: product.product,
-        });
-        supplierProduct.stock += product.quantity;
-        await supplierProduct.save();
+        const sp = await SupplierProduct.findOne({ supplierId: supplier._id, productId: product.product });
+        sp.stock += product.quantity;
+        await sp.save();
       }
+
       for (const offer of order.offers) {
         const offerData = await Offer.findById(offer.offer);
         offerData.stock += offer.quantity;
         await offerData.save();
 
         for (const iterProduct of offerData.products) {
-          // increment offer's product
-          const sp = await SupplierProduct.findOne({
-            supplierId: supplier._id,
-            productId: iterProduct.productId,
-          });
+          const sp = await SupplierProduct.findOne({ supplierId: supplier._id, productId: iterProduct.productId });
           sp.stock += iterProduct.quantity * offer.quantity;
           await sp.save();
         }
       }
     }
 
-    const updatedOrder = await Order.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      {
-        new: true,
-      }
-    );
+    const updatedOrder = await Order.findByIdAndUpdate(req.params.id, req.body, { new: true });
     res.status(200).json({
       status: "success",
       data: await transformationOrder(updatedOrder),
