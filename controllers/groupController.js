@@ -61,18 +61,30 @@ export const getAllGroupForCustomer = async (req, res) => {
   try {
     const customer = await Customer.findById(customerId);
     if (customer) {
-      const groups = await Group.find({ region: region, status: "pending" });
-      res.status(200).json({
-        status: "success",
-        data: groups,
-      });
-    } else {
-      res.status(404).json({
-        status: "fail",
-        message: "Customer not found",
-      });
+      const group = await Group.find({ region: region, status: "pending" });
+      const transformationGroup = await Promise.all(
+        group.map(async (group) => {
+          return transformationGroup(group);
+        })
+      );
+      if (group) {
+        return res.status(200).json({
+          status: "success",
+          data: transformationGroup,
+        });
+      } else {
+        res.status(404).json({
+          status: "fail",
+          message: "Customer not found",
+        });
+      }
     }
-  } catch (error) {}
+  } catch (error) {
+    res.status(500).json({
+      status: "fail",
+      message: error.message,
+    });
+  }
 };
 export const updateGroup = async (req, res) => {
   const groupId = req.params.id;
@@ -87,13 +99,13 @@ export const updateGroup = async (req, res) => {
       });
     }
     const orders = await Order.find({ group: groupId });
-    console.log('orders', orders);
-    
-    if (groupStatus === "accepted") {      
+    console.log("orders", orders);
+
+    if (groupStatus === "accepted") {
       group.status = "accepted";
       await Promise.all(
         orders.map(async (order) => {
-          await updateOrderForGroup(order._id, "complete" );
+          await updateOrderForGroup(order._id, "complete");
         })
       );
     }
@@ -101,7 +113,7 @@ export const updateGroup = async (req, res) => {
       group.status = "canceled";
       await Promise.all(
         orders.map(async (order) => {
-          await updateOrderForGroup(order._id, "canceled" );
+          await updateOrderForGroup(order._id, "canceled");
         })
       );
     }
@@ -153,9 +165,11 @@ export const joinGroup = async (req, res) => {
     }
     await order.save();
     let totalPrice = order.totalPrice;
+    let totalWeight = order.orderWeight;
     group.customer.push(customerId);
     group.totalPrice += totalPrice;
-    // const orders = await Order.find({group:groupId});
+    group.totalWeight += totalWeight;
+    group.numberOfCustomer += 1;
     if (group.totalPrice >= supplier.minOrderPrice) {
       group.status = "complete";
       // await Promise.all(
@@ -182,10 +196,15 @@ export const joinGroup = async (req, res) => {
 export const getAllGroupComplete = async (req, res) => {
   try {
     const group = await Group.find({ status: "complete" });
+    const transformationGroup = await Promise.all(
+      group.map(async (group) => {
+        return transformationGroup(group);
+      })
+    )
     if (group) {
       return res.status(200).json({
         status: "success",
-        data: group, // transformation(group);
+        data: transformationGroup,
       });
     } else {
       return res.status(200).json({
@@ -206,10 +225,15 @@ export const getAllGroupDelivery = async (req, res) => {
   const deliveryBoy = req.params.id;
   try {
     const group = await Group.findById(deliveryBoy);
+    const transformationGroup = await Promise.all(
+      group.map(async (group) => {
+        return transformationGroup(group);
+      })
+    );
     if (group) {
       return res.status(200).json({
         status: "success",
-        data: group, // transformation(group);
+        data: transformationGroup,
       });
     } else {
       return res.status(200).json({
@@ -235,10 +259,15 @@ export const getAllGroupPending = async (req, res) => {
       region: region,
       supplierId: supplierId,
     });
+    const transformationGroup = await Promise.all(
+      group.map(async (group) => {
+        return transformationGroup(group);
+      })
+    );
     if (group) {
       return res.status(200).json({
         status: "success",
-        data: group, // transformation(group);
+        data: transformationGroup,
       });
     } else {
       return res.status(200).json({
@@ -253,4 +282,38 @@ export const getAllGroupPending = async (req, res) => {
       message: error.message,
     });
   }
+};
+export const canceledGroupByCustomerId = async (req, res) => {
+  const groupId = req.params.id;
+  const customerId = req.body.customerId;
+  try {
+    const group = await Group.findOne({ _id: groupId, status: "pending" });
+    if (!group) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Group Not Found",
+      });
+    }
+    const existingCustomer = group.customer.includes(customerId);
+    if (!existingCustomer) {
+      return res.status(404).json({
+        status: "fail",
+        message: "Customer Not Found",
+      });
+    }
+    group.customer = group.customer.filter(
+      (customer) => customer !== customerId
+    );
+    group.numberOfCustomer -= 1;
+    const order = await Order.findOne({
+      group: groupId,
+      customerId: customerId,
+    });
+    updateOrderForGroup(order._id, "canceled");
+    group.save();
+    res.status(200).json({
+      status: "success",
+      data: transformationGroup(group),
+    });
+  } catch (error) {}
 };

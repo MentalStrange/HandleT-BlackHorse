@@ -8,6 +8,7 @@ import Car from "../models/carSchema.js";
 import Unit from "../models/unitSchema.js";
 import Region from "../models/regionSchema.js";
 import Customer from "../models/customerSchema.js";
+import Order from "../models/orderSchema.js";
 
 export const transformationCustomer = async (customer) => {
   return {
@@ -337,8 +338,19 @@ export const transformationRegion = async (region)=>{
 }
 export const transformationGroup = async (group)=>{
   const supplier = await supplier.findById(group.supplierId);
-  if(!supplier){
-    return []
+  const region = await Region.findById(group.region);
+  const order = await Order.find({group:group._id});
+  return{
+    _id: group._id,
+    name: region.name,
+    supplierName:supplier.name,
+    totalGroupPrice:group.totalPrice,
+    minOrderPrice:supplier.minOrderPrice,
+    district:region.name,
+    joinedCustomersNumber:group.customer.length,
+    createdAt:group.createdAt,
+    endedAt:group.expireDate,
+    status:group.status,
+    order:order.map((order)=> transformationOrder(order)),
   }
-  const transformSupplier = transformationSupplier(supplier);
 }

@@ -1,12 +1,13 @@
 // orderController.js
 
 import Fee from "../models/feesSchema.js";
+import Offer from "../models/offerSchema.js";
 import Order from "../models/orderSchema.js";
 import SupplierProduct from "../models/supplierProductSchema.js";
 import Supplier from "../models/supplierSchema.js";
 
 export const updateOrderForGroup = async (orderId, updateData) => {
-  try {    
+  try {
     const order = await Order.findById(orderId);
     if (!order) {
       throw new Error("Order not found");

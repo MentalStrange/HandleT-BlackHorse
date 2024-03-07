@@ -21,18 +21,11 @@ const groupSchema = mongoose.Schema({
   // maximumCustomer:{
   //   type:Number,
   // },
-  numberOfCustomer:{
-    type:Number,
-  },
   status:{
     type:String,
     enum:["pending","complete","expired","canceled","delivery","accepted"],
     default:"pending",
   },
-  // order:[
-  //   {type:mongoose.Schema.Types.ObjectId,
-  //   ref:"Order",}
-  // ],
   expireDate:{
     type:Date,
   },
@@ -45,6 +38,10 @@ const groupSchema = mongoose.Schema({
     ref:"DeliveryBoy"
   },
   totalPrice:{
+    type:Number,
+    default:0,
+  },
+  totalWeight:{
     type:Number,
     default:0,
   }
@@ -66,21 +63,6 @@ groupSchema.pre("save", async function(next) {
   } catch (error) {
     next(error);
   }
-});
-// groupSchema.pre("findOneAndUpdate", async function(next) {
-//   try {
-//     if (this.isNew) {
-//       const totalPrice = this.orders.reduce((acc, order) => acc + order.price, 0);
-//       const supplier = await Supplier.findById(this.supplierId);
-//       const minPrice = supplier.minOrderPrice;
-//       if (totalPrice >= minPrice) {
-//         this.status = "complete";
-//       }
-//     }
-//     next();
-//   } catch (error) {
-//     next(error);
-//   }
-// });
+}); 
 const Group = mongoose.model('Group',groupSchema);
 export default Group;
