@@ -8,7 +8,7 @@ export const getNotificationsByCustomerId = async (req, res) => {
                 { customerId: customerId },
                 { type: { $in: ['addNewOffer', 'addNewGroup'] } }
             ]
-        });
+        }).sort({ dateTime: -1 });
         return res.status(200).json({
             status: "success",
             data: notifications
@@ -20,7 +20,7 @@ export const getNotificationsByCustomerId = async (req, res) => {
 export const getNotificationsBySupplierId = async (req, res) => {
     const supplierId = req.params.id;
     try {
-        const notifications = await Notification.find({ supplierId: supplierId })
+        const notifications = await Notification.find({ supplierId: supplierId }).sort({ dateTime: -1 });
         return res.status(200).json({
             status: "success",
             data: notifications
@@ -32,7 +32,7 @@ export const getNotificationsBySupplierId = async (req, res) => {
 export const getNotificationsByDeliveryId = async (req, res) => {
     const deliveryBoyId = req.params.id;
     try {
-        const notifications = await Notification.find({ deliveryBoyId: deliveryBoyId })
+        const notifications = await Notification.find({ deliveryBoyId: deliveryBoyId }).sort({ dateTime: -1 });
         return res.status(200).json({
             status: "success",
             data: notifications
