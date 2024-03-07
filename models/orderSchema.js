@@ -153,6 +153,10 @@ const orderSchema = mongoose.Schema({
     type: String,
     // required: [true, 'Order should have a district']
   },
+  customerName:{
+    type: String,
+    // required: [true, 'Order should have a customerName']
+  },
   customerPhoneNumber: {
     type: String,
     required: [true, 'Order should have a customerPhoneNumber']

@@ -128,13 +128,13 @@ export const transformationOrder = async (order) => {
         price: product.price,
         afterSale: product.afterSale,
         weight: product.weight,
-        images: product.images?? [],
-        maxLimit: product.maxLimit?? null,
+        images: product.images ?? [],
+        maxLimit: product.maxLimit ?? null,
         supplierId: product.supplierId,
         desc: product.desc,
-        unit: product.unit,
+        unit: product.unit ?? null,
         subUnit: product.subUnit,
-        numberOfSubUnit: product.numberOfSubUnit,
+        numberOfSubUnit: product.numberOfSubUnit ?? null,
         category: product.category,
         supplierType: product.supplierType,
         stock: product.stock,
@@ -161,23 +161,22 @@ export const transformationOrder = async (order) => {
         stock: offer.stock,
         products: offer.products.map((product) => {
           return {
-            productId: product.product,
+            _id: product.product,
             title: product.title,
             price: product.price,
             afterSale: product.afterSale,
-            offerWeight: product.offerWeight,
-            images: product.images?? [],
-            maxLimit: product.maxLimit?? null,
+            weight: product.weight,
+            images: product.images ?? [],
+            maxLimit: product.maxLimit ?? null,
             supplierId: product.supplierId,
             desc: product.desc,
-            unit: product.unit,
+            unit: product.unit ?? null,
             subUnit: product.subUnit,
-            numberOfSubUnit: product.numberOfSubUnit,
+            numberOfSubUnit: product.numberOfSubUnit ?? null,
             category: product.category,
             supplierType: product.supplierType,
             stock: product.stock,
-            quantity: product.quantity,
-            weight: product.weight
+            quantity: product.quantity
           }
         }),
         quantity: offer.quantity,
@@ -199,6 +198,29 @@ export const transformationOrder = async (order) => {
   };
 };
 
+export const transformationOrderProduct = async (order) => {
+  return order.products.map((product) => {
+    return {
+      _id: product.product,
+      title: product.title,
+      price: product.price,
+      afterSale: product.afterSale,
+      weight: product.weight,
+      images: product.images ?? [],
+      maxLimit: product.maxLimit ?? null,
+      supplierId: product.supplierId,
+      desc: product.desc,
+      unit: product.unit ?? null,
+      subUnit: product.subUnit,
+      numberOfSubUnit: product.numberOfSubUnit ?? null,
+      category: product.category,
+      supplierType: product.supplierType,
+      stock: product.stock,
+      quantity: product.quantity
+    }
+  });
+};
+
 export const transformationOrderOffer = async (order) => {
   return order.offers.map((offer) => {
     return {
@@ -216,15 +238,15 @@ export const transformationOrderOffer = async (order) => {
           _id: product.product,
           title: product.title,
           price: product.price,
-          afterSale: product.afterSale ?? null,
+          afterSale: product.afterSale,
           weight: product.weight,
           images: product.images ?? [],
           maxLimit: product.maxLimit ?? null,
           supplierId: product.supplierId,
           desc: product.desc,
-          unit: product.unit,
+          unit: product.unit ?? null,
           subUnit: product.subUnit,
-          numberOfSubUnit: product.numberOfSubUnit,
+          numberOfSubUnit: product.numberOfSubUnit ?? null,
           category: product.category,
           supplierType: product.supplierType,
           stock: product.stock,
