@@ -93,7 +93,7 @@ export const updateOrder = async (req, res, next) => {
       const customer = await Customer.findById(order.customerId);
       await pushNotification("الغاء اوردر!", `تم الغاء اوردرك برقم ${order.orderNumber}`, null, order.customerId, null, null, customer.deviceToken);
       if (req.headers["user_type"] === "supplier") {
-        supplier.wallet += 5;
+        supplier.wallet += 5;  // const in admin
         await supplier.save();
       }
 
