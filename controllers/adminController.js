@@ -337,7 +337,7 @@ export const createSubUnit = async (req, res) => {
   const subUnit = req.body;
   const existingSubUnit = await SubUnit.findOne({ name: subUnit.name });
   if (existingSubUnit) {
-    res.status(207).json({
+    return res.status(207).json({
       status: "success",
       message: `Subunit '${subUnit.name}' already exists`,
     });

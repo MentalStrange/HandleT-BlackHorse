@@ -82,11 +82,13 @@ export const updateOrder = async (req, res, next) => {
 
     if (req.body.status === "complete") {
       const customer = await Customer.findById(order.customerId);
-      await pushNotification("تم موافقة الطلب", `تم الموافقة علي طلب اوردر رقم ${order.orderNumber} بنجاح`, null, order.customerId, null, null, customer.deviceToken);
-      // await pushNotification("طلب شراء مكتمل", `تم استلام اوردر رقم ${order.orderNumber} بنجاح`, null, order.customerId, null, null, customer.deviceToken);
+      await pushNotification("طلب شراء مكتمل", `تم استلام اوردر رقم ${order.orderNumber} بنجاح`, null, order.customerId, null, null, customer.deviceToken);
       const fee = await Fee.findOne();
       supplier.wallet += order.totalPrice * (fee.amount / 100);
       await supplier.save();
+    } else if (req.body.status === "inProgress"){
+      const customer = await Customer.findById(order.customerId);
+      await pushNotification("تم موافقة الطلب", `تم الموافقة علي طلب اوردر رقم ${order.orderNumber}`, null, order.customerId, null, null, customer.deviceToken);
     } else if (req.body.status === "cancelled") { // not blackhorse
       const customer = await Customer.findById(order.customerId);
       await pushNotification("الغاء اوردر!", `تم الغاء اوردرك برقم ${order.orderNumber}`, null, order.customerId, null, null, customer.deviceToken);

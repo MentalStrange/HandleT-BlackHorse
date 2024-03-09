@@ -16,7 +16,7 @@ const createCar = async (req, res) => {
       number: carData.number,
     });
     await newCar.save();
-    res.status(201).json({ status: 'success', data: transformationCar(newCar) });
+    res.status(201).json({ status: 'success', data: await transformationCar(newCar) });
   } catch (error) {
     if (error.name === 'MongoError' && error.code === 11000) {
       res.status(400).json({
@@ -32,20 +32,24 @@ const createCar = async (req, res) => {
 const getCars = async (req,res) => {
   try {
     const cars = await Car.find();
-    const allCars = cars.map((car) => transformationCar(car));
+    const allCars = await Promise.all(
+      cars.map(async (car) => {
+        return await transformationCar(car);
+      })
+    );
     res.status(200).json({ status: 'success', data: allCars });
   } catch (error) {
     res.status(500).json({ status: 'fail', message: error.message }) 
   }
 };
-// Update a car
+
 const updateCar = async (req,res) => {
   const carId = req.params.id;
   const carData = req.body;
   try {
     const updatedCar = await Car.findByIdAndUpdate(carId, carData, { new: true });
     if (updatedCar) {
-      res.status(200).json({ status: 'success', data: transformationCar(updatedCar) });
+      res.status(200).json({ status: 'success', data: await transformationCar(updatedCar) });
     } else {
       res.status(404).json({ status: 'fail', message: 'Car not found' });
     }
@@ -53,7 +57,7 @@ const updateCar = async (req,res) => {
     res.status(500).json({ status: 'fail', message: error.message });
   }
 };
-// Delete a car
+
 const deleteCar = async (req,res) => {
   const carId = req.params.id;
   try {
@@ -125,7 +129,7 @@ const changeImageCar = async (req, res) => {
     await car.save();
     res.status(200).json({
       status:"success",
-      data: transformationCar(car)
+      data: await transformationCar(car)
     })
    } catch (error) {
     res.status(500).json({
