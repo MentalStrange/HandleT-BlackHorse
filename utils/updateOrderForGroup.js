@@ -11,6 +11,7 @@ export const updateOrderForGroup = async (orderId, updateData) => {
     const order = await Order.findById(orderId);
     if (!order) {
       throw new Error("Order not found");
+      return [];
     }
     const supplier = await Supplier.findById(order.supplierId);
     if (!supplier) {

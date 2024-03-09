@@ -18,7 +18,7 @@ export const getAllOffer = async (req, res) => {
     const totalPages = Math.ceil(totalOffers / limit);
     const skip = (page - 1) * limit;
 
-    const offers = await Offer.find().skip(skip).limit(limit);
+    const offers = await Offer.find().skip(skip).limit(limit).sort({ createdAt: -1 });
 
     if (offers.length > 0) {
       const transformedOffers = await Promise.all(offers.map(async (offer) => {
@@ -267,7 +267,7 @@ export const getOfferBySupplierId = async (req, res) => {
         message: "Supplier not found",
       })
     }
-    const offers = await Offer.find({ supplierId });
+    const offers = await Offer.find({ supplierId }).sort({ createdAt: -1 });
     if (offers && offers.length > 0) {
       const transformedOffers = await Promise.all(offers.map(async (offer) => {
         return await transformationOffer(offer);
