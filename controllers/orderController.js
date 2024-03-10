@@ -202,7 +202,7 @@ export const createOrder = async (req, res) => {
       });
     }
 
-    if(totalPrice < supplier.minOrderPrice){
+    if(totalPrice < supplier.minOrderPrice || req.body.isGroup){
       return res.status(207).json({
         status: "fail",
         message: "Total price should be greater than min order price",
