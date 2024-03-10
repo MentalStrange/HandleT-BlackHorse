@@ -3,9 +3,8 @@ import GroupExpireDate from './groupExpireDate.js';
 
 const groupSchema = mongoose.Schema({
   region:{
-    type:mongoose.Schema.Types.ObjectId,
-    ref:"Region",
-    required:[true, "Group should have a region"]
+    type:String,
+    required:[true, "Group should have a region"],
   },
   supplierId:{
     type:mongoose.Schema.Types.ObjectId,

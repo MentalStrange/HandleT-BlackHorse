@@ -7,11 +7,11 @@ import paginateResponse from "../utils/paginationResponse.js";
 import { updateOrderForGroup } from "../utils/updateOrderForGroup.js";
 
 export const createGroup = async (req, res) => {
-  const regionId = req.body.region;
+  const region = req.body.region;
   const supplierId = req.body.supplierId;
   try {
     const group = await Group.findOne({
-      region: regionId,
+      region: region,
       supplierId: supplierId,
     });
     if (group) {
@@ -262,6 +262,8 @@ export const getAllGroupDelivery = async (req, res) => {
 export const getAllGroupPending = async (req, res) => {
   const region = req.query.region;
   const supplierId = req.query.supplierId;
+  console.log('region:', region, 'supplierId:', supplierId);
+  
   try {
     const group = await Group.find({
       status: "pending",
