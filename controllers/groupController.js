@@ -3,6 +3,7 @@ import Customer from "../models/customerSchema.js";
 import Group from "../models/groupSchema.js";
 import Order from "../models/orderSchema.js";
 import Supplier from "../models/supplierSchema.js";
+import paginateResponse from "../utils/paginationResponse.js";
 import { updateOrderForGroup } from "../utils/updateOrderForGroup.js";
 
 export const createGroup = async (req, res) => {
@@ -273,10 +274,11 @@ export const getAllGroupPending = async (req, res) => {
       })
     );
     if (group.length >0) {
-      return res.status(200).json({
-        status: "success",
-        data: transformationGroupData,
-      });
+      paginateResponse(res, req.query, transformationGroupData, group.length);
+      // return res.status(200).json({
+      //   status: "success",
+      //   data: transformationGroupData,
+      // });
     } else {
       return res.status(200).json({
         status: "fail",
