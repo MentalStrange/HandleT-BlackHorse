@@ -26,7 +26,7 @@ export const createGroup = async (req, res) => {
     newGroup.save();
     res.status(201).json({
       status: "success",
-      data: newGroup,
+      data: transformationGroup(newGroup),
     });
   } catch (error) {
     console.error(error);
