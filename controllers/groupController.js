@@ -272,7 +272,7 @@ export const getAllGroupPending = async (req, res) => {
         return transformationGroup(group);
       })
     );
-    if (group) {
+    if (group.length >0) {
       return res.status(200).json({
         status: "success",
         data: transformationGroupData,
