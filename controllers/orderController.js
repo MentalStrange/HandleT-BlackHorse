@@ -201,13 +201,14 @@ export const createOrder = async (req, res) => {
         message: "Supplier not found",
       });
     }
-
-    if(totalPrice < supplier.minOrderPrice || req.body.isGroup){
-      return res.status(207).json({
-        status: "fail",
-        message: "Total price should be greater than min order price",
-      })
-    }
+if(!req.body.isGroup){
+  if(totalPrice < supplier.minOrderPrice){
+    return res.status(207).json({
+      status: "fail",
+      message: "Total price should be greater than min order price",
+    })
+  }
+}
 
     if (promoCode) {
       const existingPromoCode = await PromoCode.findOne({ code: promoCode });
