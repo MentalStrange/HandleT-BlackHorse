@@ -259,8 +259,8 @@ export const getAllGroupDelivery = async (req, res) => {
 };
 // will be for customer to see the all group from the same region for the same supplier.
 export const getAllGroupPending = async (req, res) => {
-  const region = req.body.region;
-  const supplierId = req.body.supplierId;
+  const region = req.query.region;
+  const supplierId = req.query.supplierId;
   try {
     const group = await Group.find({
       status: "pending",
