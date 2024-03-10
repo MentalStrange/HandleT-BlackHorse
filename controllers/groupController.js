@@ -11,7 +11,7 @@ export const createGroup = async (req, res) => {
   const supplierId = req.body.supplierId;
   try {
     const group = await Group.findOne({
-      region: region,
+      region,
       supplierId: supplierId,
     });
     if (group) {
@@ -26,7 +26,7 @@ export const createGroup = async (req, res) => {
     newGroup.save();
     res.status(201).json({
       status: "success",
-      data: transformationGroup(newGroup),
+      data: await transformationGroup(newGroup),
     });
   } catch (error) {
     console.error(error);
