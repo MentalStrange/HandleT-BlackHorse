@@ -129,7 +129,7 @@ export const updateGroup = async (req, res) => {
       group.status = "canceled";
       await Promise.all(
         orders.map(async (order) => {
-          await updateOrderForGroup(order._id, "canceled");
+          await updateOrderForGroup(order._id, "canceled",req);
         })
       );
     }

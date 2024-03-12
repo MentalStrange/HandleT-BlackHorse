@@ -7,7 +7,7 @@ import SupplierProduct from "../models/supplierProductSchema.js";
 import Supplier from "../models/supplierSchema.js";
 import mongoose from 'mongoose'
 
-export const updateOrderForGroup = async (orderId, updateData) => {
+export const updateOrderForGroup = async (orderId, updateData,req) => {
   try {
     const order = await Order.findById(orderId);
     if (!order) {
