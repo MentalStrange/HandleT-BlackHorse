@@ -98,6 +98,7 @@ export const getAllGroupForCustomer = async (req, res) => {
 export const updateGroup = async (req, res) => {
   const groupId = req.params.id;
   const groupStatus = req.body.status;
+  const deliveryBoy = req.body.deliveryBoy;
   try {
     const group = await Group.findById(groupId);
     if (!group) {
@@ -108,8 +109,6 @@ export const updateGroup = async (req, res) => {
       });
     }
     const orders = await Order.find({ group: groupId });
-    console.log("orders", orders);
-
     if (groupStatus === "completed") {
       group.status = "completed";
       await Promise.all(
@@ -133,6 +132,14 @@ export const updateGroup = async (req, res) => {
           await updateOrderForGroup(order._id, "canceled");
         })
       );
+    }
+    if (deliveryBoy) {
+      group.deliveryBoy = deliveryBoy;
+      await Promise.all(
+        orders.map(async (order) => {
+          await updateOrderForGroup(order._id, deliveryBoy);
+        })
+      )
     }
     await group.save();
     res.status(200).json({
@@ -213,7 +220,7 @@ export const joinGroup = async (req, res) => {
 export const getAllGroupCompleteForSupplier = async (req, res) => {
   const supplierId = req.params.id;
   try {
-    const group = await Group.find({ status: "complete", supplierId: supplierId });
+    const group = await Group.find({ status: {$ne:"complete"}, supplierId: supplierId });
     const transformationGroupDate = await Promise.all(
       group.map(async (group) => {
         return transformationGroup(group);

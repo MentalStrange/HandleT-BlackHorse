@@ -5,6 +5,7 @@ import Offer from "../models/offerSchema.js";
 import Order from "../models/orderSchema.js";
 import SupplierProduct from "../models/supplierProductSchema.js";
 import Supplier from "../models/supplierSchema.js";
+import mongoose from 'mongoose'
 
 export const updateOrderForGroup = async (orderId, updateData) => {
   try {
@@ -12,6 +13,10 @@ export const updateOrderForGroup = async (orderId, updateData) => {
     if (!order) {
       throw new Error("Order not found");
       return [];
+    }
+    if(mongoose.Types.ObjectId.isValid(updateData)){
+      order.deliveryBoy = updateData;
+      await order.save();
     }
     const supplier = await Supplier.findById(order.supplierId);
     if (!supplier) {
