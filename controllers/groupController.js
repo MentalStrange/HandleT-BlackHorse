@@ -220,7 +220,7 @@ export const joinGroup = async (req, res) => {
 export const getAllGroupCompleteForSupplier = async (req, res) => {
   const supplierId = req.params.id;
   try {
-    const group = await Group.find({ status: {$ne:"complete"}, supplierId: supplierId });
+    const group = await Group.find({ status: {$ne:"pending"}, supplierId: supplierId });
     const transformationGroupDate = await Promise.all(
       group.map(async (group) => {
         return transformationGroup(group);
