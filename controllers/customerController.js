@@ -82,7 +82,7 @@ export const updateCustomer = async (req, res) => {
     await customer.save();
     return res.status(200).json({
       status: "success",
-      data: transformationCustomer(customer),
+      data: await transformationCustomer(customer),
       message: req.headers['language'] === 'en' ? "Customer data updated successfully" : "تم تعديل بيانات العميل بنجاح"
     });
   } catch (error) {
