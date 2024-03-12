@@ -108,7 +108,6 @@ export const uploadPhoto = async (req, res) => {
     const pathName = customer.image.split('/').slice(3).join('/');
     fs.unlink('upload/' + pathName, (err) => {});
     customer.image = `${process.env.SERVER_URL}${req.file.path.replace(/\\/g, '/').replace(/^upload\//, '')}`;
-    console.log('transformationCustomer',await transformationCustomer(customer));
     await customer.save();
     return res.status(200).json({
       status: "success",
