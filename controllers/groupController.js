@@ -159,13 +159,13 @@ export const joinGroup = async (req, res) => {
         message: "Group Not Found",
       });
     }
-    // const supplier = await Supplier.findById(group.supplierId);
-    // if (group.customer.includes(customerId)) {
-    //   return res.status(403).json({
-    //     status: "fail",
-    //     message: "Customer Already Joined",
-    //   });
-    // }
+    const supplier = await Supplier.findById(group.supplierId);
+    if (group.customer.includes(customerId)) {
+      return res.status(403).json({
+        status: "fail",
+        message: "Customer Already Joined",
+      });
+    }
     if (!order.supplierId.equals(group.supplierId)) {
       return res.status(403).json({
         status: "fail",
