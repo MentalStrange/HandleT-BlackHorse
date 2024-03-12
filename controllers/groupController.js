@@ -212,10 +212,11 @@ export const getAllGroupCompleteForSupplier = async (req, res) => {
       })
     )
     if (group) {
-      return res.status(200).json({
-        status: "success",
-        data: transformationGroupDate,
-      });
+      // return res.status(200).json({
+      //   status: "success",
+      //   data: transformationGroupDate,
+      // });
+      paginateResponse(res, req.query, transformationGroupDate, group.length);
     } else {
       return res.status(200).json({
         status: "fail",
