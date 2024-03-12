@@ -192,7 +192,7 @@ export const joinGroup = async (req, res) => {
     // const updateGroup = await transformationGroup(group);
     res.status(200).json({
       status: "success",
-      data: transformationGroup(group),
+      data: await transformationGroup(group),
     });
   } catch (error) {
     res.status(500).json({
