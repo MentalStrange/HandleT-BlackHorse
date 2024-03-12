@@ -20,7 +20,7 @@ import { getAllProduct } from '../controllers/productsController.js';
 import { storage } from '../controllers/sharedFunction.js';
 import multer from 'multer';
 import { getDeliveryBoyByRegion } from '../controllers/deliveryBoyController.js';
-import { updateGroup } from '../controllers/groupController.js';
+import { getAllGroupCompleteForSupplier, updateGroup } from '../controllers/groupController.js';
 
 const uploadSupplier = multer({ storage: storage('supplier') });
 const uploadPlaceImage = multer({ storage: storage('placeimages') });
@@ -62,6 +62,7 @@ Router.get('/deliveryBoy/region/:regionName', getDeliveryBoyByRegion);
 Router.get('/getRegionBySupplierId/:id', getRegionBySupplierId);
 
 Router.patch('/group/:id', updateGroup);
+Router.get("/group/:id",getAllGroupCompleteForSupplier)
 
 
 export default Router;

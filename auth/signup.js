@@ -45,7 +45,7 @@ export const createSupplier = async (req, res) => {
       name: supplierData.name,
       email: supplierData.email,
       phone: supplierData.phoneNumber,
-      image: supplierData.image,
+      image: supplierData.image || "",
       nationalId: supplierData.nationalId,
       minOrderPrice: supplierData.minOrderPrice,
       deliveryRegion: deliveryRegion, // Assign deliveryRegion here
