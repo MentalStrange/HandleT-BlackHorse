@@ -22,7 +22,7 @@ const groupSchema = mongoose.Schema({
   // },
   status:{
     type:String,
-    enum:["pending","complete","expired","canceled","delivery","accepted"],
+    enum:["pending","complete","expired","canceled","delivery","accepted", "inProgress",],
     default:"pending",
   },
   expireDate:{

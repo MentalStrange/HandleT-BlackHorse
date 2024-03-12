@@ -110,11 +110,19 @@ export const updateGroup = async (req, res) => {
     const orders = await Order.find({ group: groupId });
     console.log("orders", orders);
 
-    if (groupStatus === "accepted") {
-      group.status = "accepted";
+    if (groupStatus === "completed") {
+      group.status = "completed";
       await Promise.all(
         orders.map(async (order) => {
           await updateOrderForGroup(order._id, "complete");
+        })
+      );
+    }
+    if (groupStatus === "inProgress") {
+      group.status = "inProgress";
+      await Promise.all(
+        orders.map(async (order) => {
+          await updateOrderForGroup(order._id, "inProgress");
         })
       );
     }
