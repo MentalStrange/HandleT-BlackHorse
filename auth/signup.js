@@ -100,8 +100,10 @@ export const createCustomer = async (req, res) => {
     }
     const password = req.body.password;
     const hashedPassword = await bcrypt.hash(password.toString(), salt);
+    const image = customerData.image?customerData.image:"";
     const newCustomer = new Customer({
       ...customerData,
+      image: image,
       password: hashedPassword,
     });
     const customer = await transformationCustomer(newCustomer);

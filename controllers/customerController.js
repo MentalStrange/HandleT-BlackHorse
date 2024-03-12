@@ -96,7 +96,7 @@ export const updateCustomer = async (req, res) => {
 
 /************************************ UploadPhoto Customer ************************************/
 export const uploadPhoto = async (req, res) => {
-  const customerId = req.params.id;
+  const customerId = req.params.id;  
   try {
     const customer = await Customer.findOne({ _id: customerId });
     if (!customer) {
@@ -105,14 +105,14 @@ export const uploadPhoto = async (req, res) => {
         message: "Customer not found"
       });
     }
-
     const pathName = customer.image.split('/').slice(3).join('/');
     fs.unlink('upload/' + pathName, (err) => {});
     customer.image = `${process.env.SERVER_URL}${req.file.path.replace(/\\/g, '/').replace(/^upload\//, '')}`;
+    console.log('transformationCustomer',await transformationCustomer(customer));
     await customer.save();
     return res.status(200).json({
       status: "success",
-      data: transformationCustomer(customer),
+      data: await transformationCustomer(customer),
     });
   } catch (error) {
     console.error(error);

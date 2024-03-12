@@ -146,7 +146,7 @@ export const joinGroup = async (req, res) => {
     const customer = await Customer.findById(customerId);
     const order = await Order.findByIdAndUpdate(orderId, { group: groupId });
     if (!customer) {
-      return res.status(404).json({
+      return res.status(406).json({
         status: "fail",
         data: [],
         message: "Customer Not Found",
@@ -154,18 +154,18 @@ export const joinGroup = async (req, res) => {
     }
     const group = await Group.findById(groupId);
     if (!group) {
-      return res.status(404).json({
+      return res.status(405).json({
         status: "fail",
         message: "Group Not Found",
       });
     }
-    const supplier = await Supplier.findById(group.supplierId);
-    if (group.customer.includes(customerId)) {
-      return res.status(403).json({
-        status: "fail",
-        message: "Customer Already Joined",
-      });
-    }
+    // const supplier = await Supplier.findById(group.supplierId);
+    // if (group.customer.includes(customerId)) {
+    //   return res.status(403).json({
+    //     status: "fail",
+    //     message: "Customer Already Joined",
+    //   });
+    // }
     if (!order.supplierId.equals(group.supplierId)) {
       return res.status(403).json({
         status: "fail",
