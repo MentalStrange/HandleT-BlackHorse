@@ -39,7 +39,13 @@ const supplierProductSchema = mongoose.Schema({
     },
     productWeight:{
       type:Number,
+    },
+    createdAt:{
+      type:Date,
+      default:Date.now
     }
+},{
+  timestamps: true,
 })
 const SupplierProduct = mongoose.model('SupplierProduct', supplierProductSchema);
 

@@ -3,10 +3,12 @@ import Supplier from "../models/supplierSchema.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import {
+  transformationAdmin,
   transformationCustomer,
   transformationSupplier,
 } from "../format/transformationObject.js";
 import Region from "../models/regionSchema.js";
+import Admin from "../models/adminSchema.js";
 const salt = 10;
 
 export const createSupplier = async (req, res) => {
@@ -111,6 +113,80 @@ export const createCustomer = async (req, res) => {
     res.status(201).json({
       status: "success",
       data:  {...customer, access_token: jwt.sign({_id: newCustomer._id, role: "customer"}, process.env.JWT_SECRET, {})},
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(error.statusCode || 500).json({
+      status: "fail",
+      message: error.message || "Internal Server Error",
+    });
+  }
+};
+
+export const createSubAdmin = async (req, res) => {
+  const subAdminData = req.body;
+  const subAdminEmail = req.body.email;
+  try {
+    const oldSubAdmin = await subAdmin.find({ email: subAdminEmail });
+    if (oldSubAdmin.length > 0) {
+      return res.status(404).json({
+        status: "fail",
+        message:
+          req.headers["language"] === "en"
+            ? "email already exists"
+            : "الايميل الإلكتروني موجود بالفعل",
+      });
+    }
+    const password = req.body.password;
+    const hashedPassword = await bcrypt.hash(password.toString(), salt);
+    const image = subAdminData.image?subAdminData.image:"";
+    const newSubAdmin = new SubAdmin({
+      ...subAdminData,
+      image: image,
+      password: hashedPassword,
+    });
+    const subAdmin = await transformationSubAdmin(newSubAdmin);
+    await newSubAdmin.save();
+    res.status(201).json({
+      status: "success",
+      data:  {...subAdmin, access_token: jwt.sign({_id: newSubAdmin._id, role: "subAdmin"}, process.env.JWT_SECRET, {})},
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(error.statusCode || 500).json({
+      status: "fail",
+      message: error.message || "Internal Server Error",
+    });
+  } 
+};
+
+export const createAdmin = async (req, res) => {
+  const adminData = req.body;
+  const adminEmail = req.body.email;
+  try {
+    const oldAdmin = await Admin.find({ email: adminEmail });
+    if (oldAdmin.length > 0) {
+      return res.status(404).json({
+        status: "fail",
+        message:
+          req.headers["language"] === "en"
+            ? "email already exists"
+            : "الايميل الإلكتروني موجود بالفعل",
+      });
+    }
+    const password = req.body.password;
+    const hashedPassword = await bcrypt.hash(password.toString(), salt);
+    const image = adminData.image?adminData.image:"";
+    const newAdmin = new Admin({
+      ...adminData,
+      image: image,
+      password: hashedPassword,
+    });
+    const admin = await transformationAdmin(newAdmin);
+    await newAdmin.save();
+    res.status(201).json({
+      status: "success",
+      data:  {...admin, access_token: jwt.sign({_id: newAdmin._id, role: "admin"}, process.env.JWT_SECRET, {})},
     });
   } catch (error) {
     console.error(error);

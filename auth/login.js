@@ -2,8 +2,9 @@ import Customer from "../models/customerSchema.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import Supplier from "../models/supplierSchema.js";
-import {transformationCustomer, transformationDeliveryBoy, transformationSupplier} from "../format/transformationObject.js";
+import {transformationAdmin, transformationCustomer, transformationDeliveryBoy, transformationSupplier} from "../format/transformationObject.js";
 import DeliveryBoy from "../models/deliveryBoySchema.js";
+import Admin from "../models/adminSchema.js";
 const salt = 10 ;
 
 export const customerLogin = async (req, res) => {
@@ -134,7 +135,7 @@ export const adminLogin = async (req, res) => {
   const adminPassword = req.body.password;
 
   try {
-    const admin = await Supplier.findOne({ email: adminEmail, type:"blackHorse" });
+    const admin = await Admin.findOne({ email: adminEmail});
     if (!admin) {
       return res.status(207).json({
         status: "fail",
@@ -157,7 +158,7 @@ export const adminLogin = async (req, res) => {
     const adminData = { ...rest, access_token: jwt.sign({_id: rest._id, role: "admin"}, process.env.JWT_SECRET, {})};
     res.status(200).json({
       status: "success",
-      data: {...(await transformationSupplier(adminData)), access_token: jwt.sign({_id: rest._id, role: "admin"}, process.env.JWT_SECRET, {})},
+      data: await transformationAdmin(adminData),
     });
   } catch (error) {
     res.status(500).json({

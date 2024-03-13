@@ -68,7 +68,7 @@ export const getProductByCategory = async (req, res) => {
     }
     const products = await Product.find({ category: categoryId });
     const productIds = products.map(product => product._id);
-    const supplierProducts = await SupplierProduct.find({ productId: { $in: productIds } });
+    const supplierProducts = await SupplierProduct.find({ productId: { $in: productIds } }).sort({createdAt: -1});
     const transformedProducts = await Promise.all(
       supplierProducts.map(async (supplierProduct) => {
         return await transformationSupplierProduct(supplierProduct);
@@ -88,7 +88,7 @@ export const getAllProductAssignedToSupplier = async (req, res) => {
   const sortDirection = req.query.price === '1' ? -1 : 1; // Check if price parameter is 1 for ascending or -1 for descending
 
   try {
-    const supplierProducts = await SupplierProduct.find().sort({ price: sortDirection });
+    const supplierProducts = await SupplierProduct.find().sort({ price: sortDirection, createdAt: -1 });
     const supplierProductsCount = await SupplierProduct.countDocuments();
     const transformedProducts = await Promise.all(
       supplierProducts.map(async (supplierProduct) => {
@@ -143,7 +143,7 @@ export const getProductsByOfferId = async (req, res) => {
     }
     let offerProducts = [];
     for (const prod of offer.products) {
-      const sp = await SupplierProduct.findOne({ productId: prod.productId })
+      const sp = await SupplierProduct.findOne({ productId: prod.productId }).sort({createdAt: -1});
       offerProducts.push(await transformationSupplierProduct(sp, prod.quantity))
     }
     res.status(200).json({
@@ -160,7 +160,7 @@ export const getProductsByOfferId = async (req, res) => {
 export const getProductByOrderId = async (req, res) => {
   const orderId = req.params.id;
   try {
-    const order = await Order.findById(orderId);
+    const order = await Order.findById(orderId).sort({createdAt: -1});
     // if (!order) {
     //   return res.status(200).json({
     //     status: "success",
@@ -187,7 +187,6 @@ export const getProductByOrderId = async (req, res) => {
     });
   }
 };
-
 export const uploadProductImage = async (req, res) => {
   const productId = req.params.id;
   try{
@@ -241,3 +240,32 @@ export const deleteProductImage = async (req, res) => {
     });
   }
 };
+export const averagePriceForProduct = async (req, res) => {
+  const productId = req.params.id;
+  let gomlaAveragePrice = 0;
+  let nosGomlaAveragePrice = 0;
+  try {
+    const supplierProducts = await SupplierProduct.find({ productId: productId });
+    const NumberOfGomlaProduct = supplierProducts.filter(sp => sp.unit).length;
+    const NumberOfNosGomlaProduct = supplierProducts.filter(sp => !sp.unit).length;
+    for (const sp of supplierProducts) {
+      if (sp.unit) {
+        gomlaAveragePrice += sp.price
+      } else {
+        nosGomlaAveragePrice += sp.price
+      }
+    }
+    res.status(200).json({
+      status: "success",
+      data: {
+        gomlaAveragePrice: gomlaAveragePrice / NumberOfGomlaProduct,
+        nosGomlaAveragePrice: nosGomlaAveragePrice / NumberOfNosGomlaProduct
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "fail",
+      message: error.message,
+    });
+  }
+}
