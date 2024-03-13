@@ -42,7 +42,7 @@ export const getAllGroupForAdmin = async (req, res) => {
     const groups = await Group.find();
     const transformationGroupData = await Promise.all(
       groups.map(async (group) => {
-        return transformationGroup(group)
+        return await transformationGroup(group)
       })
     )
     if(!transformationGroupData){
@@ -74,7 +74,7 @@ export const getAllGroupForCustomer = async (req, res) => {
       const group = await Group.find({ region: region, status: "pending" });
       const transformationGroup = await Promise.all(
         group.map(async (group) => {
-          return transformationGroup(group);
+          return await transformationGroup(group);
         })
       );
       if (group) {
@@ -248,15 +248,15 @@ export const getAllGroupDelivery = async (req, res) => {
   const deliveryBoy = req.params.id;
   try {
     const group = await Group.findById(deliveryBoy);
-    const transformationGroup = await Promise.all(
+    const transformationGroupDate = await Promise.all(
       group.map(async (group) => {
-        return transformationGroup(group);
+        return await transformationGroup(group);
       })
     );
     if (group) {
       return res.status(200).json({
         status: "success",
-        data: transformationGroup,
+        data: transformationGroupDate,
       });
     } else {
       return res.status(200).json({
