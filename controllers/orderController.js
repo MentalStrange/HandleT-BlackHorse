@@ -481,9 +481,9 @@ export const getAllOrderByCustomerId = async (req, res) => {
 };
 export const getAllOrderBySupplierId = async (req, res) => {
   const supplierId = req.params.id;
-  const orderMonth = req.query.month;
-  const startDate = new Date(new Date().getFullYear(), orderMonth - 1, 1); // First day of the month
-  const endDate = new Date(new Date().getFullYear(), orderMonth, 0); // Last day of the month
+  // const orderMonth = req.query.month;
+  // const startDate = new Date(new Date().getFullYear(), orderMonth - 1, 1); // First day of the month
+  // const endDate = new Date(new Date().getFullYear(), orderMonth, 0); // Last day of the month
   const status = req.query.status;
   try {
     let orders;
@@ -495,26 +495,30 @@ export const getAllOrderBySupplierId = async (req, res) => {
         message: "Supplier not found",
       });
     }
-    const query = orderMonth
-      ? {
-          supplierId: supplierId,
-          orderDate: { $gte: startDate, $lte: endDate },
-        }
-      : { supplierId: supplierId };
-    if (orderMonth) {
-      orders = await Order.find(query).sort({ orderDate: -1 });
-      totalOrders = await Order.countDocuments(query);
-      if (orders.length === 0) {
-        return res.status(200).json({
-          status: "success",
-          message: "No orders found for the specified month",
-          data: 0,
-          totalOrders: totalOrders,
-        });
-      }
+    // const query = orderMonth
+    //   ? {
+    //       supplierId: supplierId,
+    //       orderDate: { $gte: startDate, $lte: endDate },
+    //     }
+    //   : { supplierId: supplierId };
+    // if (orderMonth) {
+    //   orders = await Order.find(query).sort({ orderDate: -1 });
+    //   totalOrders = await Order.countDocuments(query);
+    //   if (orders.length === 0) {
+    //     return res.status(200).json({
+    //       status: "success",
+    //       message: "No orders found for the specified month",
+    //       data: 0,
+    //       totalOrders: totalOrders,
+    //     });
+    //   }
+    // } else 
+    if (status) {
+      orders = await Order.find({ supplierId: supplierId, status: status }).sort({ orderDate: -1 });
+      totalOrders = await Order.countDocuments({ supplierId: supplierId, status: status });
     } else {
-      orders = await Order.find(query).sort({ orderDate: -1 });
-      totalOrders = await Order.countDocuments(query);
+      orders = await Order.find({ supplierId: supplierId }).sort({ orderDate: -1 });
+      totalOrders = await Order.countDocuments({ supplierId: supplierId });
     }
 
     // Transform orders
