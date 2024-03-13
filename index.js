@@ -22,6 +22,7 @@ import Supplier from './models/supplierSchema.js';
 import Customer from './models/customerSchema.js';
 import Group from './models/groupSchema.js';
 import { getGroupByDelivery } from './controllers/groupController.js';
+import { updateOrderForGroup } from './utils/updateOrderForGroup.js';
 
 dotenv.config();
 const port = process.env.PORT || 3000;
@@ -125,9 +126,7 @@ IO.on("connection", (socket) => {
       await group.save();
       const orders = await Order.find({ group: groupId });
       orders.forEach(async orderId => {
-        const orderData = await Order.findById(orderId);
-        orderData.status = status;
-        await orderData.save();
+        await updateOrderForGroup(orderId, status)
       });
       if(group.status === 'willBeDelivered'){
         await pushNotification("لديك طلب جديد", `لديك اوردر جديد بوزن ${group.totalWeight/1000} كيلو ينتظر موافقتك`, null, null, null, deliveryId, delivery.deviceToken);
@@ -144,9 +143,7 @@ IO.on("connection", (socket) => {
       await group.save();
       const orders = await Order.find({ group: groupId });
       orders.forEach(async orderId => {
-        const orderData = await Order.findById(orderId);
-        orderData.status = status;
-        await orderData.save();
+        await updateOrderForGroup(orderId, status);
       });
       if(group.status === 'delivery'){
         const supplier = await Supplier.findById(group.supplierId);
