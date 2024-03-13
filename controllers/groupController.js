@@ -220,11 +220,12 @@ export const joinGroup = async (req, res) => {
 // will be for supplier to accept or reject it....
 export const getAllGroupCompleteForSupplier = async (req, res) => {
   const supplierId = req.params.id;
+  const status = req.query.status;
   try {
-    const group = await Group.find({ status: {$ne:"pending"}, supplierId: supplierId });
+    const group = status ? await Group.find({ status: {$ne:"pending"}, supplierId: supplierId , status: status}).sort({ createdAt: -1 }) : await Group.find({ status: {$ne:"pending"}, supplierId: supplierId , status: status}).sort({ createdAt: -1 });
     const transformationGroupDate = await Promise.all(
       group.map(async (group) => {
-        return transformationGroup(group);
+        return await transformationGroup(group);
       })
     )
     if (group) {

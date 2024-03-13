@@ -118,7 +118,11 @@ IO.on("connection", (socket) => {
     let groupId = data.groupId;
     let status = data.status;
     let deliveryId = data.deliveryId;
+    console.log("groupId:", groupId);
+    console.log("status:", status);
+    console.log("deliveryId:", deliveryId);
     if(deliveryId && groupId && status){
+      console.log("One");
       const delivery = await DeliveryBoy.findById(deliveryId);
       const group = await Group.findById(groupId);
       group.status = status;
@@ -138,6 +142,7 @@ IO.on("connection", (socket) => {
       IO.to(userSocketIdMap[deliveryId]).emit("group", await getGroupByDelivery(deliveryId));
     }
     else if(groupId && status){
+      console.log("Two");
       const group = await Group.findById(groupId);
       group.status = status;
       await group.save();
@@ -155,6 +160,7 @@ IO.on("connection", (socket) => {
       }
     }
     else if(deliveryId){
+      console.log("Three");
       IO.to(userSocketIdMap[deliveryId]).emit("group", await getGroupByDelivery(deliveryId));
     }
   });

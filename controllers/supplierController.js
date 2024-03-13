@@ -211,13 +211,25 @@ export const createProductSupplier = async (req, res) => {
         message: "Supplier not found",
       });
     }
-    const oldSupplierProduct= await SupplierProduct.findOne({productId: productId, supplierId: supplierId});
-    if (oldSupplierProduct) {
-      return res.status(207).json({
-        status: "fail",
-        message: "Product already exists in supplier list",
-      });
-    }
+
+    const oldSupplierProduct = await SupplierProduct.find({ productId: productId, supplierId: supplierId });
+
+    if (oldSupplierProduct.length > 0) {
+      for (const sp of oldSupplierProduct) {
+        if (!unit && !sp.unit && sp.subUnit) {
+          return res.status(207).json({
+              status: "fail",
+              message: "Product already exists in supplier list with sub unit",
+          });
+        } else if (unit && sp.unit) {
+          return res.status(208).json({
+              status: "fail",
+              message: "Product already exists in supplier list with primary unit",
+          });
+        }
+      }
+    }    
+   
     // this check will only apply when add authentication.
     // if(role === "gomlaGomla" || role === "compony" && req.subUnit != null){
     //   return res.status(400).json({
