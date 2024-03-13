@@ -13,7 +13,7 @@ export const createGroup = async (req, res) => {
     const group = await Group.findOne({
       region,
       supplierId: supplierId,
-      status:{$ne:"pending"}
+      status:"pending"
     });
     if (group) {
       return res.status(400).json({

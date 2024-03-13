@@ -50,7 +50,11 @@ const offerSchema = new mongoose.Schema({
   desc:{
     type: String,
     required: [true, 'Offer should have a description'],
-  }
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 },
 {
   timestamps: true,

@@ -107,7 +107,7 @@ export const updateOffer = async (req, res) => {
       });
     }
 
-    const ordersPending = await Order.find({ supplierId: offer.supplierId, status: 'pending' });
+    const ordersPending = await Order.find({ supplierId: offer.supplierId, status: 'pending' }).sort({ createdAt: -1 });
     const offerIncluded = ordersPending.some(order => {
       return order.offers.some(orderOffer => orderOffer.offer.equals(offerId));
     });
