@@ -13,6 +13,7 @@ export const createGroup = async (req, res) => {
     const group = await Group.findOne({
       region,
       supplierId: supplierId,
+      status:{$ne:"pending"}
     });
     if (group) {
       return res.status(400).json({
@@ -100,7 +101,7 @@ export const updateGroup = async (req, res) => {
   const groupStatus = req.body.status;
   const deliveryBoy = req.body.deliveryBoy;
   try {
-    const group = await Group.findById(groupId);
+    const group = await Group.findById(groupId).sort({ createdAt: -1 });
     if (!group) {
       return res.status(404).json({
         status: "fail",
