@@ -123,6 +123,12 @@ IO.on("connection", (socket) => {
       group.status = status;
       group.deliveryBoy = deliveryId;
       await group.save();
+      const orders = await Order.find({ group: groupId });
+      orders.forEach(async orderId => {
+        const orderData = await Order.findById(orderId);
+        orderData.status = status;
+        await orderData.save();
+      });
       if(group.status === 'willBeDelivered'){
         await pushNotification("لديك طلب جديد", `لديك اوردر جديد بوزن ${group.totalWeight/1000} كيلو ينتظر موافقتك`, null, null, null, deliveryId, delivery.deviceToken);
         group.customer.forEach(async cust => {
@@ -136,6 +142,12 @@ IO.on("connection", (socket) => {
       const group = await Group.findById(groupId);
       group.status = status;
       await group.save();
+      const orders = await Order.find({ group: groupId });
+      orders.forEach(async orderId => {
+        const orderData = await Order.findById(orderId);
+        orderData.status = status;
+        await orderData.save();
+      });
       if(group.status === 'delivery'){
         const supplier = await Supplier.findById(group.supplierId);
         await pushNotification("تم الموافقة!", "قام عامل التوصيل بالموافقة ع توصيل الاوردرات الموجودة داخل الجروب", null, null, group.supplierId, null, supplier.deviceToken);
