@@ -20,6 +20,8 @@ import { CronJob } from 'cron';
 import DeliveryBoy from './models/deliveryBoySchema.js';
 import Supplier from './models/supplierSchema.js';
 import Customer from './models/customerSchema.js';
+import Group from './models/groupSchema.js';
+import { getGroupByDelivery } from './controllers/groupController.js';
 
 dotenv.config();
 const port = process.env.PORT || 3000;
@@ -88,7 +90,7 @@ IO.on("connection", (socket) => {
       order.deliveryBoy = deliveryId;
       await order.save();
       if(order.status === 'willBeDelivered'){
-        const customer = Customer.findById(order.customerId);
+        const customer = await Customer.findById(order.customerId);
         await pushNotification("لديك طلب جديد", `لديك اوردر جديد بوزن ${order.orderWeight/1000} كيلو ينتظر موافقتك`, null, null, null, deliveryId, delivery.deviceToken);
         await pushNotification("تم الموافقة ع الطلب", `تم اسناد الاوردر الخاص بك برقم ${order.orderNumber} الي عامل التوصيل`, null, order.customerId, null, null, customer.deviceToken);
       }
@@ -108,6 +110,43 @@ IO.on("connection", (socket) => {
     }
     else if(deliveryId){
       IO.to(userSocketIdMap[deliveryId]).emit("order", await getOrderByDelivery(deliveryId));
+    }
+  });
+
+  socket.on("group", async (data) => {
+    let groupId = data.groupId;
+    let status = data.status;
+    let deliveryId = data.deliveryId;
+    if(deliveryId && groupId && status){
+      const delivery = await DeliveryBoy.findById(deliveryId);
+      const group = await Group.findById(groupId);
+      group.status = status;
+      group.deliveryBoy = deliveryId;
+      await group.save();
+      if(group.status === 'willBeDelivered'){
+        await pushNotification("لديك طلب جديد", `لديك اوردر جديد بوزن ${group.totalWeight/1000} كيلو ينتظر موافقتك`, null, null, null, deliveryId, delivery.deviceToken);
+        group.customer.forEach(async cust => {
+          const customerData = await Customer.findById(cust);
+          await pushNotification("تم الموافقة ع الطلب", "تم اسناد الاوردر الخاص بك الموجود داخل الجروب الي عامل التوصيل", null, customerData.customerId, null, null, customerData.deviceToken);
+        });
+      }
+      IO.to(userSocketIdMap[deliveryId]).emit("group", await getGroupByDelivery(deliveryId));
+    }
+    else if(groupId && status){
+      const group = await Group.findById(groupId);
+      group.status = status;
+      await group.save();
+      if(group.status === 'delivery'){
+        const supplier = await Supplier.findById(group.supplierId);
+        await pushNotification("تم الموافقة!", "قام عامل التوصيل بالموافقة ع توصيل الاوردرات الموجودة داخل الجروب", null, null, group.supplierId, null, supplier.deviceToken);
+        group.customer.forEach(async cust => {
+          const customerData = await Customer.findById(cust);
+          await pushNotification("وافق عامل التوصيل", "تم الموافقة ع توصيل الاوردر الخاص بك داخل الجروب من قبل عامل التوصيل", null, customerData.customerId, null, null, customerData.deviceToken);
+        });
+      }
+    }
+    else if(deliveryId){
+      IO.to(userSocketIdMap[deliveryId]).emit("group", await getGroupByDelivery(deliveryId));
     }
   });
 });

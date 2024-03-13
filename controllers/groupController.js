@@ -272,6 +272,19 @@ export const getAllGroupDelivery = async (req, res) => {
     });
   }
 };
+
+export const getGroupByDelivery = async (deliveryId) => {
+  const groups = await Group.find({ 
+    deliveryBoy: deliveryId, 
+    status: { $in: ['willBeDelivered', 'delivery'] } 
+  }).sort({ createdAt: -1 });;
+
+  return await Promise.all(
+    groups.map(async (group) => {
+      return await transformationGroup(group);
+    })
+  );
+};
 // will be for customer to see the all group from the same region for the same supplier.
 export const getAllGroupPending = async (req, res) => {
   const region = req.query.region;
