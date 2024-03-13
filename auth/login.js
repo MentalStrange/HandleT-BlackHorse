@@ -129,3 +129,41 @@ export const deliveryBoyLogin = async (req, res) => {
   }
 };
 
+export const adminLogin = async (req, res) => {
+  const adminEmail = req.body.email;
+  const adminPassword = req.body.password;
+
+  try {
+    const admin = await Supplier.findOne({ email: adminEmail, type:"blackHorse" });
+    if (!admin) {
+      return res.status(207).json({
+        status: "fail",
+        message: "Admin Not Found",
+      });
+    }
+    // Compare passwords using bcrypt.compare
+    const isPasswordMatch = await bcrypt.compare(
+      adminPassword,
+      admin.password
+    );
+    if (!isPasswordMatch) {
+      return res.status(207).json({
+        status: "fail",
+        message: "Incorrect Password",
+      }
+      );
+    }
+    const { password, ...rest } = admin._doc;
+    const adminData = { ...rest, access_token: jwt.sign({_id: rest._id, role: "admin"}, process.env.JWT_SECRET, {})};
+    res.status(200).json({
+      status: "success",
+      data: {...(await transformationSupplier(adminData)), access_token: jwt.sign({_id: rest._id, role: "admin"}, process.env.JWT_SECRET, {})},
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "fail",
+      message: error.message,
+    });
+  }
+};
+

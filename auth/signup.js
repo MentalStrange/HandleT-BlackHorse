@@ -45,7 +45,7 @@ export const createSupplier = async (req, res) => {
       name: supplierData.name,
       email: supplierData.email,
       phone: supplierData.phoneNumber,
-      image: supplierData.image,
+      image: supplierData.image || "",
       nationalId: supplierData.nationalId,
       minOrderPrice: supplierData.minOrderPrice,
       deliveryRegion: deliveryRegion, // Assign deliveryRegion here
@@ -100,8 +100,10 @@ export const createCustomer = async (req, res) => {
     }
     const password = req.body.password;
     const hashedPassword = await bcrypt.hash(password.toString(), salt);
+    const image = customerData.image?customerData.image:"";
     const newCustomer = new Customer({
       ...customerData,
+      image: image,
       password: hashedPassword,
     });
     const customer = await transformationCustomer(newCustomer);

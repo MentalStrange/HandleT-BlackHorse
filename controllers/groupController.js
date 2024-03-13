@@ -3,14 +3,15 @@ import Customer from "../models/customerSchema.js";
 import Group from "../models/groupSchema.js";
 import Order from "../models/orderSchema.js";
 import Supplier from "../models/supplierSchema.js";
+import paginateResponse from "../utils/paginationResponse.js";
 import { updateOrderForGroup } from "../utils/updateOrderForGroup.js";
 
 export const createGroup = async (req, res) => {
-  const regionId = req.body.region;
+  const region = req.body.region;
   const supplierId = req.body.supplierId;
   try {
     const group = await Group.findOne({
-      region: regionId,
+      region,
       supplierId: supplierId,
     });
     if (group) {
@@ -25,7 +26,7 @@ export const createGroup = async (req, res) => {
     newGroup.save();
     res.status(201).json({
       status: "success",
-      data: newGroup,
+      data: await transformationGroup(newGroup),
     });
   } catch (error) {
     console.error(error);
@@ -35,24 +36,32 @@ export const createGroup = async (req, res) => {
     });
   }
 };
-export const getAllGroup = async (req, res) => {
-  const customerId = req.params.id;
+export const getAllGroupForAdmin = async (req, res) => {
   try {
-    const customer = Customer.findById(customerId);
-    const group = await Group.find({ region: customer.region });
-    if (group) {
-      res.status(200).json({
-        status: "success",
-        data: group,
-      });
-    } else {
-      throw new Error("Could not find Group");
+    const groups = await Group.find();
+    const transformationGroupData = await Promise.all(
+      groups.map(async (group) => {
+        return transformationGroup(group)
+      })
+    )
+    if(!transformationGroupData){
+      return res.status(404).json(
+        {
+          status:"fail",
+          data:[],
+          message:"No Groups Found"
+        }
+      )
     }
+    res.status(200).json({
+      status:"success",
+      data:transformationGroupData
+    })
   } catch (error) {
     res.status(500).json({
-      status: "fail",
-      message: error.message,
-    });
+      status:"fail",
+      message:error.message
+    })
   }
 };
 export const getAllGroupForCustomer = async (req, res) => {
@@ -89,6 +98,7 @@ export const getAllGroupForCustomer = async (req, res) => {
 export const updateGroup = async (req, res) => {
   const groupId = req.params.id;
   const groupStatus = req.body.status;
+  const deliveryBoy = req.body.deliveryBoy;
   try {
     const group = await Group.findById(groupId);
     if (!group) {
@@ -99,13 +109,19 @@ export const updateGroup = async (req, res) => {
       });
     }
     const orders = await Order.find({ group: groupId });
-    console.log("orders", orders);
-
-    if (groupStatus === "accepted") {
-      group.status = "accepted";
+    if (groupStatus === "completed") {
+      group.status = "completed";
       await Promise.all(
         orders.map(async (order) => {
           await updateOrderForGroup(order._id, "complete");
+        })
+      );
+    }
+    if (groupStatus === "inProgress") {
+      group.status = "inProgress";
+      await Promise.all(
+        orders.map(async (order) => {
+          await updateOrderForGroup(order._id, "inProgress");
         })
       );
     }
@@ -113,9 +129,17 @@ export const updateGroup = async (req, res) => {
       group.status = "canceled";
       await Promise.all(
         orders.map(async (order) => {
-          await updateOrderForGroup(order._id, "canceled");
+          await updateOrderForGroup(order._id, "canceled",req);
         })
       );
+    }
+    if (deliveryBoy) {
+      group.deliveryBoy = deliveryBoy;
+      await Promise.all(
+        orders.map(async (order) => {
+          await updateOrderForGroup(order._id, deliveryBoy);
+        })
+      )
     }
     await group.save();
     res.status(200).json({
@@ -137,7 +161,7 @@ export const joinGroup = async (req, res) => {
     const customer = await Customer.findById(customerId);
     const order = await Order.findByIdAndUpdate(orderId, { group: groupId });
     if (!customer) {
-      return res.status(404).json({
+      return res.status(406).json({
         status: "fail",
         data: [],
         message: "Customer Not Found",
@@ -145,7 +169,7 @@ export const joinGroup = async (req, res) => {
     }
     const group = await Group.findById(groupId);
     if (!group) {
-      return res.status(404).json({
+      return res.status(405).json({
         status: "fail",
         message: "Group Not Found",
       });
@@ -183,7 +207,7 @@ export const joinGroup = async (req, res) => {
     // const updateGroup = await transformationGroup(group);
     res.status(200).json({
       status: "success",
-      data: group,
+      data: await transformationGroup(group),
     });
   } catch (error) {
     res.status(500).json({
@@ -193,19 +217,17 @@ export const joinGroup = async (req, res) => {
   }
 };
 // will be for supplier to accept or reject it....
-export const getAllGroupComplete = async (req, res) => {
+export const getAllGroupCompleteForSupplier = async (req, res) => {
+  const supplierId = req.params.id;
   try {
-    const group = await Group.find({ status: "complete" });
-    const transformationGroup = await Promise.all(
+    const group = await Group.find({ status: {$ne:"pending"}, supplierId: supplierId });
+    const transformationGroupDate = await Promise.all(
       group.map(async (group) => {
         return transformationGroup(group);
       })
     )
     if (group) {
-      return res.status(200).json({
-        status: "success",
-        data: transformationGroup,
-      });
+      paginateResponse(res, req.query, transformationGroupDate, group.length);
     } else {
       return res.status(200).json({
         status: "fail",
@@ -251,24 +273,27 @@ export const getAllGroupDelivery = async (req, res) => {
 };
 // will be for customer to see the all group from the same region for the same supplier.
 export const getAllGroupPending = async (req, res) => {
-  const region = req.body.region;
-  const supplierId = req.body.supplierId;
+  const region = req.query.region;
+  const supplierId = req.query.supplierId;
+  console.log('region:', region, 'supplierId:', supplierId);
+  
   try {
     const group = await Group.find({
       status: "pending",
       region: region,
       supplierId: supplierId,
     });
-    const transformationGroup = await Promise.all(
+    const transformationGroupData = await Promise.all(
       group.map(async (group) => {
         return transformationGroup(group);
       })
     );
-    if (group) {
-      return res.status(200).json({
-        status: "success",
-        data: transformationGroup,
-      });
+    if (group.length >0) {
+      paginateResponse(res, req.query, transformationGroupData, group.length);
+      // return res.status(200).json({
+      //   status: "success",
+      //   data: transformationGroupData,
+      // });
     } else {
       return res.status(200).json({
         status: "fail",

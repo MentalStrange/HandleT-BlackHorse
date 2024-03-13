@@ -70,6 +70,7 @@ import { createDeliveryBoy, updateDeliveryBoy, changeImageDeliveryBoy , getAllDe
 import validateField from "../middlewares/fieldMiddleware.js";
 import { createPromoCode, deletePromoCode, getAllPromoCode, updatePromoCode } from "../controllers/promoCodeController.js";
 import { checkAllFieldsFilled } from "../middlewares/isActive.js";
+import {  getAllGroupForAdmin } from "../controllers/groupController.js";
 // import { authenticate } from '../middlewares/authorizationMiddleware.js';
 
 
@@ -156,5 +157,7 @@ Router.post('/promoCode',createPromoCode);
 Router.get('/promoCode',getAllPromoCode);
 Router.delete('/promoCode/:id',deletePromoCode);
 Router.patch('/promoCode/:id',updatePromoCode)
+
+Router.get("/allGroups",getAllGroupForAdmin)
 
 export default Router;

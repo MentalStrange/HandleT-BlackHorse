@@ -3,9 +3,8 @@ import GroupExpireDate from './groupExpireDate.js';
 
 const groupSchema = mongoose.Schema({
   region:{
-    type:mongoose.Schema.Types.ObjectId,
-    ref:"Region",
-    required:[true, "Group should have a region"]
+    type:String,
+    required:[true, "Group should have a region"],
   },
   supplierId:{
     type:mongoose.Schema.Types.ObjectId,
@@ -23,7 +22,7 @@ const groupSchema = mongoose.Schema({
   // },
   status:{
     type:String,
-    enum:["pending","complete","expired","canceled","delivery","accepted"],
+    enum:["pending","complete","expired","canceled","delivery","accepted", "inProgress","willBeDelivered","trash","completed"],
     default:"pending",
   },
   expireDate:{

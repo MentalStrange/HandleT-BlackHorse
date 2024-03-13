@@ -35,7 +35,7 @@ export const getAllOrder = async (req, res) => {
       query.orderDate = { $gte: startDate, $lte: endDate };
     }
     const totalOrders = await Order.countDocuments(query);
-    orders = await Order.find(query);
+    orders = await Order.find(query).sort({ orderDate: -1 });
 
     // Transformation
     const formattedOrders = await Promise.all(
@@ -116,7 +116,7 @@ export const updateOrder = async (req, res, next) => {
       }
     }
 
-    const updatedOrder = await Order.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const updatedOrder = await Order.findByIdAndUpdate(req.params.id, req.body, { new: true }).sort({ orderDate: -1 });
     res.status(200).json({
       status: "success",
       data: await transformationOrder(updatedOrder),
@@ -130,7 +130,7 @@ export const updateOrder = async (req, res, next) => {
 };
 export const getOrderByDelivery = async (deliveryId) => {  // use socketIO
   try {
-    const orders = await Order.find({ deliveryBoy: deliveryId, status: { $in: ['delivery', 'willBeDelivered'] } });
+    const orders = await Order.find({ deliveryBoy: deliveryId, status: { $in: ['delivery', 'willBeDelivered'] } }).sort({ orderDate: -1 });
     return await Promise.all(
       orders.map(async (order) => {
         return await transformationOrder(order);
@@ -147,7 +147,7 @@ export const getOrderByDeliveryRoute = async (req, res) => { // use http
 
   try {
     // const totalOffers = await Order.countDocuments({ deliveryBoy: deliveryId, status: 'complete' });
-    const orders = await Order.find({ deliveryBoy: deliveryId, status: 'complete' }); //.skip((page - 1) * limit).limit(limit);
+    const orders = await Order.find({ deliveryBoy: deliveryId, status: 'complete' }).sort({ orderDate: -1 });
     const orderByDelivery = await Promise.all(
       orders.map(async (order) => {
         return await transformationOrder(order);
@@ -201,13 +201,14 @@ export const createOrder = async (req, res) => {
         message: "Supplier not found",
       });
     }
-
-    if(totalPrice < supplier.minOrderPrice){
-      return res.status(207).json({
-        status: "fail",
-        message: "Total price should be greater than min order price",
-      })
-    }
+if(!req.body.isGroup){
+  if(totalPrice < supplier.minOrderPrice){
+    return res.status(207).json({
+      status: "fail",
+      message: "Total price should be greater than min order price",
+    })
+  }
+}
 
     if (promoCode) {
       const existingPromoCode = await PromoCode.findOne({ code: promoCode });
@@ -448,7 +449,7 @@ export const getAllOrderByCustomerId = async (req, res) => {
   const customerId = req.params.id;
   try {
     const ordersCount = await Order.countDocuments({ customerId });
-    const orders = await Order.find({ customerId });
+    const orders = await Order.find({ customerId }).sort({ orderDate: -1 });
     if (orders) {
       const formattedOrders = await Promise.all(
         orders.map(async (order) => {
@@ -483,6 +484,7 @@ export const getAllOrderBySupplierId = async (req, res) => {
   const orderMonth = req.query.month;
   const startDate = new Date(new Date().getFullYear(), orderMonth - 1, 1); // First day of the month
   const endDate = new Date(new Date().getFullYear(), orderMonth, 0); // Last day of the month
+  const status = req.query.status;
   try {
     let orders;
     let totalOrders;
@@ -500,7 +502,7 @@ export const getAllOrderBySupplierId = async (req, res) => {
         }
       : { supplierId: supplierId };
     if (orderMonth) {
-      orders = await Order.find(query);
+      orders = await Order.find(query).sort({ orderDate: -1 });
       totalOrders = await Order.countDocuments(query);
       if (orders.length === 0) {
         return res.status(200).json({
@@ -511,7 +513,7 @@ export const getAllOrderBySupplierId = async (req, res) => {
         });
       }
     } else {
-      orders = await Order.find(query);
+      orders = await Order.find(query).sort({ orderDate: -1 });
       totalOrders = await Order.countDocuments(query);
     }
 
