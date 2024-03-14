@@ -245,40 +245,40 @@ export const getAllGroupCompleteForSupplier = async (req, res) => {
   }
 };
 // will be for delivery boy to see the order that should be delivered
-export const getAllGroupDelivery = async (req, res) => {
-  const deliveryBoy = req.params.id;
-  try {
-    const group = await Group.findById(deliveryBoy);
-    const transformationGroupDate = await Promise.all(
-      group.map(async (group) => {
-        return await transformationGroup(group);
-      })
-    );
-    if (group) {
-      return res.status(200).json({
-        status: "success",
-        data: transformationGroupDate,
-      });
-    } else {
-      return res.status(200).json({
-        status: "fail",
-        data: [],
-        message: "No Group Founded",
-      });
-    }
-  } catch (error) {
-    res.status(500).json({
-      status: "fail",
-      message: error.message,
-    });
-  }
-};
+// export const getAllGroupDelivery = async (req, res) => {
+//   const deliveryBoy = req.params.id;
+//   try {
+//     const group = await Group.findById(deliveryBoy);
+//     const transformationGroupDate = await Promise.all(
+//       group.map(async (group) => {
+//         return await transformationGroup(group);
+//       })
+//     );
+//     if (group) {
+//       return res.status(200).json({
+//         status: "success",
+//         data: transformationGroupDate,
+//       });
+//     } else {
+//       return res.status(200).json({
+//         status: "fail",
+//         data: [],
+//         message: "No Group Founded",
+//       });
+//     }
+//   } catch (error) {
+//     res.status(500).json({
+//       status: "fail",
+//       message: error.message,
+//     });
+//   }
+// };
 export const getGroupByDeliveryRoute = async (req, res) => { // use http
   const deliveryId = req.params.deliveryId;
 
   try {
     const totalGroups = await Group.countDocuments({ deliveryBoy: deliveryId, status: 'completed' });
-    const groups = await Group.find({ deliveryBoy: deliveryId, status: 'completed' }).sort({ orderDate: -1 });
+    const groups = await Group.find({ deliveryBoy: deliveryId, status: 'completed' }).sort({ createdAt: -1 });
     const groupByDelivery = await Promise.all(
       groups.map(async (group) => {
         return await transformationGroup(group);
