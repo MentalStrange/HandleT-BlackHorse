@@ -22,12 +22,27 @@ export const updateOrderForGroup = async (orderId, updateData,req) => {
     if (!supplier) {
       throw new Error("Supplier not found");
     }
-    if (updateData === "complete") {
+    if (updateData === "completed") {
       const fee = await Fee.findOne();
       order.status = "complete";
       const blackHorseCommotion = order.totalPrice * (fee.amount / 100);
       supplier.wallet += blackHorseCommotion;
       await supplier.save();
+      await order.save();
+    } else if (updateData === "pending" || updateData === "complete") {
+      order.status = "pending";
+      await order.save();
+    } else if (updateData === "delivery") {
+      order.status = "delivery";
+      await order.save();
+    } else if (updateData === "inProgress") {
+      order.status = "inProgress";
+      await order.save();
+    } else if (updateData === "willBeDelivered") {
+      order.status = "willBeDelivered";
+      await order.save();
+    } else if (updateData === "trash") {
+      order.status = "trash";
       await order.save();
     } else if (updateData === "canceled") {
       order.status = "canceled";

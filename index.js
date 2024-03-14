@@ -130,7 +130,7 @@ IO.on("connection", (socket) => {
       await group.save();
       const orders = await Order.find({ group: groupId });
       orders.forEach(async orderId => {
-        await updateOrderForGroup(orderId, status)
+        await updateOrderForGroup(orderId._id, status)
       });
       if(group.status === 'willBeDelivered'){
         await pushNotification("لديك طلب جديد", `لديك اوردر جديد بوزن ${group.totalWeight/1000} كيلو ينتظر موافقتك`, null, null, null, deliveryId, delivery.deviceToken);
@@ -148,7 +148,7 @@ IO.on("connection", (socket) => {
       await group.save();
       const orders = await Order.find({ group: groupId });
       orders.forEach(async orderId => {
-        await updateOrderForGroup(orderId, status);
+        await updateOrderForGroup(orderId._id, status);
       });
       if(group.status === 'delivery'){
         const supplier = await Supplier.findById(group.supplierId);

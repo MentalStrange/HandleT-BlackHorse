@@ -273,8 +273,30 @@ export const getAllGroupDelivery = async (req, res) => {
     });
   }
 };
+export const getGroupByDeliveryRoute = async (req, res) => { // use http
+  const deliveryId = req.params.deliveryId;
 
-export const getGroupByDelivery = async (deliveryId) => {
+  try {
+    const totalGroups = await Group.countDocuments({ deliveryBoy: deliveryId, status: 'completed' });
+    const groups = await Group.find({ deliveryBoy: deliveryId, status: 'completed' }).sort({ orderDate: -1 });
+    const groupByDelivery = await Promise.all(
+      groups.map(async (group) => {
+        return await transformationGroup(group);
+      })
+    );
+    // res.status(200).json({
+    //   status: "success",
+    //   data: groupByDelivery,
+    // })
+    paginateResponse(res, req.query, groupByDelivery, totalGroups);
+  } catch (error) {
+    res.status(500).json({
+      status: "fail",
+      message: error.message,
+    });
+  }
+};
+export const getGroupByDelivery = async (deliveryId) => { // use socket
   const groups = await Group.find({ 
     deliveryBoy: deliveryId, 
     status: { $in: ['willBeDelivered', 'delivery'] } 

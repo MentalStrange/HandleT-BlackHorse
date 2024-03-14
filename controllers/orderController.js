@@ -142,22 +142,22 @@ export const getOrderByDelivery = async (deliveryId) => {  // use socketIO
 };
 export const getOrderByDeliveryRoute = async (req, res) => { // use http
   const deliveryId = req.params.deliveryId;
-  // const page = parseInt(req.query.page) || 1; // Extract page parameter from query string
-  // const limit = parseInt(req.query.limit) || 10; // Extract limit parameter from query string
+  // const page = parseInt(req.query.page) || 1;
+  // const limit = parseInt(req.query.limit) || 10;
 
   try {
-    // const totalOffers = await Order.countDocuments({ deliveryBoy: deliveryId, status: 'complete' });
+    const totalOffers = await Order.countDocuments({ deliveryBoy: deliveryId, status: 'complete' });
     const orders = await Order.find({ deliveryBoy: deliveryId, status: 'complete' }).sort({ orderDate: -1 });
     const orderByDelivery = await Promise.all(
       orders.map(async (order) => {
         return await transformationOrder(order);
       })
     );
-    res.status(200).json({
-      status: "success",
-      data: orderByDelivery,
-    })
-    // paginateResponse(res, req.query, orderByDelivery, totalOffers);
+    // res.status(200).json({
+    //   status: "success",
+    //   data: orderByDelivery,
+    // })
+    paginateResponse(res, req.query, orderByDelivery, totalOffers);
   } catch (error) {
     res.status(500).json({
       status: "fail",
