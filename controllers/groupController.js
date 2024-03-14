@@ -222,7 +222,7 @@ export const getAllGroupCompleteForSupplier = async (req, res) => {
   const supplierId = req.params.id;
   const status = req.query.status;
   try {
-    const group = status ? await Group.find({ status: {$ne:"pending"}, supplierId: supplierId , status: status}).sort({ createdAt: -1 }) : await Group.find({ status: {$ne:"pending"}, supplierId: supplierId , status: status}).sort({ createdAt: -1 });
+    const group = status ? await Group.find({ status: {$ne:"pending"}, supplierId: supplierId , status: status}).sort({ createdAt: -1 }) : await Group.find({ status: {$ne:"pending"}, supplierId: supplierId }).sort({ createdAt: -1 });
     const transformationGroupDate = await Promise.all(
       group.map(async (group) => {
         return await transformationGroup(group);
