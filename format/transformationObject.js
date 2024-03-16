@@ -84,8 +84,7 @@ export const transformationRating = (rating) => {
 export const transformationOffer = async (offer, quantity=1) => {
   const transformedProducts = await Promise.all(
     offer.products.map(async (productId) => {
-      const supplierProduct = await SupplierProduct.findOne({ productId });
-      if (!supplierProduct) return null;
+      const supplierProduct = await SupplierProduct.findById(productId.productId);
       return transformationSupplierProduct(supplierProduct);
     })
   );
@@ -100,7 +99,7 @@ export const transformationOffer = async (offer, quantity=1) => {
     weight: offer.weight,
     unit: offer.unit,
     stock: offer.stock,
-    products: offer.products, // transformedProducts.filter((product) => product !== null),
+    products: transformedProducts, // .filter((product) => product !== null),
     quantity: quantity,
     desc: offer.desc,
   };
