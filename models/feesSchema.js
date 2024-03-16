@@ -14,7 +14,7 @@ const fineForTrash = new mongoose.Schema({
   },
 })
 
-const fineForPending = new mongoose.Schema({
+const numberOfPendingDaysOrder = new mongoose.Schema({
   amount: {
     type: Number,
     required: true,
@@ -30,12 +30,12 @@ const fineForCancel = new mongoose.Schema({
 
 const Fee = mongoose.model("Fee", feeSchema);
 const FineForTrash = mongoose.model("FineForTrash", fineForTrash);
-const FineForPending = mongoose.model("FineForPendingOrder", fineForPending);
+const NumberOfPendingDaysOrder = mongoose.model("NumberOfPendingDaysOrder", numberOfPendingDaysOrder);
 const FineForCancel = mongoose.model("FineForCancelOrder", fineForCancel);
 
 export {
   Fee,
   FineForTrash,
-  FineForPending,
+  NumberOfPendingDaysOrder,
   FineForCancel
 }
