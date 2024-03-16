@@ -99,7 +99,7 @@ export const transformationOffer = async (offer, quantity=1) => {
     weight: offer.weight,
     unit: offer.unit,
     stock: offer.stock,
-    products: transformedProducts, // .filter((product) => product !== null),
+    products: offer.products, //transformedProducts,
     quantity: quantity,
     desc: offer.desc,
   };
