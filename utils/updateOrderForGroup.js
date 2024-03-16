@@ -1,6 +1,6 @@
 // orderController.js
 
-import { Fee } from "../models/feesSchema.js";
+import Fee from "../models/feesSchema.js";
 import Offer from "../models/offerSchema.js";
 import Order from "../models/orderSchema.js";
 import SupplierProduct from "../models/supplierProductSchema.js";

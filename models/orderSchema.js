@@ -170,7 +170,7 @@ const orderSchema = mongoose.Schema({
   type:{
     type: String,
     required: [true, 'Order should have a type'],
-    enum: ['delivery', 'onSite']
+    enum: ['onDelivery', 'onSite']
   },
   products: {
     type: [orderProductSet],

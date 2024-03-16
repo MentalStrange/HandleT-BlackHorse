@@ -1,4 +1,4 @@
-import { Fee } from "../models/feesSchema.js";
+import Fee from "../models/feesSchema.js";
 import Order from "../models/orderSchema.js";
 import PromoCode from "../models/promocodeSchema.js";
 import SupplierProduct from "../models/supplierProductSchema.js";

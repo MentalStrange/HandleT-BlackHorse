@@ -3,6 +3,9 @@ import multer from "multer";
 import {
   createExpireDateGroup,
   createFee,
+  createFineForCancel,
+  createFineForTrash,
+  createNumberOfPendingDaysOrder,
   createRegion,
   createSubUnit,
   createUnit,
@@ -14,6 +17,9 @@ import {
   getAllSubUnits,
   getAllUnits,
   getFee,
+  getFineForCancel,
+  getFineForTrash,
+  getNumberOfPendingDaysOrder,
   updateSubUnit,
   updateUnit,
 } from "../controllers/adminController.js";
@@ -139,6 +145,12 @@ Router.delete('/subUnit/:id',deleteSubUnit);
 
 Router.get("/fee", getFee);
 Router.post("/fee", createFee);
+Router.get("/getNumberOfPendingDaysOrder", getNumberOfPendingDaysOrder);
+Router.post("/createNumberOfPendingDaysOrder", createNumberOfPendingDaysOrder);
+Router.get("/getFineForCancel", getFineForCancel);
+Router.post("/createFineForCancel", createFineForCancel);
+Router.get("/getFineForTrash", getFineForTrash);
+Router.post("/createFineForTrash", createFineForTrash);
 
 Router.post("/car", uploadCar.single("image"), createCar);
 Router.get("/car", getCars);

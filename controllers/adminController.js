@@ -4,7 +4,7 @@ import HomeSlideShow from "../models/homeSlideShowSchema.js";
 import Supplier from "../models/supplierSchema.js";
 import bcrypt from "bcrypt";
 import Unit from "../models/unitSchema.js";
-import { Fee, FineForCancel, FineForPending } from "../models/feesSchema.js";
+import Fee from "../models/feesSchema.js";
 import Region from "../models/regionSchema.js";
 import GroupExpireDate from "../models/groupExpireDate.js";
 import { transformationUnit } from "../format/transformationObject.js";
@@ -376,7 +376,7 @@ export const getAllSubUnits = async (req, res) => {
 }
 export const getFee = async (req, res) => {
   try {
-    const fee = await Fee.find();
+    const fee = await Fee.find({ type: "fee" });
     res.status(200).json({
       status: "success",
       data:  { amount: fee[0].amount }
@@ -397,9 +397,10 @@ export const createFee = async (req, res) => {
         message: "Amount should be less than 100%"
       })
     }
-    await Fee.deleteMany();
+    await Fee.deleteMany({ type: "fee" });
     const newFee = new Fee({
-      amount: req.body.amount
+      amount: req.body.amount,
+      type: "fee"
     });
     await newFee.save();
     res.status(201).json({
@@ -413,15 +414,18 @@ export const createFee = async (req, res) => {
     });
   }
 }
-export const createFineForPending = async (req, res) => {
+export const createNumberOfPendingDaysOrder = async (req, res) => {
   try {
     const fine = req.body;
-    await FineForPending.deleteMany();
-    const newFine = new FineForPending(fine);
+    await Fee.deleteMany({ type: "numberOfPendingDaysOrder" });
+    const newFine = new Fee({
+      amount: fine.amount,
+      type: "numberOfPendingDaysOrder"
+    });
     await newFine.save();
     res.status(201).json({
       status: "success",
-      data: newFine
+      data: {amount: newFine.amount }
     })
   } catch (error) {
     res.status(500).json({
@@ -430,12 +434,12 @@ export const createFineForPending = async (req, res) => {
     })
   }
 }
-export const getFineForPending = async (req, res) => {
+export const getNumberOfPendingDaysOrder = async (req, res) => {
   try {
-    const fine = await FineForPending.find();
+    const fine = await Fee.find({ type: "numberOfPendingDaysOrder" });
     res.status(200).json({
       status: "success",
-      data: fine
+      data:  { amount: fine[0].amount }
     })
   } catch (error) {
     res.status(500).json({
@@ -447,12 +451,15 @@ export const getFineForPending = async (req, res) => {
 export const createFineForCancel = async (req, res) => {
   try {
     const fine = req.body;
-    await FineForCancel.deleteMany();
-    const newFine = new FineForCancel(fine);
+    await Fee.deleteMany({ type: "fineForCancel"});
+    const newFine = new Fee({
+      amount: fine.amount,
+      type: "fineForCancel"
+    });
     await newFine.save();
     res.status(201).json({
       status: "success",
-      data: newFine
+      data: {amount: newFine.amount }
     })
   } catch (error) {
     res.status(500).json({
@@ -463,10 +470,10 @@ export const createFineForCancel = async (req, res) => {
 }
 export const getFineForCancel = async (req, res) => {
   try {
-    const fine = await FineForCancel.find();
+    const fine = await Fee.find({ type: "fineForCancel" });
     res.status(200).json({
       status: "success",
-      data: fine
+      data:  { amount: fine[0].amount }
     })
   } catch (error) {
     res.status(500).json({
@@ -478,12 +485,15 @@ export const getFineForCancel = async (req, res) => {
 export const createFineForTrash = async (req, res) => {
   try {
     const fine = req.body;
-    await FineForTrash.deleteMany();
-    const newFine = new FineForTrash(fine);
+    await Fee.deleteMany({ type: "fineForTrash" });
+    const newFine = new Fee({
+      amount: fine.amount,
+      type: "fineForTrash"
+    });
     await newFine.save();
     res.status(201).json({
       status: "success",
-      data: newFine
+      data:  { amount: newFine.amount }
     })
   } catch (error) {
     res.status(500).json({
@@ -494,10 +504,10 @@ export const createFineForTrash = async (req, res) => {
 }
 export const getFineForTrash = async (req, res) => {
   try {
-    const fine = await FineForTrash.find();
+    const fine = await Fee.find({ type: "fineForTrash" });
     res.status(200).json({
       status: "success",
-      data: fine
+      data:  { amount: fine[0].amount }
     })
   } catch (error) {
     res.status(500).json({
