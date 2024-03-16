@@ -1,4 +1,4 @@
-import Fee from "../models/feesSchema.js";
+import { Fee } from "../models/feesSchema.js";
 import Order from "../models/orderSchema.js";
 import PromoCode from "../models/promocodeSchema.js";
 import SupplierProduct from "../models/supplierProductSchema.js";
@@ -97,23 +97,25 @@ export const updateOrder = async (req, res, next) => {
         await supplier.save();
       }
 
-      for (const product of order.products) {
-        const sp = await SupplierProduct.findOne({ supplierId: supplier._id, productId: product.product });
-        sp.stock += product.quantity;
-        await sp.save();
-      }
+      // for (const product of order.products) {
+      //   const sp = await SupplierProduct.findOne({ supplierId: supplier._id, productId: product.product });
+      //   sp.stock += product.quantity;
+      //   await sp.save();
+      // }
 
-      for (const offer of order.offers) {
-        const offerData = await Offer.findById(offer.offer);
-        offerData.stock += offer.quantity;
-        await offerData.save();
+      // for (const offer of order.offers) {
+      //   const offerData = await Offer.findById(offer.offer);
+      //   offerData.stock += offer.quantity;
+      //   await offerData.save();
 
-        for (const iterProduct of offerData.products) {
-          const sp = await SupplierProduct.findOne({ supplierId: supplier._id, productId: iterProduct.productId });
-          sp.stock += iterProduct.quantity * offer.quantity;
-          await sp.save();
-        }
-      }
+      //   for (const iterProduct of offerData.products) {
+      //     const sp = await SupplierProduct.findOne({ supplierId: supplier._id, productId: iterProduct.productId });
+      //     sp.stock += iterProduct.quantity * offer.quantity;
+      //     await sp.save();
+      //   }
+      // }
+    } else if (req.body.status === "inProgress") {
+
     }
 
     const updatedOrder = await Order.findByIdAndUpdate(req.params.id, req.body, { new: true }).sort({ orderDate: -1 });
@@ -201,14 +203,14 @@ export const createOrder = async (req, res) => {
         message: "Supplier not found",
       });
     }
-if(!req.body.isGroup){
-  if(totalPrice < supplier.minOrderPrice){
-    return res.status(207).json({
-      status: "fail",
-      message: "Total price should be greater than min order price",
-    })
-  }
-}
+    if(!req.body.isGroup){
+      if(totalPrice < supplier.minOrderPrice){
+        return res.status(207).json({
+          status: "fail",
+          message: "Total price should be greater than min order price",
+        })
+      }
+    }
 
     if (promoCode) {
       const existingPromoCode = await PromoCode.findOne({ code: promoCode });
@@ -245,9 +247,9 @@ if(!req.body.isGroup){
 
     const productsMap = new Map();
     for (const product of products) {
-      const supplierProduct = await SupplierProduct.findOne({ supplierId, productId: product.product });
+      const supplierProduct = await SupplierProduct.findById(product.product);
       if (!supplierProduct || supplierProduct.stock < product.quantity) { // check quantity of products
-        const prod = await Product.findById(product.product);
+        const prod = await Product.findById(supplierProduct.productId);
         return res.status(212).json({
           status: "fail",
           message: `Product with title ${prod.title} is not available or out of stock`,
@@ -255,7 +257,7 @@ if(!req.body.isGroup){
       }
 
       if ((!supplierProduct || supplierProduct.maxLimit < product.quantity) && supplierProduct.maxLimit !== null) {
-        const prod = await Product.findById(product.product);   // check products max limit
+        const prod = await Product.findById(supplierProduct.productId);   // check products max limit
         return res.status(213).json({
           status: "fail",
           message: `The maximum quantity allowed for purchasing ${prod.title} is ${supplierProduct.maxLimit}`,
@@ -285,9 +287,9 @@ if(!req.body.isGroup){
       }
 
       for (const iterProduct of offerData.products) {  // check products in offer available in stock
-        const sp = await SupplierProduct.findOne({ supplierId, productId: iterProduct.productId });
+        const sp = await SupplierProduct.findById(iterProduct.productId);
         if (!sp || sp.stock < iterProduct.quantity) {
-          const prod = await Product.findById(iterProduct.productId);
+          const prod = await Product.findById(sp.productId);
           return res.status(216).json({
             status: "fail",
             message: `Product with title ${prod.title} in offer ${offerData.title} is not available or out of stock`,
@@ -302,9 +304,9 @@ if(!req.body.isGroup){
     }
 
     for (const [key, value] of productsMap.entries()) {  // check total quantity of products available in supplier stock
-      const supplierProduct = await SupplierProduct.findOne({ supplierId, productId: key });
+      const supplierProduct = await SupplierProduct.findById(key);
       if(supplierProduct.stock < value) {
-        const prod = await Product.findById(key);
+        const prod = await Product.findById(supplierProduct.productId);
         return res.status(217).json({
           status: "fail",
           message: `Product with title ${prod.title} is not available or out of stock`,
@@ -312,23 +314,23 @@ if(!req.body.isGroup){
       }
     }
 
-    for (const product of products) {   // decrement products
-      const supplierProduct = await SupplierProduct.findOne({ supplierId, productId: product.product });
-      supplierProduct.stock -= product.quantity;
-      await supplierProduct.save();
-    }
+    // for (const product of products) {   // decrement products
+    //   const supplierProduct = await SupplierProduct.findOne({ supplierId, productId: product.product });
+    //   supplierProduct.stock -= product.quantity;
+    //   await supplierProduct.save();
+    // }
 
-    for (const offer of offers) {      // decrement offers
-      const offerData = await Offer.findById(offer.offer);
-      offerData.stock -= offer.quantity;
-      await offerData.save();
+    // for (const offer of offers) {      // decrement offers
+    //   const offerData = await Offer.findById(offer.offer);
+    //   offerData.stock -= offer.quantity;
+    //   await offerData.save();
 
-      for (const iterProduct of offerData.products) {      // decrement offer's product
-        const sp = await SupplierProduct.findOne({ supplierId, productId: iterProduct.productId });
-        sp.stock -= iterProduct.quantity * offer.quantity;
-        await sp.save();
-      }
-    }
+    //   for (const iterProduct of offerData.products) {      // decrement offer's product
+    //     const sp = await SupplierProduct.findOne({ supplierId, productId: iterProduct.productId });
+    //     sp.stock -= iterProduct.quantity * offer.quantity;
+    //     await sp.save();
+    //   }
+    // }
 
     // console.log("productsMap:", productsMap);
     const newOrder = await Order.create({
@@ -350,7 +352,7 @@ if(!req.body.isGroup){
       deliveryDaysNumber: orderData.deliveryDaysNumber,
       orderWeight: orderData.orderWeight,
       products: await Promise.all(orderData.products.map(async (product) => {
-        const supplierProduct = await SupplierProduct.findOne({ productId: product.product, supplierId: orderData.supplierId });
+        const supplierProduct = await SupplierProduct.findById(product.product);
         const productData = await transformationSupplierProduct(supplierProduct);
         return {
           product: product.product,
@@ -390,7 +392,7 @@ if(!req.body.isGroup){
           stock: offerData.stock,
           desc: offerData.desc,
           products: await Promise.all(offerData.products.map(async (product) => {
-            const supplierProduct = await SupplierProduct.findOne({ productId: product.productId, supplierId: orderData.supplierId });
+            const supplierProduct = await SupplierProduct.findById(product.productId);
             const productData = await transformationSupplierProduct(supplierProduct, product.quantity);
             return {
               product: productData._id,       
