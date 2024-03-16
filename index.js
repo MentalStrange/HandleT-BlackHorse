@@ -84,7 +84,11 @@ IO.on("connection", (socket) => {
     let orderId = data.orderId;
     let status = data.status;
     let deliveryId = data.deliveryId;
+    console.log("orderId:", orderId);
+    console.log("status:", status);
+    console.log("deliveryId:", deliveryId);
     if(deliveryId && orderId && status){
+      console.log("One");
       const delivery = await DeliveryBoy.findById(deliveryId);
       const order = await Order.findById(orderId);
       order.status = status;
@@ -98,6 +102,7 @@ IO.on("connection", (socket) => {
       IO.to(userSocketIdMap[deliveryId]).emit("order", await getOrderByDelivery(deliveryId));
     }
     else if(orderId && status){
+      console.log("Two");
       const order = await Order.findById(orderId);
       order.status = status;
       await order.save();
@@ -110,6 +115,7 @@ IO.on("connection", (socket) => {
       // IO.to(userSocketIdMap[order.deliveryBoy]).emit("order", await getOrderByDelivery(order.deliveryBoy));
     }
     else if(deliveryId){
+      console.log("Three");
       IO.to(userSocketIdMap[deliveryId]).emit("order", await getOrderByDelivery(deliveryId));
     }
   });

@@ -4,7 +4,7 @@ import HomeSlideShow from "../models/homeSlideShowSchema.js";
 import Supplier from "../models/supplierSchema.js";
 import bcrypt from "bcrypt";
 import Unit from "../models/unitSchema.js";
-import Fee, { FineForCancel, FineForPending } from "../models/feesSchema.js";
+import { Fee, FineForCancel, FineForPending } from "../models/feesSchema.js";
 import Region from "../models/regionSchema.js";
 import GroupExpireDate from "../models/groupExpireDate.js";
 import { transformationUnit } from "../format/transformationObject.js";
