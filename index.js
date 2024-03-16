@@ -23,6 +23,7 @@ import Customer from './models/customerSchema.js';
 import Group from './models/groupSchema.js';
 import { getGroupByDelivery } from './controllers/groupController.js';
 import { updateOrderForGroup } from './utils/updateOrderForGroup.js';
+import Fee from './models/feesSchema.js';
 
 dotenv.config();
 const port = process.env.PORT || 3000;
@@ -111,6 +112,13 @@ IO.on("connection", (socket) => {
         const customer = await Customer.findById(order.customerId);
         await pushNotification("تم الموافقة!", `قام عامل التوصيل بالموافقة ع توصيل الاوردر رقم ${order.orderNumber}`, null, null, order.supplierId, null, supplier.deviceToken);
         await pushNotification("وافق عامل التوصيل", `تم الموافقة ع توصيل الاوردر برقم ${order.orderNumber}`, null, order.customerId, null, null, customer.deviceToken);
+      } else if (order.status === 'complete') {
+        const supplier = await Supplier.findById(order.supplierId);
+        const customer = await Customer.findById(order.customerId);
+        await pushNotification("طلب شراء مكتمل", `تم استلام اوردر رقم ${order.orderNumber} بنجاح`, null, order.customerId, null, null, customer.deviceToken);
+        const fee = await Fee.findOne();
+        supplier.wallet += order.totalPrice * (fee.amount / 100);
+        await supplier.save();
       }
       // IO.to(userSocketIdMap[order.deliveryBoy]).emit("order", await getOrderByDelivery(order.deliveryBoy));
     }

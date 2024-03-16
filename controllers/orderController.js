@@ -92,8 +92,8 @@ export const updateOrder = async (req, res, next) => {
     } else if (req.body.status === "cancelled") { // not blackhorse
       const customer = await Customer.findById(order.customerId);
       await pushNotification("الغاء اوردر!", `تم الغاء اوردرك برقم ${order.orderNumber}`, null, order.customerId, null, null, customer.deviceToken);
-      if (req.headers["user_type"] === "supplier") {
-        supplier.wallet += 5;  // const in admin
+      if (req.headers["user_type"] === "supplier" && order.status === "pending") {
+        supplier.wallet += (await Fee.findOne({ type: "fineForCancel" })).amount;
         await supplier.save();
       }
 
