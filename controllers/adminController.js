@@ -4,7 +4,7 @@ import HomeSlideShow from "../models/homeSlideShowSchema.js";
 import Supplier from "../models/supplierSchema.js";
 import bcrypt from "bcrypt";
 import Unit from "../models/unitSchema.js";
-import { Fee } from "../models/feesSchema.js";
+import Fee, { FineForCancel, FineForPending } from "../models/feesSchema.js";
 import Region from "../models/regionSchema.js";
 import GroupExpireDate from "../models/groupExpireDate.js";
 import { transformationUnit } from "../format/transformationObject.js";
@@ -204,45 +204,6 @@ export const getAllUnits = async (req, res) => {
     });
   }
 }
-export const getFee = async (req, res) => {
-  try {
-    const fee = await Fee.find();
-    res.status(200).json({
-      status: "success",
-      data:  { amount: fee[0].amount }
-    })
-  } catch (error) {
-    res.status(500).json({
-      status: "fail",
-      message: error.message,
-    });
-  }
-}
-export const createFee = async (req, res) => {
-  try {
-    const amount = req.body.amount;
-    if(amount > 100){
-      return res.status(207).json({
-        status: "fail",
-        message: "Amount should be less than 100%"
-      })
-    }
-    await Fee.deleteMany();
-    const newFee = new Fee({
-      amount: req.body.amount
-    });
-    await newFee.save();
-    res.status(201).json({
-      status: "success",
-      data: { amount: newFee.amount }
-    })
-  } catch (error) {
-    res.status(500).json({
-      status: "fail",
-      message: error.message,
-    });
-  }
-}
 export const createRegion = async (req, res) => {
   const region = req.body;  
   const existingRegion = await Region.findOne({ name: region.name });
@@ -411,5 +372,137 @@ export const getAllSubUnits = async (req, res) => {
       status: "fail",
       message: error.message,
     });
+  }
+}
+export const getFee = async (req, res) => {
+  try {
+    const fee = await Fee.find();
+    res.status(200).json({
+      status: "success",
+      data:  { amount: fee[0].amount }
+    })
+  } catch (error) {
+    res.status(500).json({
+      status: "fail",
+      message: error.message,
+    });
+  }
+}
+export const createFee = async (req, res) => {
+  try {
+    const amount = req.body.amount;
+    if(amount > 100){
+      return res.status(207).json({
+        status: "fail",
+        message: "Amount should be less than 100%"
+      })
+    }
+    await Fee.deleteMany();
+    const newFee = new Fee({
+      amount: req.body.amount
+    });
+    await newFee.save();
+    res.status(201).json({
+      status: "success",
+      data: { amount: newFee.amount }
+    })
+  } catch (error) {
+    res.status(500).json({
+      status: "fail",
+      message: error.message,
+    });
+  }
+}
+export const createFineForPending = async (req, res) => {
+  try {
+    const fine = req.body;
+    await FineForPending.deleteMany();
+    const newFine = new FineForPending(fine);
+    await newFine.save();
+    res.status(201).json({
+      status: "success",
+      data: newFine
+    })
+  } catch (error) {
+    res.status(500).json({
+      status: "fail",
+      message: error.message
+    })
+  }
+}
+export const getFineForPending = async (req, res) => {
+  try {
+    const fine = await FineForPending.find();
+    res.status(200).json({
+      status: "success",
+      data: fine
+    })
+  } catch (error) {
+    res.status(500).json({
+      status: "fail",
+      message: error.message
+    })
+  }
+}
+export const createFineForCancel = async (req, res) => {
+  try {
+    const fine = req.body;
+    await FineForCancel.deleteMany();
+    const newFine = new FineForCancel(fine);
+    await newFine.save();
+    res.status(201).json({
+      status: "success",
+      data: newFine
+    })
+  } catch (error) {
+    res.status(500).json({
+      status: "fail",
+      message: error.message
+    })
+  }
+}
+export const getFineForCancel = async (req, res) => {
+  try {
+    const fine = await FineForCancel.find();
+    res.status(200).json({
+      status: "success",
+      data: fine
+    })
+  } catch (error) {
+    res.status(500).json({
+      status: "fail",
+      message: error.message
+    })
+  }
+}
+export const createFineForTrash = async (req, res) => {
+  try {
+    const fine = req.body;
+    await FineForTrash.deleteMany();
+    const newFine = new FineForTrash(fine);
+    await newFine.save();
+    res.status(201).json({
+      status: "success",
+      data: newFine
+    })
+  } catch (error) {
+    res.status(500).json({
+      status: "fail",
+      message: error.message
+    })
+  }
+}
+export const getFineForTrash = async (req, res) => {
+  try {
+    const fine = await FineForTrash.find();
+    res.status(200).json({
+      status: "success",
+      data: fine
+    })
+  } catch (error) {
+    res.status(500).json({
+      status: "fail",
+      message: error.message
+    })
   }
 }
