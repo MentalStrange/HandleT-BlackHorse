@@ -67,9 +67,9 @@ offerSchema.pre('save', async function (next) {
 
     let offerWeight = 0;
     for(const productOffer of this.products){
-      const adminProduct = await Product.findById(productOffer.productId);
-      if (!adminProduct) throw new Error('Product not found');
-      const supplierProduct = await SupplierProduct.findOne({productId: adminProduct._id, supplierId: this.supplierId});
+      // const adminProduct = await SupplierProduct.findById(productOffer.productId);
+      // if (!adminProduct) throw new Error('Product not found');
+      const supplierProduct = await SupplierProduct.findById(productOffer.productId);
       if (!supplierProduct) throw new Error('Product not found for supplier');
       offerWeight += supplierProduct.productWeight * productOffer.quantity;
     }

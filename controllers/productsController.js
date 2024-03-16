@@ -143,7 +143,7 @@ export const getProductsByOfferId = async (req, res) => {
     }
     let offerProducts = [];
     for (const prod of offer.products) {
-      const sp = await SupplierProduct.findOne({ productId: prod.productId }).sort({createdAt: -1});
+      const sp = await SupplierProduct.findById(prod.productId).sort({createdAt: -1});
       offerProducts.push(await transformationSupplierProduct(sp, prod.quantity))
     }
     res.status(200).json({

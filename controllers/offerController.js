@@ -216,7 +216,7 @@ export const createOffer = async (req, res) => {
     const customersDeviceToken = await Customer.find({}, 'deviceToken');
     const deviceTokens = customersDeviceToken.map(customer => customer.deviceToken);
     await Notification.deleteMany({ type: 'addNewOffer' });
-    await pushNotification("عرض جديد متاح!", "استكشف أحدث عروضنا التي تمت إضافتها للتو. لا تفوت هذا العرض الخاص.", "addNewOffer", null, null, null, deviceTokens);
+    // await pushNotification("عرض جديد متاح!", "استكشف أحدث عروضنا التي تمت إضافتها للتو. لا تفوت هذا العرض الخاص.", "addNewOffer", null, null, null, deviceTokens);
     res.status(201).json({
       status: "success",
       data: await transformationOffer(newOffer),
