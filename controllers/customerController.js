@@ -6,25 +6,6 @@ import { v2 as cloudinary } from 'cloudinary';
 import fs from 'fs';
 import {transformationCustomer} from "../format/transformationObject.js";
 
-export const getAllCategory = async (req,res) => {
-  try {
-    const category = await Category.find().sort(req.query.category);
-    if(category){
-      res.status(200).json({
-        status:"success",
-        data: category
-      })
-    }else{
-      throw new Error("Couldn't find category");
-    }
-  } catch (error) {
-    res.status(500).json({
-      status:'fail',
-      message: error.message
-    }); 
-  }
-}
-
 export const getCustomerById = async (req, res) => {
   const customerId = req.params.id;
   try {
@@ -112,6 +93,21 @@ export const uploadPhoto = async (req, res) => {
     return res.status(200).json({
       status: "success",
       data: await transformationCustomer(customer),
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      status: "error",
+      message: "Internal server error"
+    });
+  }
+}
+export const getNumberOfCustomer = async (req, res) => {
+  try {
+    const customer = await Customer.countDocuments();
+    return res.status(200).json({
+      status: "success",
+      data: customer
     });
   } catch (error) {
     console.error(error);

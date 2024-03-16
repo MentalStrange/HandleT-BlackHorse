@@ -543,7 +543,6 @@ export const deletePlaceImages = async (req, res) => {
   }
  
 };
-
 export const getRegionBySupplierId = async (req, res) => {
   const supplierId = req.params.id;
   try {

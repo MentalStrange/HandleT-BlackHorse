@@ -1,6 +1,5 @@
 import express from 'express';
 import {
-    getAllCategory,
     updateCustomer,
     uploadPhoto,
     getCustomerById
@@ -17,6 +16,7 @@ import { storage } from '../controllers/sharedFunction.js';
 import multer from 'multer';
 import { getOfferByOrderId } from '../controllers/offerController.js';
 import { deleteNotification, getNotificationsByCustomerId, getNotificationsByDeliveryId, getNotificationsBySupplierId } from '../controllers/notificationController.js';
+import { getAllCategory } from '../controllers/categoryController.js';
 
 const uploadCustomer = multer({ storage: storage('customer') });
 
