@@ -612,13 +612,11 @@ export const getBestSeller = async (req, res) => {
         },
       },
     ]);
-
+    
     const productIds = bestSellers.map((seller) => seller._id);
     const products = await SupplierProduct.find({
       productId: { $in: productIds },
-    });
-    // console.log('products', products);
-    
+    });    
     const formattedProducts = await Promise.all(
       products.map(async (product) => {
         return await transformationSupplierProduct(product);

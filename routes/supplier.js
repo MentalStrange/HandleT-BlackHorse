@@ -16,7 +16,7 @@ import {
 import { changeImageOffer, createOffer, deleteOffer, getAllOffer, getOffer, getOfferBySupplierId, updateOffer } from '../controllers/offerController.js';
 import { getAllOrder, getAllOrderBySupplierId, totalOrderBySupplierId } from '../controllers/orderController.js';
 import { createPromoCode } from '../controllers/promoCodeController.js';
-import { getAllProduct } from '../controllers/productsController.js';
+import { getAllProduct, getAllProductAssignedToSupplier, getProductBySupplier } from '../controllers/productsController.js';
 import { storage } from '../controllers/sharedFunction.js';
 import multer from 'multer';
 import { getDeliveryBoyByRegion } from '../controllers/deliveryBoyController.js';
@@ -64,6 +64,9 @@ Router.get('/getRegionBySupplierId/:id', getRegionBySupplierId);
 Router.patch('/group/:id', updateGroup);
 Router.get("/group/:id",getAllGroupCompleteForSupplier);
 Router.get("/group/getGroupByDelivery/:deliveryId", getGroupByDeliveryRoute);
+
+Router.get('/product/all',getAllProductAssignedToSupplier);
+Router.get('/product/supplierId/:id',getProductBySupplier)
 
 
 export default Router;

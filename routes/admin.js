@@ -77,6 +77,7 @@ import validateField from "../middlewares/fieldMiddleware.js";
 import { createPromoCode, deletePromoCode, getAllPromoCode, updatePromoCode } from "../controllers/promoCodeController.js";
 import { checkAllFieldsFilled } from "../middlewares/isActive.js";
 import {  getAllGroupForAdmin } from "../controllers/groupController.js";
+import { getNumberOfCustomer } from "../controllers/customerController.js";
 // import { authenticate } from '../middlewares/authorizationMiddleware.js';
 
 
@@ -95,6 +96,7 @@ Router.post("/supplier", createSupplier);
 Router.patch("/supplier/:id", updateSupplier);
 
 Router.get("/customer", createCustomer);
+Router.get('/customer/numberOfCustomer',getNumberOfCustomer)
 // Router.delete('/customer/:id',deleteCustomer);
 Router.get("/product", authenticate, restrict(["blackHorse", "company"]), getAllProduct);
 Router.post("/product", createProduct); // uploadProducts.array("images"),
