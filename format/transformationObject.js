@@ -141,7 +141,7 @@ export const transformationOrder = async (order) => {
         quantity: product.quantity
       }
     }),
-    orderDate: order.orderDate,
+    orderDate: new Date((new Date(order.orderDate)).getTime() + (2 * 60 * 60 * 1000)).toISOString(),
     deliveryDaysNumber: order.deliveryDaysNumber,
     status: order.status,
     supplierType: order.supplierType,
@@ -352,8 +352,8 @@ export const transformationGroup = async (group)=>{
     minOrderPrice:supplier.minOrderPrice,
     district:region.name,
     joinedCustomersNumber:group.customer.length,
-    createdAt:group.createdAt,
-    endedAt:group.expireDate,
+    createdAt: new Date((new Date(group.createdAt)).getTime() + (2 * 60 * 60 * 1000)).toISOString(),
+    endedAt: new Date((new Date(group.expireDate)).getTime() + (2 * 60 * 60 * 1000)).toISOString(),
     status:group.status,
     order:transformationOrderData ?? [],
   }
@@ -365,6 +365,6 @@ export const transformationAdmin = async (admin)=>{
     name: admin.name,
     email: admin.email,
     image: admin.image ?? null,
-    createdAt: admin.createdAt
+    createdAt: new Date((new Date(admin.createdAt)).getTime() + (2 * 60 * 60 * 1000)).toISOString()
   }
 }
