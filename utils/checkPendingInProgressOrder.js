@@ -1,5 +1,7 @@
 import Fee from "../models/feesSchema.js";
+import Offer from "../models/offerSchema.js";
 import Order from "../models/orderSchema.js";
+import SupplierProduct from "../models/supplierProductSchema.js";
 import Supplier from "../models/supplierSchema.js";
 import { pushNotification } from "./pushNotification.js";
 
@@ -86,6 +88,24 @@ export const checkInProgressOrder = async () => {
                 supplier.wallet += fineTrashAmount;
                 await supplier.save();
                 await pushNotification("اوردر مهمل", "تم تغير حالة اورد خاص بك من قيد الانتظار الي المهملة", null, null, supplier._id, null, supplier.deviceToken);
+            
+                for (const product of order.products) {
+                  const sp = await SupplierProduct.findById(product.product);
+                  sp.stock += product.quantity;
+                  await sp.save();
+                }
+
+                for (const offer of order.offers) {
+                  const offerData = await Offer.findById(offer.offer);
+                  offerData.stock += offer.quantity;
+                  await offerData.save();
+
+                  for (const iterProduct of offerData.products) {
+                    const sp = await SupplierProduct.findById(iterProduct.productId);
+                    sp.stock += iterProduct.quantity * offer.quantity;
+                    await sp.save();
+                  }
+                }
             }
         }
     } catch (error) {

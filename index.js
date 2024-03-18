@@ -24,7 +24,7 @@ import Group from './models/groupSchema.js';
 import { getGroupByDelivery } from './controllers/groupController.js';
 import { updateOrderForGroup } from './utils/updateOrderForGroup.js';
 import Fee from './models/feesSchema.js';
-import { checkInProgressOrder, checkPendingOrder } from './utils/checkPendingOrder.js';
+import { checkInProgressOrder, checkPendingOrder } from './utils/checkPendingInProgressOrder.js';
 
 dotenv.config();
 const port = process.env.PORT || 3000;

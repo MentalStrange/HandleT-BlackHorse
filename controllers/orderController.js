@@ -86,9 +86,6 @@ export const updateOrder = async (req, res, next) => {
       const fee = await Fee.findOne();
       supplier.wallet += order.totalPrice * (fee.amount / 100);
       await supplier.save();
-    } else if (req.body.status === "inProgress"){
-      const customer = await Customer.findById(order.customerId);
-      await pushNotification("تم موافقة الطلب", `تم الموافقة علي طلب اوردر رقم ${order.orderNumber}`, null, order.customerId, null, null, customer.deviceToken);
     } else if (req.body.status === "cancelled") { // not blackhorse
       const customer = await Customer.findById(order.customerId);
       await pushNotification("الغاء اوردر!", `تم الغاء اوردرك برقم ${order.orderNumber}`, null, order.customerId, null, null, customer.deviceToken);
@@ -96,25 +93,10 @@ export const updateOrder = async (req, res, next) => {
         supplier.wallet += (await Fee.findOne({ type: "fineForCancel" })).amount;
         await supplier.save();
       }
-
-      // for (const product of order.products) {
-      //   const sp = await SupplierProduct.findOne({ supplierId: supplier._id, productId: product.product });
-      //   sp.stock += product.quantity;
-      //   await sp.save();
-      // }
-
-      // for (const offer of order.offers) {
-      //   const offerData = await Offer.findById(offer.offer);
-      //   offerData.stock += offer.quantity;
-      //   await offerData.save();
-
-      //   for (const iterProduct of offerData.products) {
-      //     const sp = await SupplierProduct.findOne({ supplierId: supplier._id, productId: iterProduct.productId });
-      //     sp.stock += iterProduct.quantity * offer.quantity;
-      //     await sp.save();
-      //   }
-      // }
     } else if (req.body.status === "inProgress") {
+      const customer = await Customer.findById(order.customerId);
+      await pushNotification("تم موافقة الطلب", `تم الموافقة علي طلب اوردر رقم ${order.orderNumber}`, null, order.customerId, null, null, customer.deviceToken);
+  
       const products = order.products;
       const offers = order.offers;
       const productsMap = new Map();
@@ -400,24 +382,6 @@ export const createOrder = async (req, res) => {
         });
       }
     }
-
-    // for (const product of products) {   // decrement products
-    //   const supplierProduct = await SupplierProduct.findOne({ supplierId, productId: product.product });
-    //   supplierProduct.stock -= product.quantity;
-    //   await supplierProduct.save();
-    // }
-
-    // for (const offer of offers) {      // decrement offers
-    //   const offerData = await Offer.findById(offer.offer);
-    //   offerData.stock -= offer.quantity;
-    //   await offerData.save();
-
-    //   for (const iterProduct of offerData.products) {      // decrement offer's product
-    //     const sp = await SupplierProduct.findOne({ supplierId, productId: iterProduct.productId });
-    //     sp.stock -= iterProduct.quantity * offer.quantity;
-    //     await sp.save();
-    //   }
-    // }
 
     // console.log("productsMap:", productsMap);
     const newOrder = await Order.create({
