@@ -293,10 +293,10 @@ export const updateProductSupplier = async (req, res) => {
   }
 };
 export const deleteProductSupplier = async (req, res) => {
-  const supplierId = req.params.id;
-  const productId = req.body.productId;
+  const productId = req.params.id;
+  // const productId = req.body.productId;
   try {
-    const ordersPending = await Order.find({ supplierId: supplierId, status: 'pending' });
+    const ordersPending = await Order.find({ status: { $in: ['pending', 'inProgress', 'delivery', 'willBeDelivered', 'trash'] }  }).sort({ createdAt: -1 });
     const productIncluded1 = ordersPending.some(order => {
       return order.products.some(orderProduct => orderProduct.product.equals(productId));
     });
@@ -307,7 +307,7 @@ export const deleteProductSupplier = async (req, res) => {
       });
     }
 
-    const offers = await Offer.find({ supplierId: supplierId });
+    const offers = await Offer.find();
     const productIncluded2 = offers.some(offer => {
       return offer.products.some(productProduct => productProduct.productId.equals(productId));
     });
@@ -318,15 +318,15 @@ export const deleteProductSupplier = async (req, res) => {
       });
     }
 
-    const supplierProductId = await SupplierProduct.findOne({productId: productId, supplierId: supplierId});
+    const supplierProductId = await SupplierProduct.findById(productId);
     if (supplierProductId) {
-      await SupplierProduct.deleteOne({ _id: supplierProductId._id });
+      // await SupplierProduct.deleteOne({ _id: supplierProductId._id });
       res.status(200).json({
         status: 'success',
         message: 'Product deleted successfully.',
       });
     } else {
-      throw new Error('Product or Supplier not found.');
+      throw new Error('Product not found.');
     }
   } catch (error) {
     res.status(error.statusCode || 404).json({

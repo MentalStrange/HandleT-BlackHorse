@@ -107,7 +107,7 @@ export const updateOffer = async (req, res) => {
       });
     }
 
-    const ordersPending = await Order.find({ supplierId: offer.supplierId, status: 'pending' }).sort({ createdAt: -1 });
+    const ordersPending = await Order.find({ supplierId: offer.supplierId, status: { $in: ['pending', 'inProgress', 'delivery', 'willBeDelivered', 'trash'] }  }).sort({ createdAt: -1 });
     const offerIncluded = ordersPending.some(order => {
       return order.offers.some(orderOffer => orderOffer.offer.equals(offerId));
     });
@@ -143,7 +143,8 @@ export const deleteOffer = async (req, res) => {
   try {
     if(offerId){
       const offer = await Offer.findById(offerId);
-      const ordersPending = await Order.find({ supplierId: offer.supplierId, status: 'pending' });
+      const ordersPending = await Order.find({ supplierId: offer.supplierId, status: { $in: ['pending', 'inProgress', 'delivery', 'willBeDelivered', 'trash'] }  }).sort({ createdAt: -1 });
+
       const offerIncluded = ordersPending.some(order => {
         return order.offers.some(orderOffer => orderOffer.offer.equals(offerId));
       });

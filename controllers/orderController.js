@@ -169,7 +169,7 @@ export const updateOrder = async (req, res, next) => {
       }
   
       for (const product of products) {   // decrement products
-        const supplierProduct = await SupplierProduct.findOne({ supplierId, productId: product.product });
+        const supplierProduct = await SupplierProduct.findById(product.product);
         supplierProduct.stock -= product.quantity;
         await supplierProduct.save();
       }
@@ -180,7 +180,7 @@ export const updateOrder = async (req, res, next) => {
         await offerData.save();
   
         for (const iterProduct of offerData.products) {      // decrement offer's product
-          const sp = await SupplierProduct.findOne({ supplierId, productId: iterProduct.productId });
+          const sp = await SupplierProduct.findById(iterProduct.productId);
           sp.stock -= iterProduct.quantity * offer.quantity;
           await sp.save();
         }
@@ -315,6 +315,7 @@ export const createOrder = async (req, res) => {
     }
 
     const productsMap = new Map();
+
     for (const product of products) {
       const supplierProduct = await SupplierProduct.findById(product.product);
       if (!supplierProduct || supplierProduct.stock < product.quantity) { // check quantity of products
