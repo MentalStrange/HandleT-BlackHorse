@@ -188,7 +188,7 @@ export const createProductSupplier = async (req, res) => {
   try {
     const product = await Product.findById(productId);
     if (!product) {
-      return res.status(207).json({
+      return res.status(206).json({
         status: "fail",
         message: "Product not found",
       });
@@ -217,12 +217,12 @@ export const createProductSupplier = async (req, res) => {
     if (oldSupplierProduct.length > 0) {
       for (const sp of oldSupplierProduct) {
         if (!unit && !sp.unit && sp.subUnit) {
-          return res.status(207).json({
+          return res.status(211).json({
               status: "fail",
               message: "Product already exists in supplier list with sub unit",
           });
         } else if (unit && sp.unit) {
-          return res.status(208).json({
+          return res.status(212).json({
               status: "fail",
               message: "Product already exists in supplier list with primary unit",
           });

@@ -24,6 +24,7 @@ import Group from './models/groupSchema.js';
 import { getGroupByDelivery } from './controllers/groupController.js';
 import { updateOrderForGroup } from './utils/updateOrderForGroup.js';
 import Fee from './models/feesSchema.js';
+import { checkInProgressOrder, checkPendingOrder } from './utils/checkPendingOrder.js';
 
 dotenv.config();
 const port = process.env.PORT || 3000;
@@ -36,7 +37,7 @@ const corsOption = { origin: true };
 
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URL_DEV);
+    await mongoose.connect(process.env.MONGODB_URL_DEVZAKI);
     // await mongoose.connect(process.env.MONGODB_URL_LOCAL);
     // await mongoose.connect(process.env.MONGODB_URL_DEV);
     console.log("Mongoose connection successfully established");
@@ -46,8 +47,12 @@ const connectDB = async () => {
 };
 
 // check the status of the group
-const cronJobStart = new CronJob('0 0 * * *', checkExpireGroup);
-// cronJobStart.start();
+const cronJob1 = new CronJob('0 0 * * *', checkExpireGroup);
+const cronJob2 = new CronJob('0 0 * * *', checkPendingOrder);
+const cronJob3 = new CronJob('0 0 * * *', checkInProgressOrder);
+// cronJob1.start();
+cronJob2.start();
+cronJob3.start();
 
 app.use(express.json());
 app.use(cors(corsOption));

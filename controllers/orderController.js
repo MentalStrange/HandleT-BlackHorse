@@ -115,7 +115,94 @@ export const updateOrder = async (req, res, next) => {
       //   }
       // }
     } else if (req.body.status === "inProgress") {
-
+      const products = order.products;
+      const offers = order.offers;
+      const productsMap = new Map();
+      for (const product of products) {
+        const supplierProduct = await SupplierProduct.findById(product.product);
+        if (!supplierProduct || supplierProduct.stock < product.quantity) { // check quantity of products
+          const prod = await Product.findById(supplierProduct.productId);
+          return res.status(212).json({
+            status: "fail",
+            message: `Product with title ${prod.title} is not available or out of stock`,
+          });
+        }
+  
+        if ((!supplierProduct || supplierProduct.maxLimit < product.quantity) && supplierProduct.maxLimit !== null) {
+          const prod = await Product.findById(supplierProduct.productId);   // check products max limit
+          return res.status(213).json({
+            status: "fail",
+            message: `The maximum quantity allowed for purchasing ${prod.title} is ${supplierProduct.maxLimit}`,
+          });
+        }
+        if (productsMap.has(product.product.toString())) {
+          productsMap.set(product.product.toString(), productsMap.get(product.product.toString()) + product.quantity);
+        } else {
+          productsMap.set(product.product.toString(), product.quantity);
+        }
+      }
+  
+      for (const offer of offers) {
+        const offerData = await Offer.findById(offer.offer); // offer quantity available in stock
+        if (!offerData || offerData.stock < offer.quantity) {
+          return res.status(214).json({
+            status: "fail",
+            message: `Offer with title ${offerData.title} is not available or out of stock`,
+          });
+        }
+  
+        if ((!offerData || offerData.maxLimit < offer.quantity) && offerData.maxLimit !== null) { // check offer max limit
+          return res.status(215).json({
+            status: "fail",
+            message: `The maximum quantity allowed for purchasing ${offerData.title} is ${offerData.maxLimit}`,
+          });
+        }
+  
+        for (const iterProduct of offerData.products) {  // check products in offer available in stock
+          const sp = await SupplierProduct.findById(iterProduct.productId);
+          if (!sp || sp.stock < iterProduct.quantity) {
+            const prod = await Product.findById(sp.productId);
+            return res.status(216).json({
+              status: "fail",
+              message: `Product with title ${prod.title} in offer ${offerData.title} is not available or out of stock`,
+            });
+          }
+          if (productsMap.has(iterProduct.productId.toString())) {
+            productsMap.set(iterProduct.productId.toString(), productsMap.get(iterProduct.productId.toString()) + iterProduct.quantity * offer.quantity);
+          } else {
+            productsMap.set(iterProduct.productId.toString(), iterProduct.quantity * offer.quantity);
+          }
+        }
+      }
+  
+      for (const [key, value] of productsMap.entries()) {  // check total quantity of products available in supplier stock
+        const supplierProduct = await SupplierProduct.findById(key);
+        if(supplierProduct.stock < value) {
+          const prod = await Product.findById(supplierProduct.productId);
+          return res.status(217).json({
+            status: "fail",
+            message: `Product with title ${prod.title} is not available or out of stock`,
+          });
+        }
+      }
+  
+      for (const product of products) {   // decrement products
+        const supplierProduct = await SupplierProduct.findOne({ supplierId, productId: product.product });
+        supplierProduct.stock -= product.quantity;
+        await supplierProduct.save();
+      }
+  
+      for (const offer of offers) {      // decrement offers
+        const offerData = await Offer.findById(offer.offer);
+        offerData.stock -= offer.quantity;
+        await offerData.save();
+  
+        for (const iterProduct of offerData.products) {      // decrement offer's product
+          const sp = await SupplierProduct.findOne({ supplierId, productId: iterProduct.productId });
+          sp.stock -= iterProduct.quantity * offer.quantity;
+          await sp.save();
+        }
+      }
     }
 
     const updatedOrder = await Order.findByIdAndUpdate(req.params.id, req.body, { new: true }).sort({ orderDate: -1 });
