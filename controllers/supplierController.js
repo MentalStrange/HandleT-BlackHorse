@@ -255,23 +255,22 @@ export const createProductSupplier = async (req, res) => {
   }
 };
 export const updateProductSupplier = async (req, res) => {
-  const supplierId = req.params.id;
-  const productId = req.body.productId;
+  const productId = req.params.id;
   const productData = req.body;
 
   try {
-    const ordersPending = await Order.find({ supplierId: supplierId, status: 'pending' });
-    const productIncluded = ordersPending.some(order => {
-      return order.products.some(orderProduct => orderProduct.product.equals(productId));
-    });
-    if (productIncluded) {
-      return res.status(207).json({
-        status: 'fail',
-        message: 'This product is already included in order',
-      });
-    }
+    // const ordersPending = await Order.find({ supplierId: supplierId, status: 'pending' });
+    // const productIncluded = ordersPending.some(order => {
+    //   return order.products.some(orderProduct => orderProduct.product.equals(productId));
+    // });
+    // if (productIncluded) {
+    //   return res.status(207).json({
+    //     status: 'fail',
+    //     message: 'This product is already included in order',
+    //   });
+    // }
     
-    const supplierProductId = await SupplierProduct.findOne({productId: productId, supplierId: supplierId});
+    const supplierProductId = await SupplierProduct.findById(productId);
     if (supplierProductId) {
       const updatedSupplierProduct = await SupplierProduct.findByIdAndUpdate(
           supplierProductId._id,
@@ -283,7 +282,7 @@ export const updateProductSupplier = async (req, res) => {
         data: await transformationSupplierProduct(updatedSupplierProduct),
       });
     } else {
-      throw new Error('Product or Supplier not found');
+      throw new Error('Product not found');
     }
   } catch (error) {
     res.status(error.statusCode || 404).json({
@@ -294,7 +293,6 @@ export const updateProductSupplier = async (req, res) => {
 };
 export const deleteProductSupplier = async (req, res) => {
   const productId = req.params.id;
-  // const productId = req.body.productId;
   try {
     const ordersPending = await Order.find({ status: { $in: ['pending', 'inProgress', 'delivery', 'willBeDelivered', 'trash'] }  }).sort({ createdAt: -1 });
     const productIncluded1 = ordersPending.some(order => {
