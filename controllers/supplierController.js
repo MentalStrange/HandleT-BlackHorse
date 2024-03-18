@@ -320,7 +320,7 @@ export const deleteProductSupplier = async (req, res) => {
 
     const supplierProductId = await SupplierProduct.findById(productId);
     if (supplierProductId) {
-      // await SupplierProduct.deleteOne({ _id: supplierProductId._id });
+      await SupplierProduct.deleteOne({ _id: supplierProductId._id });
       res.status(200).json({
         status: 'success',
         message: 'Product deleted successfully.',

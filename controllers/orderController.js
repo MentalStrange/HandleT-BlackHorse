@@ -110,13 +110,6 @@ export const updateOrder = async (req, res, next) => {
           });
         }
   
-        if ((!supplierProduct || supplierProduct.maxLimit < product.quantity) && supplierProduct.maxLimit !== null) {
-          const prod = await Product.findById(supplierProduct.productId);   // check products max limit
-          return res.status(213).json({
-            status: "fail",
-            message: `The maximum quantity allowed for purchasing ${prod.title} is ${supplierProduct.maxLimit}`,
-          });
-        }
         if (productsMap.has(product.product.toString())) {
           productsMap.set(product.product.toString(), productsMap.get(product.product.toString()) + product.quantity);
         } else {
@@ -130,13 +123,6 @@ export const updateOrder = async (req, res, next) => {
           return res.status(214).json({
             status: "fail",
             message: `Offer with title ${offerData.title} is not available or out of stock`,
-          });
-        }
-  
-        if ((!offerData || offerData.maxLimit < offer.quantity) && offerData.maxLimit !== null) { // check offer max limit
-          return res.status(215).json({
-            status: "fail",
-            message: `The maximum quantity allowed for purchasing ${offerData.title} is ${offerData.maxLimit}`,
           });
         }
   
