@@ -43,6 +43,10 @@ const supplierProductSchema = mongoose.Schema({
     createdAt:{
       type:Date,
       default:Date.now
+    },
+    status:{
+      type:String,
+      enum:["active",'inActive']
     }
 },{
   timestamps: true,

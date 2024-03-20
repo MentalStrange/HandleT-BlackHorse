@@ -16,6 +16,11 @@ export const getAllSupplier = async (req, res) => {
     const userRole = req.role;    
     let query = { status: "active" };
     const { type } = req.query;
+    const typeHeader = req.headers["type"];    
+    let isAdmin = false
+    if(typeHeader === "admin"){
+      isAdmin = true;
+    }
     if (
       type &&
       ["gomla", "gomlaGomla", "blackHorse", "company","nosGomla"].includes(type)
@@ -45,7 +50,7 @@ export const getAllSupplier = async (req, res) => {
     }
     if (suppliers.length > 0) {
         suppliers = await Promise.all(
-        suppliers.map(async (supplier) => transformationSupplier(supplier))
+        suppliers.map(async (supplier) => transformationSupplier(supplier,isAdmin))
       );
       paginateResponse(
         res,
@@ -318,13 +323,17 @@ export const deleteProductSupplier = async (req, res) => {
 
     const supplierProductId = await SupplierProduct.findById(productId);
     if (supplierProductId) {
-      await SupplierProduct.deleteOne({ _id: supplierProductId._id });
+      supplierProductId.status = "inactive";
+      await supplierProductId.save();
       res.status(200).json({
         status: 'success',
         message: 'Product deleted successfully.',
       });
     } else {
-      throw new Error('Product not found.');
+      return res.status(404).json({
+        status: 'fail',
+        message: 'Product not found',
+      })
     }
   } catch (error) {
     res.status(error.statusCode || 404).json({

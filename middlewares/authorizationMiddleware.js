@@ -12,7 +12,6 @@ export const authenticate = async (req, res, next) => {
         const decoded = await jwt.verify(token, process.env.JWT_SECRET);
         req.userId = decoded._id;
         req.role = decoded.role;
-        console.log('req.role', req.role);
         next();
     } catch (error) {
         if (error instanceof jwt.TokenExpiredError) {

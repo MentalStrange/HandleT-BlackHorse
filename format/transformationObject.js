@@ -9,6 +9,7 @@ import Unit from "../models/unitSchema.js";
 import Region from "../models/regionSchema.js";
 import Customer from "../models/customerSchema.js";
 import Order from "../models/orderSchema.js";
+import Fee from "../models/feesSchema.js";
 
 export const transformationCustomer = async (customer) => {
   return {
@@ -274,7 +275,7 @@ export const transformationDeliveryBoy = async (deliverBoy) => {
     car: await transformationCar(car) ?? {}
   }
 }
-export const transformationSupplier = async (supplier) => {
+export const transformationSupplier = async (supplier,isAdmin) => {
   let deliveryRegionName = [];
   if(supplier.deliveryRegion){
       deliveryRegionName = await Promise.all(
@@ -283,6 +284,21 @@ export const transformationSupplier = async (supplier) => {
         return region.name;
       })
     );
+  }
+  let restAdminDate = {};
+  console.log('isAdmin', isAdmin);
+  if(isAdmin){
+    const orders = await Order.find({supplierId:supplier._id});
+    const totalSales = orders.reduce((acc, order) => acc + order.totalPrice, 0);
+    const blackHorsePercentageProfit = await Fee.findOne({type:"fee"});
+    const blackHorseProfit = totalSales * blackHorsePercentageProfit.amount; 
+    restAdminDate ={
+      numberOfOrders : await Order.countDocuments({status:"complete", supplierId:supplier._id}),
+      numberOfOffers : await Offer.countDocuments({status:"active", supplierId:supplier._id}),
+      numberOfProducts:await SupplierProduct.countDocuments({supplierId:supplier._id}),
+      totalSales,
+      blackHorseProfit,
+    }
   }
   return{
     _id: supplier._id,
@@ -302,6 +318,7 @@ export const transformationSupplier = async (supplier) => {
     placeImage: supplier.placeImage,
     rating: supplier.averageRating ?? 0,
     desc: supplier.desc ?? "",
+    ...restAdminDate
   }
 }
 export const transformationCar = async (car)=>{
