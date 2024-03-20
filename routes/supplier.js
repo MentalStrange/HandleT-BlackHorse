@@ -66,7 +66,8 @@ Router.get("/group/:id",getAllGroupCompleteForSupplier);
 Router.get("/group/getGroupByDelivery/:deliveryId", getGroupByDeliveryRoute);
 
 Router.get('/product/all',getAllProductAssignedToSupplier);
-Router.get('/product/supplierId/:id',getProductBySupplier)
+Router.get('/product/supplierId/:id',getProductBySupplier);
+
 
 
 export default Router;

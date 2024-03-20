@@ -78,6 +78,7 @@ import { createPromoCode, deletePromoCode, getAllPromoCode, updatePromoCode } fr
 import { checkAllFieldsFilled } from "../middlewares/isActive.js";
 import {  getAllGroupForAdmin } from "../controllers/groupController.js";
 import { getNumberOfCustomer } from "../controllers/customerController.js";
+import { rateOfStatistics } from "../controllers/reportController.js";
 // import { authenticate } from '../middlewares/authorizationMiddleware.js';
 
 
@@ -94,6 +95,7 @@ Router.get("/supplier/:id", getSupplier);
 Router.delete("/supplier/:id", deleteSupplier);
 Router.post("/supplier", createSupplier);
 Router.patch("/supplier/:id", updateSupplier);
+Router.get('/supplier/statistics/:id',rateOfStatistics)
 
 Router.get("/customer", createCustomer);
 Router.get('/customer/numberOfCustomer',getNumberOfCustomer)
