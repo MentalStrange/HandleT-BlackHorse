@@ -286,12 +286,11 @@ export const transformationSupplier = async (supplier,isAdmin) => {
     );
   }
   let restAdminDate = {};
-  console.log('isAdmin', isAdmin);
   if(isAdmin){
     const orders = await Order.find({supplierId:supplier._id});
     const totalSales = orders.reduce((acc, order) => acc + order.totalPrice, 0);
     const blackHorsePercentageProfit = await Fee.findOne({type:"fee"});
-    const blackHorseProfit = totalSales * blackHorsePercentageProfit.amount; 
+    const blackHorseProfit = totalSales * (blackHorsePercentageProfit.amount/100); 
     restAdminDate ={
       numberOfOrders : await Order.countDocuments({status:"complete", supplierId:supplier._id}),
       numberOfOffers : await Offer.countDocuments({status:"active", supplierId:supplier._id}),

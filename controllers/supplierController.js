@@ -74,20 +74,26 @@ export const getAllSupplier = async (req, res) => {
   }
 };
 export const getCompany = async (req, res) => {
+  const typeHeader = req.headers["type"];    
+  let isAdmin = false
   try {
+    if(typeHeader === "admin"){
+      isAdmin = true;
+    }
     const company = await Supplier.find();
     const activeCompanies = company.filter(
       (company) => company.status === "active" && company.type === "company"
     );
     const totalRecords = activeCompanies.length; 
     const companyTransformation = await Promise.all(
-      activeCompanies.map(async (company) => transformationSupplier(company))
+      activeCompanies.map(async (company) => transformationSupplier(company, isAdmin))
     );
     if (companyTransformation.length > 0) {
       paginateResponse(res, req.query, companyTransformation, totalRecords);
     } else {
       res.status(404).json({
         status: "fail",
+        data:[],
         message: "Could not find any active companies",
       });
     }
