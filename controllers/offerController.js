@@ -73,54 +73,33 @@ export const updateOffer = async (req, res) => {
   const offerId = req.params.id;
   const products = req.body.products;
   try {
-    // const existProducts = await Promise.all(products.map(async (product) => {
-    //   const supplierProduct = await SupplierProduct.findById(product);
-    //   const adminProduct = await Product.findById(product);
-    //   if(!supplierProduct){
-    //     return res.status(404).json({
-    //       status:'fail',
-    //       message:`Product ${adminProduct.title} Not Found`
-    //     })
-    //   }else{
-    //     return supplierProduct;
-    //   }
-    // }))
-    if (!offerId) {
-      return res.status(400).json({
-        status: 'fail',
-        message: 'Offer ID is missing',
+    await Promise.all(products.map(async (product) => {
+      const supplierProduct = await SupplierProduct.findById(product.productId);
+      if(!supplierProduct){
+        return res.status(404).json({
+          status:'fail',
+          message:`Product ${product.productId} Not Found`
+        })
+      }}))
+ 
+    const offer = await Offer.findById(offerId);
+    if(products){
+      const ordersPending = await Order.find({ supplierId: offer.supplierId, status: { $in: ['pending', 'inProgress', 'delivery', 'willBeDelivered', 'trash'] } }).sort({ createdAt: -1 });
+      const offerIncluded = ordersPending.some(order => {
+        return order.offers.some(orderOffer => orderOffer.offer.equals(offerId));
       });
-    }
-    const offerData = req.body;
-    if (!offerData) {
-      return res.status(400).json({
-        status: 'fail',
-        message: 'Offer data is missing',
-      });
-    }
-
-    const offer = await Offer.findByIdAndUpdate(offerId, offerData, { new: true });
-    if (!offer) {
-      return res.status(404).json({
-        status: 'fail',
-        message: 'Could not find offer',
-      });
-    }
-
-    const ordersPending = await Order.find({ supplierId: offer.supplierId, status: { $in: ['pending', 'inProgress', 'delivery', 'willBeDelivered', 'trash'] }  }).sort({ createdAt: -1 });
-    const offerIncluded = ordersPending.some(order => {
-      return order.offers.some(orderOffer => orderOffer.offer.equals(offerId));
-    });
-    if (offerIncluded) {
-      return res.status(207).json({
-        status: 'fail',
-        message: 'This offer is already included in order',
-      });
+      if (offerIncluded) {
+        return res.status(207).json({
+          status: 'fail',
+          message: 'This offer is already included in order',
+        });
+      }  
     }
 
     let offerWeight = 0;
-    for(const productOffer of offer.products) {
-      const supplierProduct = await SupplierProduct.findOne({productId: productOffer.productId, supplierId: offer.supplierId});
+    const offerUpdated = await Offer.findByIdAndUpdate(offerId, req.body, { new: true });
+    for(const productOffer of offerUpdated.products) {
+      const supplierProduct = await SupplierProduct.findById(productOffer.productId);
       offerWeight += supplierProduct.productWeight * productOffer.quantity;
     }
     offer.weight = offerWeight;
@@ -128,7 +107,7 @@ export const updateOffer = async (req, res) => {
 
     res.status(200).json({
       status: 'success',
-      data: await transformationOffer(offer),
+      data: await transformationOffer(offerUpdated),
     });
   } catch (error) {
     res.status(500).json({
@@ -143,7 +122,7 @@ export const deleteOffer = async (req, res) => {
   try {
     if(offerId){
       const offer = await Offer.findById(offerId);
-      const ordersPending = await Order.find({ supplierId: offer.supplierId, status: { $in: ['pending', 'inProgress', 'delivery', 'willBeDelivered', 'trash'] }  }).sort({ createdAt: -1 });
+      const ordersPending = await Order.find({ supplierId: offer.supplierId, status: { $in: ['pending', 'inProgress', 'delivery', 'willBeDelivered', 'trash'] } }).sort({ createdAt: -1 });
 
       const offerIncluded = ordersPending.some(order => {
         return order.offers.some(orderOffer => orderOffer.offer.equals(offerId));
@@ -155,7 +134,7 @@ export const deleteOffer = async (req, res) => {
         });
       }
 
-      // const offer = await Offer.findByIdAndDelete(offerId)
+      await Offer.findByIdAndDelete(offerId);
       offer.image = offer.image ?? "";
       const pathName = offer.image.split('/').slice(3).join('/');
       fs.unlink('upload/' + pathName, (err) => {});
@@ -211,13 +190,13 @@ export const createOffer = async (req, res) => {
         message: "An offer for the same products by the same supplier already exists",
       });
     }
-
+  
     const newOffer = new Offer(offerData);
     await newOffer.save();
     const customersDeviceToken = await Customer.find({}, 'deviceToken');
     const deviceTokens = customersDeviceToken.map(customer => customer.deviceToken);
     await Notification.deleteMany({ type: 'addNewOffer' });
-    // await pushNotification("عرض جديد متاح!", "استكشف أحدث عروضنا التي تمت إضافتها للتو. لا تفوت هذا العرض الخاص.", "addNewOffer", null, null, null, deviceTokens);
+    await pushNotification("عرض جديد متاح!", "استكشف أحدث عروضنا التي تمت إضافتها للتو. لا تفوت هذا العرض الخاص.", "addNewOffer", null, null, null, deviceTokens);
     res.status(201).json({
       status: "success",
       data: await transformationOffer(newOffer),
