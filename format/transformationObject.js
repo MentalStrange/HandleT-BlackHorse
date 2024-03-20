@@ -85,7 +85,6 @@ export const transformationRating = (rating) => {
 export const transformationOffer = async (offer, quantity=1) => {
   const transformedProducts = await Promise.all(
     offer.products.map(async (productId) => {
-      console.log(productId);
       const supplierProduct = await SupplierProduct.findById(productId.productId);
       return transformationSupplierProduct(supplierProduct);
     })
