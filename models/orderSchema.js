@@ -217,6 +217,10 @@ const orderSchema = mongoose.Schema({
   supplierType:{
     type: String,
   },
+  createdAt:{
+    type: Date,
+    default: Date.now
+  },
   group:{
     type:mongoose.Schema.Types.ObjectId,
     ref:"Group",

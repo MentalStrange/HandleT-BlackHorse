@@ -18,17 +18,18 @@ export const rateOfStatistics = async (req, res) => {
     const totalOrdersTrashed = await Order.countDocuments(filter);
     const orderTrash = await Order.countDocuments({ status: "trash", ...filter });
 
-      const cancellationRate = (orderCancelled / totalOrdersCancelled) * 100;
-      const trashRate = (orderTrash / totalOrdersTrashed) * 100;
-      const removalRate = (productRemoved / totalProducts) * 100;
-      res.status(200).json({
-        status: "success",
-        data: {
-          cancellationRate,
-          trashRate,
-          removalRate
-        },
-      });
+    const cancellationRate = totalOrdersCancelled === 0 ? 0 : (orderCancelled / totalOrdersCancelled) * 100;
+    const trashRate = totalOrdersTrashed === 0 ? 0 : (orderTrash / totalOrdersTrashed) * 100;
+    const removalRate = totalProducts === 0 ? 0 : (productRemoved / totalProducts) * 100;
+    
+    res.status(200).json({
+      status: "success",
+      data: {
+        cancellationRate,
+        trashRate,
+        removalRate
+      },
+    });
   } catch (error) {
     res.status(500).json({
       status: "fail",
@@ -36,4 +37,5 @@ export const rateOfStatistics = async (req, res) => {
     });
   }
 };
+
 
