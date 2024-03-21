@@ -14,7 +14,7 @@ import {
     getRegionBySupplierId,
 } from '../controllers/supplierController.js';
 import { changeImageOffer, createOffer, deleteOffer, getAllOffer, getOffer, getOfferBySupplierId, updateOffer } from '../controllers/offerController.js';
-import { getAllOrder, getAllOrderBySupplierId, totalOrderBySupplierId } from '../controllers/orderController.js';
+import { getAllOrder, getAllOrderBySupplierId, getBestSellerForSupplier, totalOrderBySupplierId } from '../controllers/orderController.js';
 import { createPromoCode } from '../controllers/promoCodeController.js';
 import { getAllProduct, getAllProductAssignedToSupplier, getProductBySupplier } from '../controllers/productsController.js';
 import { storage } from '../controllers/sharedFunction.js';
@@ -67,7 +67,7 @@ Router.get("/group/getGroupByDelivery/:deliveryId", getGroupByDeliveryRoute);
 
 Router.get('/product/all',getAllProductAssignedToSupplier);
 Router.get('/product/supplierId/:id',getProductBySupplier);
-
+Router.get('/product/bestSeller/:id', getBestSellerForSupplier)
 
 
 export default Router;
