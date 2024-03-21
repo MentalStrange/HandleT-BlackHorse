@@ -3,7 +3,12 @@ import Supplier from "./../models/supplierSchema.js";
 import Order from "./../models/orderSchema.js";
 import Product from "../models/productSchema.js";
 import SupplierProduct from "../models/supplierProductSchema.js";
-import {transformationOrder, transformationRegion, transformationSupplier, transformationSupplierProduct} from "../format/transformationObject.js";
+import {
+  transformationOrder,
+  transformationRegion,
+  transformationSupplier,
+  transformationSupplierProduct,
+} from "../format/transformationObject.js";
 import paginateResponse from "../utils/paginationResponse.js";
 import Unit from "../models/unitSchema.js";
 import fs from "fs";
@@ -13,17 +18,19 @@ import Offer from "../models/offerSchema.js";
 
 export const getAllSupplier = async (req, res) => {
   try {
-    const userRole = req.role;    
+    const userRole = req.role;
     let query = { status: "active" };
     const { type } = req.query;
-    const typeHeader = req.headers["type"];    
-    let isAdmin = false
-    if(typeHeader === "admin"){
+    const typeHeader = req.headers["type"];
+    let isAdmin = false;
+    if (typeHeader === "admin") {
       isAdmin = true;
     }
     if (
       type &&
-      ["gomla", "gomlaGomla", "blackHorse", "company","nosGomla"].includes(type)
+      ["gomla", "gomlaGomla", "blackHorse", "company", "nosGomla"].includes(
+        type
+      )
     ) {
       query.type = type;
     } else if (!type) {
@@ -38,10 +45,10 @@ export const getAllSupplier = async (req, res) => {
     let suppliers;
     if (userRole == "customer" || userRole == "supplier") {
       totalSuppliers = await Supplier.countDocuments();
-      suppliers = await Supplier.find(query)
+      suppliers = await Supplier.find(query);
     } else if (userRole === "blackHorse") {
       totalSuppliers = await Supplier.countDocuments(query);
-      suppliers = await Supplier.find(query)
+      suppliers = await Supplier.find(query);
     } else {
       return res.status(403).json({
         status: "fail",
@@ -49,21 +56,18 @@ export const getAllSupplier = async (req, res) => {
       });
     }
     if (suppliers.length > 0) {
-        suppliers = await Promise.all(
-        suppliers.map(async (supplier) => transformationSupplier(supplier,isAdmin))
+      suppliers = await Promise.all(
+        suppliers.map(async (supplier) =>
+          transformationSupplier(supplier, isAdmin)
+        )
       );
-      paginateResponse(
-        res,
-        req.query,
-        suppliers,
-        totalSuppliers
-      )
+      paginateResponse(res, req.query, suppliers, totalSuppliers);
       // await paginateResponse(res, req.query, await transformationSupplier(suppliers[0]), totalSuppliers);
     } else {
       res.status(200).json({
         status: "fail",
         data: [],
-        message:"Supplier Not Found"
+        message: "Supplier Not Found",
       });
     }
   } catch (error) {
@@ -74,26 +78,28 @@ export const getAllSupplier = async (req, res) => {
   }
 };
 export const getCompany = async (req, res) => {
-  const typeHeader = req.headers["type"];    
-  let isAdmin = false
+  const typeHeader = req.headers["type"];
+  let isAdmin = false;
   try {
-    if(typeHeader === "admin"){
+    if (typeHeader === "admin") {
       isAdmin = true;
     }
     const company = await Supplier.find();
     const activeCompanies = company.filter(
       (company) => company.status === "active" && company.type === "company"
     );
-    const totalRecords = activeCompanies.length; 
+    const totalRecords = activeCompanies.length;
     const companyTransformation = await Promise.all(
-      activeCompanies.map(async (company) => transformationSupplier(company, isAdmin))
+      activeCompanies.map(async (company) =>
+        transformationSupplier(company, isAdmin)
+      )
     );
     if (companyTransformation.length > 0) {
       paginateResponse(res, req.query, companyTransformation, totalRecords);
     } else {
       res.status(404).json({
         status: "fail",
-        data:[],
+        data: [],
         message: "Could not find any active companies",
       });
     }
@@ -109,16 +115,29 @@ export const getSupplier = async (req, res) => {
   try {
     const supplier = await Supplier.findById(id);
     if (supplier) {
-      if(supplier.type === "blackHorse"){
+      if (supplier.type === "blackHorse") {
         res.status(200).json({
           status: "success",
-          data: {...(await transformationSupplier(supplier)), access_token: jwt.sign({_id: supplier._id, role: "blackHorse"}, process.env.JWT_SECRET, {})},
+          data: {
+            ...(await transformationSupplier(supplier)),
+            access_token: jwt.sign(
+              { _id: supplier._id, role: "blackHorse" },
+              process.env.JWT_SECRET,
+              {}
+            ),
+          },
         });
-      }
-      else{
+      } else {
         res.status(200).json({
           status: "success",
-          data:  {...(await transformationSupplier(supplier)), access_token: jwt.sign({_id: supplier._id, role: req.role}, process.env.JWT_SECRET, {})},
+          data: {
+            ...(await transformationSupplier(supplier)),
+            access_token: jwt.sign(
+              { _id: supplier._id, role: req.role },
+              process.env.JWT_SECRET,
+              {}
+            ),
+          },
         });
       }
     } else {
@@ -152,29 +171,42 @@ export const updateSupplier = async (req, res) => {
     );
     if (updatedSupplier) {
       // Check if any required fields are empty or missing
-      let status = 'active'; // Assume status is active by default
+      let status = "active"; // Assume status is active by default
       Object.entries(updatedSupplier.toObject()).forEach(([key, value]) => {
         if (Array.isArray(value) && value.length === 0) {
-          status = 'inactive';
-        } else if (typeof value === 'string' && value.trim() === '') {
-          status = 'inactive';
-        } else if (typeof value === 'number' && (isNaN(value))) {
-          status = 'inactive';
+          status = "inactive";
+        } else if (typeof value === "string" && value.trim() === "") {
+          status = "inactive";
+        } else if (typeof value === "number" && isNaN(value)) {
+          status = "inactive";
         }
       });
       // Update the status of the supplier
       updatedSupplier.status = status;
       await updatedSupplier.save();
-      if(updatedSupplier.type === "blackHorse"){
+      if (updatedSupplier.type === "blackHorse") {
         res.status(200).json({
           status: "success",
-          data: {...(await transformationSupplier(updatedSupplier)), access_token: jwt.sign({_id: updatedSupplier._id, role: "blackHorse"}, process.env.JWT_SECRET, {})},
+          data: {
+            ...(await transformationSupplier(updatedSupplier)),
+            access_token: jwt.sign(
+              { _id: updatedSupplier._id, role: "blackHorse" },
+              process.env.JWT_SECRET,
+              {}
+            ),
+          },
         });
-      }
-      else{
+      } else {
         res.status(200).json({
           status: "success",
-          data:  {...(await transformationSupplier(updatedSupplier)), access_token: jwt.sign({_id: updatedSupplier._id, role: req.role}, process.env.JWT_SECRET, {})},
+          data: {
+            ...(await transformationSupplier(updatedSupplier)),
+            access_token: jwt.sign(
+              { _id: updatedSupplier._id, role: req.role },
+              process.env.JWT_SECRET,
+              {}
+            ),
+          },
         });
       }
     } else {
@@ -206,11 +238,11 @@ export const createProductSupplier = async (req, res) => {
     }
     const unit = await Unit.findById(unitId);
     let unitWeight = product.weight;
-    if(unit){
+    if (unit) {
       unitWeight *= unit.maxNumber;
     }
     const supplier = await Supplier.findById(supplierId);
-    if(supplier.status === "inactive"){
+    if (supplier.status === "inactive") {
       return res.status(401).json({
         status: "fail",
         message: "Supplier is inactive",
@@ -223,24 +255,28 @@ export const createProductSupplier = async (req, res) => {
       });
     }
 
-    const oldSupplierProduct = await SupplierProduct.find({ productId: productId, supplierId: supplierId });
+    const oldSupplierProduct = await SupplierProduct.find({
+      productId: productId,
+      supplierId: supplierId,
+    });
 
     if (oldSupplierProduct.length > 0) {
       for (const sp of oldSupplierProduct) {
         if (!unit && !sp.unit && sp.subUnit) {
           return res.status(211).json({
-              status: "fail",
-              message: "Product already exists in supplier list with sub unit",
+            status: "fail",
+            message: "Product already exists in supplier list with sub unit",
           });
         } else if (unit && sp.unit) {
           return res.status(212).json({
-              status: "fail",
-              message: "Product already exists in supplier list with primary unit",
+            status: "fail",
+            message:
+              "Product already exists in supplier list with primary unit",
           });
         }
       }
-    }    
-   
+    }
+
     // this check will only apply when add authentication.
     // if(role === "gomlaGomla" || role === "compony" && req.subUnit != null){
     //   return res.status(400).json({
@@ -253,7 +289,7 @@ export const createProductSupplier = async (req, res) => {
       supplierId,
       productId,
       ...productData,
-    })
+    });
     res.status(200).json({
       status: "success",
       data: await transformationSupplierProduct(newSupplierProduct),
@@ -280,20 +316,20 @@ export const updateProductSupplier = async (req, res) => {
     //     message: 'This product is already included in order',
     //   });
     // }
-    
+
     const supplierProductId = await SupplierProduct.findById(productId);
     if (supplierProductId) {
       const updatedSupplierProduct = await SupplierProduct.findByIdAndUpdate(
-          supplierProductId._id,
-          productData,
-          { new: true }
+        supplierProductId._id,
+        productData,
+        { new: true }
       );
       res.status(200).json({
         status: "success",
         data: await transformationSupplierProduct(updatedSupplierProduct),
       });
     } else {
-      throw new Error('Product not found');
+      throw new Error("Product not found");
     }
   } catch (error) {
     res.status(error.statusCode || 404).json({
@@ -305,25 +341,33 @@ export const updateProductSupplier = async (req, res) => {
 export const deleteProductSupplier = async (req, res) => {
   const productId = req.params.id;
   try {
-    const ordersPending = await Order.find({ status: { $in: ['pending', 'inProgress', 'delivery', 'willBeDelivered', 'trash'] }  }).sort({ createdAt: -1 });
-    const productIncluded1 = ordersPending.some(order => {
-      return order.products.some(orderProduct => orderProduct.product.equals(productId));
+    const ordersPending = await Order.find({
+      status: {
+        $in: ["pending", "inProgress", "delivery", "willBeDelivered", "trash"],
+      },
+    }).sort({ createdAt: -1 });
+    const productIncluded1 = ordersPending.some((order) => {
+      return order.products.some((orderProduct) =>
+        orderProduct.product.equals(productId)
+      );
     });
     if (productIncluded1) {
       return res.status(207).json({
-        status: 'fail',
-        message: 'This product is already included in order',
+        status: "fail",
+        message: "This product is already included in order",
       });
     }
 
     const offers = await Offer.find();
-    const productIncluded2 = offers.some(offer => {
-      return offer.products.some(productProduct => productProduct.productId.equals(productId));
+    const productIncluded2 = offers.some((offer) => {
+      return offer.products.some((productProduct) =>
+        productProduct.productId.equals(productId)
+      );
     });
     if (productIncluded2) {
       return res.status(208).json({
-        status: 'fail',
-        message: 'This product is already included in offer',
+        status: "fail",
+        message: "This product is already included in offer",
       });
     }
 
@@ -332,14 +376,14 @@ export const deleteProductSupplier = async (req, res) => {
       supplierProductId.status = "inactive";
       await supplierProductId.save();
       res.status(200).json({
-        status: 'success',
-        message: 'Product deleted successfully.',
+        status: "success",
+        message: "Product deleted successfully.",
       });
     } else {
       return res.status(404).json({
-        status: 'fail',
-        message: 'Product not found',
-      })
+        status: "fail",
+        message: "Product not found",
+      });
     }
   } catch (error) {
     res.status(error.statusCode || 404).json({
@@ -347,7 +391,7 @@ export const deleteProductSupplier = async (req, res) => {
       message: error.message,
     });
   }
-}
+};
 export const totalSalesBySupplierId = async (req, res) => {
   try {
     const supplierId = req.params.id;
@@ -451,8 +495,7 @@ export const lastOrdersBySupplierId = async (req, res) => {
       });
     }
     const totalOrdersCount = await Order.countDocuments({ supplierId });
-    const lastOrders = await Order.find({ supplierId })
-      .sort({ createdAt: -1 })
+    const lastOrders = await Order.find({ supplierId }).sort({ createdAt: -1 });
     if (lastOrders && lastOrders.length > 0) {
       const formattedOrders = await Promise.all(
         lastOrders.map(async (order) => {
@@ -464,7 +507,7 @@ export const lastOrdersBySupplierId = async (req, res) => {
       res.status(200).json({
         status: "fail",
         data: [],
-        message:"No Orders Found"
+        message: "No Orders Found",
       });
     }
   } catch (error) {
@@ -481,13 +524,15 @@ export const uploadPhoto = async (req, res) => {
     if (!supplier) {
       return res.status(207).json({
         status: "fail",
-        message: "Supplier not found"
+        message: "Supplier not found",
       });
     }
 
-    const pathName = supplier.image.split('/').slice(3).join('/');
-    fs.unlink('upload/' + pathName, (err) => {});
-    supplier.image = `${process.env.SERVER_URL}${req.file.path.replace(/\\/g, '/').replace(/^upload\//, '')}`;
+    const pathName = supplier.image.split("/").slice(3).join("/");
+    fs.unlink("upload/" + pathName, (err) => {});
+    supplier.image = `${process.env.SERVER_URL}${req.file.path
+      .replace(/\\/g, "/")
+      .replace(/^upload\//, "")}`;
     await supplier.save();
     return res.status(200).json({
       status: "success",
@@ -497,22 +542,27 @@ export const uploadPhoto = async (req, res) => {
     console.error(error);
     return res.status(500).json({
       status: "error",
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
 export const uploadPlaceImages = async (req, res) => {
   const supplierId = req.params.id;
-  try{
+  try {
     const supplier = await Supplier.findById(supplierId);
     if (!supplier) {
       return res.status(207).json({
         status: "fail",
-        message: "Supplier not found"
+        message: "Supplier not found",
       });
     }
 
-    const imagePaths = req.files.map(file => `${process.env.SERVER_URL}${file.path.replace(/\\/g, '/').replace(/^upload\//, '')}`);
+    const imagePaths = req.files.map(
+      (file) =>
+        `${process.env.SERVER_URL}${file.path
+          .replace(/\\/g, "/")
+          .replace(/^upload\//, "")}`
+    );
     supplier.placeImage = supplier.placeImage.concat(imagePaths);
     await supplier.save();
     res.status(200).json({
@@ -523,38 +573,39 @@ export const uploadPlaceImages = async (req, res) => {
     console.error(error);
     return res.status(500).json({
       status: "error",
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
 export const deletePlaceImages = async (req, res) => {
   const supplierId = req.params.id;
   const placeImage = req.body.placeImage;
-  try{
+  try {
     const supplier = await Supplier.findById(supplierId);
     if (!supplier) {
       return res.status(207).json({
         status: "fail",
-        message: "Supplier not found"
+        message: "Supplier not found",
       });
     }
 
-    const pathName = placeImage.split('/').slice(3).join('/');
-    fs.unlink('upload/' + pathName, (err) => {});
-    supplier.placeImage = supplier.placeImage.filter(image => image !== placeImage);
+    const pathName = placeImage.split("/").slice(3).join("/");
+    fs.unlink("upload/" + pathName, (err) => {});
+    supplier.placeImage = supplier.placeImage.filter(
+      (image) => image !== placeImage
+    );
     await supplier.save();
     res.status(200).json({
       status: "success",
       data: supplier.placeImage,
     });
-   } catch (error) {
+  } catch (error) {
     console.error(error);
     return res.status(500).json({
       status: "error",
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
- 
 };
 export const getRegionBySupplierId = async (req, res) => {
   const supplierId = req.params.id;
@@ -563,7 +614,7 @@ export const getRegionBySupplierId = async (req, res) => {
     if (!supplier) {
       return res.status(207).json({
         status: "fail",
-        message: "Supplier not found"
+        message: "Supplier not found",
       });
     }
     const regions = await Promise.all(
@@ -580,7 +631,7 @@ export const getRegionBySupplierId = async (req, res) => {
     console.error(error);
     return res.status(500).json({
       status: "error",
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };

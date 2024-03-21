@@ -83,7 +83,7 @@ export const updateOrder = async (req, res, next) => {
     if (req.body.status === "complete") {
       const customer = await Customer.findById(order.customerId);
       await pushNotification("طلب شراء مكتمل", `تم استلام اوردر رقم ${order.orderNumber} بنجاح`, null, order.customerId, null, null, customer.deviceToken);
-      const fee = await Fee.findOne();
+      const fee = await Fee.findOne({type:'fee'});
       supplier.wallet += order.totalPrice * (fee.amount / 100);
       await supplier.save();
     } else if (req.body.status === "cancelled") { // not blackhorse

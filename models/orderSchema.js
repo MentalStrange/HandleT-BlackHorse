@@ -185,7 +185,7 @@ const orderSchema = mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'complete', 'delivery', 'canceled', 'willBeDelivered', 'inProgress', 'trash'],
+    enum: ['pending', 'complete', 'delivery', 'canceled', 'willBeDelivered', 'inProgress', 'trash','elastic'],
     default: 'pending'
   },
   orderWeight: {
@@ -228,24 +228,6 @@ const orderSchema = mongoose.Schema({
 }, {
   timestamps: true,
 });
-// Middleware to update stock after order is complete
-// orderSchema.pre('save', async function(next) {
-//   try {
-//     if (this.isModified('status') && this.status === 'complete') {
-//       const products = this.products;
-//       for (const product of products) {
-//         const supplier = await Supplier.findById(this.supplierId);
-//         const productToUpdate = supplier.products.find(prod => prod.equals(product.product));
-//         productToUpdate.stock -= product.quantity;
-//         await productToUpdate.save();
-//       }
-//     }
-//     next();
-//   } catch (error) {
-//     next(error);
-//   }
-// });
-
 // Middleware to generate unique order number before saving
 orderSchema.pre('save', async function (next) {
   try {
