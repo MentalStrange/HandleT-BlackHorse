@@ -13,6 +13,7 @@ import {
 } from "../format/transformationObject.js";
 import paginateResponse from "./../utils/paginationResponse.js";
 import { searchProducts } from "../utils/search.js";
+import SubCategory from "../models/subCategorySchema.js";
 
 export const getProductBySupplier = async (req, res) => {
   const supplierId = req.params.id;
@@ -262,6 +263,34 @@ export const averagePriceForProduct = async (req, res) => {
         nosGomlaAveragePrice: nosGomlaAveragePrice / NumberOfNosGomlaProduct
       }
     });
+  } catch (error) {
+    res.status(500).json({
+      status: "fail",
+      message: error.message,
+    });
+  }
+}
+export const getProductBySubCategory = async (req, res) => {
+  const subCategoryId = req.body.id;
+  const search = req.query.search;
+  try {
+    const subCategory = await SubCategory.findById(subCategoryId);
+    if (!subCategory) {
+      return res.status(404).json({
+        status: "fail",
+        message: "SubCategory not found",
+      });
+    }
+    const products = await Product.find({ subcategory: subCategoryId });
+    const productIds = products.map(product => product._id);
+    const supplierProducts = await SupplierProduct.find({ productId: { $in: productIds } }).sort({createdAt: -1});
+    const transformedProducts = await Promise.all(
+      supplierProducts.map(async (supplierProduct) => {
+        return await transformationSupplierProduct(supplierProduct);
+      })
+    );
+    const searchedProducts = searchProducts(transformedProducts, search);
+    await paginateResponse(res, req.query, searchedProducts ? await searchedProducts : transformedProducts, supplierProducts.length);
   } catch (error) {
     res.status(500).json({
       status: "fail",

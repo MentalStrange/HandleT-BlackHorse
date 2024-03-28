@@ -118,3 +118,4 @@ export const changeImageCategory = async (req, res) => {
     })
   }
 }
+

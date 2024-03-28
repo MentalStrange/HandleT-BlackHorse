@@ -28,6 +28,10 @@ const deliveryBoySchema = mongoose.Schema({
     type:String,
     required:[true,'Delivery Boy Should have a Phone']
   },
+  wallet:{
+    type:Number,
+    default: 0
+  },
   region:{
     type:mongoose.Schema.Types.ObjectId,
     ref:"Region",
@@ -40,7 +44,18 @@ const deliveryBoySchema = mongoose.Schema({
   },
   deviceToken:{
     type:String,
+  },
+  status:{
+    type:String,
+    enum: ['active', 'inActive'],
+    default: 'active'
+  },
+  createdAt:{
+    type:Date,
+    default: Date.now
   }
+},{
+  timestamps: true
 })
 
 const DeliveryBoy = mongoose.model('Delivery Boy', deliveryBoySchema);

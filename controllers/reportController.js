@@ -1,5 +1,7 @@
+import ElasticOrder from "../models/elasticOrder.js";
 import Order from "../models/orderSchema.js"
 import SupplierProduct from "../models/supplierProductSchema.js";
+import { transformationElasticOrder } from "../format/transformationObject.js";
 
 export const rateOfStatistics = async (req, res) => {
   const supplierId = req.params.id;
@@ -8,7 +10,7 @@ export const rateOfStatistics = async (req, res) => {
     let filter = { supplierId: supplierId };
     if (startDate && endDate) {
       filter.createdAt = { $gte: new Date(startDate), $lte: new Date(endDate) };
-    }
+    }  
     const totalOrdersCancelled = await Order.countDocuments(filter);
     const orderCancelled = await Order.countDocuments({ status: "cancelled", ...filter });
 
@@ -17,7 +19,6 @@ export const rateOfStatistics = async (req, res) => {
 
     const totalOrdersTrashed = await Order.countDocuments(filter);
     const orderTrash = await Order.countDocuments({ status: "trash", ...filter });
-
     const totalCompletedOrders = await Order.countDocuments({ status: "complete", ...filter });
     const totalOrders = await Order.countDocuments(filter);
 
@@ -26,6 +27,13 @@ export const rateOfStatistics = async (req, res) => {
     const trashRate = totalOrdersTrashed === 0 ? 0 : (orderTrash / totalOrdersTrashed) * 100;
     const removalRate = totalProducts === 0 ? 0 : (productRemoved / totalProducts) * 100;
 
+    const totalSupplierProduct = await SupplierProduct.countDocuments({ supplierId: supplierId });
+    const averageOrderPrice = await Order.aggregate([
+      { $match: filter },
+      { $group: { _id: null, averagePrice: { $avg: "$totalPrice" } } },
+    ]);
+    const totalPrice = averageOrderPrice.length > 0 ? averageOrderPrice[0].averagePrice : 0;
+
     
     res.status(200).json({
       status: "success",
@@ -33,7 +41,10 @@ export const rateOfStatistics = async (req, res) => {
         cancellationRate,
         trashRate,
         removalRate,
-        completedRate
+        completedRate,
+        totalSupplierProduct,
+        averageOrderPrice,
+        totalPrice,
       },
     });
   } catch (error) {
@@ -44,4 +55,23 @@ export const rateOfStatistics = async (req, res) => {
   }
 };
 
+export const getAllFine = async (req, res) => {
+  try {
+    const elasticOrders = await ElasticOrder.find();
+    const transformationElasticOrders = {
+      elasticOrders: await Promise.all(
+        elasticOrders.map((elasticOrder) => transformationElasticOrder(elasticOrder))
+      )
+    }
+    res.status(200).json({
+      status: "success",
+      data: transformationElasticOrders
+    })
+  } catch (error) {
+    res.status(500).json({
+      status: "fail",
+      message: error.message
+    })
+  }
+}
 

@@ -21,6 +21,7 @@ import { storage } from '../controllers/sharedFunction.js';
 import multer from 'multer';
 import { getDeliveryBoyByRegion } from '../controllers/deliveryBoyController.js';
 import { getAllGroupCompleteForSupplier, getGroupByDeliveryRoute, updateGroup } from '../controllers/groupController.js';
+import { rateOfStatistics } from '../controllers/reportController.js';
 
 const uploadSupplier = multer({ storage: storage('supplier') });
 const uploadPlaceImage = multer({ storage: storage('placeimages') });
@@ -68,6 +69,8 @@ Router.get("/group/getGroupByDelivery/:deliveryId", getGroupByDeliveryRoute);
 Router.get('/product/all',getAllProductAssignedToSupplier);
 Router.get('/product/supplierId/:id',getProductBySupplier);
 Router.get('/product/bestSeller/:id', getBestSellerForSupplier)
+
+Router.get('/statistics/:id',rateOfStatistics)
 
 
 export default Router;

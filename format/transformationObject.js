@@ -10,6 +10,7 @@ import Region from "../models/regionSchema.js";
 import Customer from "../models/customerSchema.js";
 import Order from "../models/orderSchema.js";
 import Fee from "../models/feesSchema.js";
+import ReasonOfCancel from "../models/reasonOfCancelSchema.js";
 
 export const transformationCustomer = async (customer) => {
   return {
@@ -382,5 +383,17 @@ export const transformationAdmin = async (admin)=>{
     email: admin.email,
     image: admin.image ?? null,
     createdAt: new Date((new Date(admin.createdAt)).getTime() + (2 * 60 * 60 * 1000)).toISOString()
+  }
+}
+
+export const transformationElasticOrder = async (elasticOrder)=>{
+  const order = await Order.findById(elasticOrder.order);
+  const reasonOfCancel = await ReasonOfCancel.findById(elasticOrder.reasonOfCancel);
+  return{
+    _id: elasticOrder._id,
+    order: await transformationOrder(order),
+    reasonOfCancel: reasonOfCancel._id,
+    type: elasticOrder.type,
+    createdAt: elasticOrder.createdAt
   }
 }

@@ -95,7 +95,6 @@ Router.get("/supplier/:id", getSupplier);
 Router.delete("/supplier/:id", deleteSupplier);
 Router.post("/supplier", createSupplier);
 Router.patch("/supplier/:id", updateSupplier);
-Router.get('/supplier/statistics/:id',rateOfStatistics)
 
 Router.get("/customer", createCustomer);
 Router.get('/customer/numberOfCustomer',getNumberOfCustomer)

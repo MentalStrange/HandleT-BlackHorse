@@ -24,6 +24,17 @@ const productSchema = mongoose.Schema({
     ref:"Category",
     required:[true, 'Product should be associated with a category']
   },
+  subCategory:{
+    type:mongoose.Schema.Types.ObjectId,
+    ref:"SubCategory",
+    required:[true, 'Product should be associated with a subCategory']
+  },
+  createdAt:{
+    type:Date,
+    default: Date.now
+  }
+},{
+  timestamps:true
 })
 
 productSchema.pre('remove', async function(next){
